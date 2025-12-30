@@ -7,7 +7,8 @@
         "dev": "vite",
         "build": "vite build",
         "lint": "eslint .",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "start": "serve dist -s -l ${PORT:-3000}"
     },
     "dependencies": {
         "clsx": "^2.1.1",
@@ -19,7 +20,8 @@
         "react-markdown": "^10.1.0",
         "rehype-katex": "^7.0.1",
         "remark-math": "^6.0.0",
-        "tailwind-merge": "^2.5.5"
+        "tailwind-merge": "^2.5.5",
+        "serve": "^14.2.0"
     },
     "devDependencies": {
         "@vitejs/plugin-react": "^4.3.4",
