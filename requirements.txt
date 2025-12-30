@@ -30,7 +30,9 @@ aiosqlite>=0.19.0
 # Production Server
 gunicorn>=21.0.0
 
-# ML / Embeddings
+# ML / Embeddings (CPU-only to reduce Docker image size)
+# Install torch CPU-only first, then sentence-transformers
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
 sentence-transformers>=2.2.0
 numpy>=1.24.0
-torch>=2.0.0
