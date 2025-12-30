@@ -1,38 +1,55 @@
 # Aerogate Backend Dependencies
+# Complete production-ready requirements file
 
-# Web Framework
+# ========================================
+# Web Framework & Server
+# ========================================
 fastapi>=0.115.0
 uvicorn>=0.32.0
-
-# Database
-sqlmodel>=0.0.22
-asyncpg>=0.30.0
-sqlalchemy[asyncio]>=2.0.0
-pgvector>=0.2.0
-
-# Configuration
-pydantic-settings>=2.6.0
-python-dotenv>=1.0.1
-email-validator>=2.0.0
-
-# Logging
-loguru>=0.7.3
-
-# File handling
-python-multipart>=0.0.17
-
-# Auth
-passlib[bcrypt]>=1.7.4
-python-jose[cryptography]>=3.3.0
-
-# SQLite (Development)
-aiosqlite>=0.19.0
-
-# Production Server
 gunicorn>=21.0.0
 
-# ML / Embeddings (CPU-only to reduce Docker image size)
-# Install torch CPU-only first, then sentence-transformers
+# ========================================
+# Database & ORM
+# ========================================
+sqlmodel>=0.0.22
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.30.0
+aiosqlite>=0.19.0
+pgvector>=0.2.0
+
+# ========================================
+# Pydantic & Validation
+# ========================================
+pydantic>=2.0.0
+pydantic-settings>=2.6.0
+email-validator>=2.0.0
+
+# ========================================
+# Authentication & Security
+# ========================================
+passlib>=1.7.4
+bcrypt>=4.0.0
+python-jose[cryptography]>=3.3.0
+
+# ========================================
+# Configuration & Environment
+# ========================================
+python-dotenv>=1.0.1
+
+# ========================================
+# Logging
+# ========================================
+loguru>=0.7.3
+
+# ========================================
+# File Handling
+# ========================================
+python-multipart>=0.0.17
+
+# ========================================
+# ML / Embeddings (CPU-only for smaller Docker image)
+# ========================================
+# This special index provides CPU-only PyTorch (~400MB vs 2GB+ with CUDA)
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch>=2.0.0
 sentence-transformers>=2.2.0
