@@ -25,3 +25,6 @@ python-jose[cryptography]>=3.3.0
 
 # SQLite (Development)
 aiosqlite>=0.19.0
+
+# Production Server
+gunicorn>=21.0.0
