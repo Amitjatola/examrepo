@@ -33,3 +33,4 @@ gunicorn>=21.0.0
 # ML / Embeddings
 sentence-transformers>=2.2.0
 numpy>=1.24.0
+torch>=2.0.0
