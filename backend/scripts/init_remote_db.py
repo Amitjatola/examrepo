@@ -34,6 +34,8 @@ async def init_remote():
             await conn.run_sync(SQLModel.metadata.create_all)
         print("✅ Tables created successfully!")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
