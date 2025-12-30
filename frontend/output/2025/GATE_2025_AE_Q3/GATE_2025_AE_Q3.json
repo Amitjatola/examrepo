@@ -1,0 +1,408 @@
+{
+  "question_id": "GATE_2025_AE_Q3",
+  "exam_name": "GATE AE",
+  "subject": "Aerospace Engineering",
+  "year": 2025,
+  "question_number": 3,
+  "question_text": "A 4 × 4 digital image has pixel intensities ($U$) as shown in the figure. The number of pixels with $U \\le 4$ is:",
+  "question_text_latex": null,
+  "question_type": "MCQ",
+  "marks": 1.0,
+  "negative_marks": 0.33,
+  "options": {
+    "A": "3",
+    "B": "8",
+    "C": "11",
+    "D": "9"
+  },
+  "answer_key": "C",
+  "has_question_image": true,
+  "image_metadata": {
+    "path": "data\\raw_images\\2025\\GATE_2025_AE_Q3.png",
+    "format": "PNG",
+    "width": 881,
+    "height": 631,
+    "size_kb": 77.9
+  },
+  "tier_0_classification": {
+    "content_type": "numerical_calculation",
+    "media_type": "image_based",
+    "difficulty_score": 3,
+    "complexity_flags": {
+      "requires_derivation": false,
+      "multi_concept_integration": false,
+      "ambiguous_wording": false,
+      "image_interpretation_complex": false,
+      "edge_case_scenario": false,
+      "multi_step_reasoning": false,
+      "approximation_needed": false
+    },
+    "use_gpt51": false,
+    "classification_confidence": 1.0,
+    "classification_reasoning": "The question requires counting pixels in an image that satisfy a simple inequality. It's a straightforward numerical calculation based on image data.",
+    "combined_type": "numerical_calculation_image_based",
+    "weight_strategy": "MATH_IMAGE_HYBRID",
+    "classification_method": "llm_assisted",
+    "classifier_model": "gemini_2.0_flash_exp"
+  },
+  "tier_1_core_research": {
+    "answer_validation": {
+      "correct_answer": "C",
+      "is_correct": true,
+      "confidence": 0.95,
+      "confidence_type": "single_model",
+      "reasoning": "The question asks to find the number of pixels with intensity $U \\le 4$ from the given $4 \\times 4$ digital image. We need to systematically check each pixel's intensity value and count those that satisfy this condition.\n\nThe pixel intensity matrix is:\n```\n0 1 0 2\n4 7 3 3\n5 5 4 4\n6 7 3 2\n```\nLet's go through each pixel and check if its intensity $U$ is less than or equal to 4:\n\n*   **Row 1:**\n    *   $U=0$: $0 \\le 4$ (Yes)\n    *   $U=1$: $1 \\le 4$ (Yes)\n    *   $U=0$: $0 \\le 4$ (Yes)\n    *   $U=2$: $2 \\le 4$ (Yes)\n    (4 pixels from Row 1)\n\n*   **Row 2:**\n    *   $U=4$: $4 \\le 4$ (Yes)\n    *   $U=7$: $7 \\le 4$ (No)\n    *   $U=3$: $3 \\le 4$ (Yes)\n    *   $U=3$: $3 \\le 4$ (Yes)\n    (3 pixels from Row 2)\n\n*   **Row 3:**\n    *   $U=5$: $5 \\le 4$ (No)\n    *   $U=5$: $5 \\le 4$ (No)\n    *   $U=4$: $4 \\le 4$ (Yes)\n    *   $U=4$: $4 \\le 4$ (Yes)\n    (2 pixels from Row 3)\n\n*   **Row 4:**\n    *   $U=6$: $6 \\le 4$ (No)\n    *   $U=7$: $7 \\le 4$ (No)\n    *   $U=3$: $3 \\le 4$ (Yes)\n    *   $U=2$: $2 \\le 4$ (Yes)\n    (2 pixels from Row 4)\n\nTotal number of pixels satisfying $U \\le 4$ is $4 + 3 + 2 + 2 = 11$.\nTherefore, option C is the correct answer."
+    },
+    "explanation": {
+      "question_nature": "Calculation",
+      "step_by_step": [
+        "Understand the objective: Count all pixels in the given 4x4 image whose intensity value (U) is less than or equal to 4.",
+        "Locate the 4x4 grid of pixel intensities in the provided figure.",
+        "Systematically examine each pixel's intensity value in the matrix.",
+        "For each pixel, check if its intensity U satisfies the condition U \\le 4.",
+        "Count all pixels that meet the condition.",
+        "The final count is 11. Compare this with the given options to select the correct answer."
+      ],
+      "formulas_used": [
+        "$U \\le 4$"
+      ],
+      "estimated_time_minutes": 1.67
+    },
+    "hierarchical_tags": {
+      "subject": {
+        "name": "Experimental Techniques",
+        "confidence": 0.8
+      },
+      "topic": {
+        "name": "Digital Image Processing Basics",
+        "syllabus_ref": "Section 8: Experimental Techniques in Aerospace Engineering"
+      },
+      "concepts": [
+        {
+          "name": "Pixel Intensity",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Thresholding",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Digital Image Processing",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Image Processing Fundamentals",
+          "importance": "secondary"
+        }
+      ]
+    },
+    "prerequisites": {
+      "essential": [
+        "Understanding of digital images as matrices of intensity values",
+        "Understanding of inequality symbols ($\\le$)",
+        "Ability to read and interpret data from a matrix or grid"
+      ],
+      "helpful": [
+        "Familiarity with the concept of pixels and digital image representation",
+        "Experience with counting problems"
+      ],
+      "dependency_tree": {
+        "Counting Pixels with Threshold": [
+          "requires: Basic Arithmetic",
+          "requires: Data Interpretation",
+          "enables: Basic Image Analysis",
+          "enables: Thresholding Operations in Image Processing"
+        ],
+        "Main Concept": [
+          "requires: Digital Image Representation",
+          "requires: Pixel Intensity and Grayscale Values",
+          "enables: Image Analysis",
+          "enables: Numerical Calculations on Image Data"
+        ]
+      }
+    },
+    "difficulty_analysis": {
+      "overall": "Easy",
+      "score": 2.0,
+      "complexity_breakdown": {
+        "conceptual": 1,
+        "mathematical": 1,
+        "problem_solving": 2
+      },
+      "estimated_solve_time_seconds": 120,
+      "expected_accuracy_percent": 85,
+      "difficulty_factors": [
+        "Requires careful, systematic counting to avoid errors.",
+        "Attention to the 'less than or equal to' ($\\le$) symbol is crucial."
+      ]
+    },
+    "textbook_references": [
+      {
+        "source_type": "book",
+        "book": "Digital Image Processing",
+        "author": "Rafael C. Gonzalez, Richard E. Woods",
+        "chapter_title": "Digital Image Fundamentals",
+        "section": "2.2 Pixel Intensity and Grayscale Values",
+        "complexity": "introductory",
+        "relevance_score": 0.8,
+        "source": "model_consensus",
+        "text_snippet": "The intensity of a digital image is sampled at discrete points, and the value assigned to each sample is called a pixel value or a gray level.",
+        "chapter_number": "2",
+        "page_range": "41-48"
+      }
+    ],
+    "video_references": [
+      {
+        "source_type": "video",
+        "professor": "Prof. Arnab Roy",
+        "timestamp_start": "00:10:34",
+        "timestamp_end": "00:12:23",
+        "topic_covered": "PIV Image Processing: Cross-Correlation Analysis",
+        "relevance_score": 0.2,
+        "source": "rag_retrieval"
+      }
+    ],
+    "step_by_step_solution": {
+      "approach_type": "Direct Counting and Comparison",
+      "total_steps": 6,
+      "solution_path": "Image Inspection → Threshold Application → Counting → Verification",
+      "key_insights": [
+        "The problem is essentially a counting exercise based on a simple condition.",
+        "Systematic counting (e.g., row by row) prevents missing pixels."
+      ]
+    },
+    "formulas_principles": [
+      {
+        "formula": "U \\le 4",
+        "name": "Pixel Intensity Threshold Condition",
+        "conditions": "Applies to individual pixel intensity values (U) for identifying pixels with intensity less than or equal to 4.",
+        "type": "inequality",
+        "relevance": "Core condition used to filter and count pixels."
+      }
+    ],
+    "real_world_applications": {
+      "industry_examples": [
+        "Medical imaging (e.g., counting specific cell types or identifying regions of interest based on intensity in X-rays or MRI scans).",
+        "Remote sensing (e.g., classifying land cover types by counting pixels within certain spectral intensity ranges).",
+        "Quality control in manufacturing (e.g., detecting defects or anomalies in products through image analysis based on intensity variations)."
+      ],
+      "specific_systems": [
+        "Digital cameras and image sensors",
+        "Medical diagnostic equipment (CT, MRI, X-ray scanners)",
+        "Satellite imaging systems"
+      ],
+      "practical_relevance": "Understanding pixel intensity and image analysis is fundamental for image segmentation, feature detection, and quantitative analysis in various fields, including computer vision, medical diagnostics, and aerospace experiments. It enables automated decision-making and data extraction from visual information."
+    }
+  },
+  "tier_2_student_learning": {
+    "common_mistakes": [
+      {
+        "mistake": "Misinterpreting the inequality $U \\le 4$, often by excluding the boundary value (U=4) or incorrectly including values greater than 4.",
+        "why_students_make_it": "Rushing through the question, confusion with inequality symbols, or not paying close attention to the 'equal to' part of the condition.",
+        "type": "Conceptual",
+        "severity": "High",
+        "frequency": "common",
+        "how_to_avoid": "Carefully read and interpret the inequality symbol. Explicitly confirm that 'less than or equal to' ($U \\le 4$) includes pixels with intensity exactly 4, not just less than 4.",
+        "consequence": "Incorrect total count, leading to selecting an incorrect option (e.g., under-counting if U=4 is excluded, or over-counting if U>4 is included)."
+      },
+      {
+        "mistake": "Miscounting the number of pixels satisfying the condition ($U \\le 4$) due to haste, overlooking cells, or missing/double-counting during a manual scan.",
+        "why_students_make_it": "Lack of a systematic counting approach, rushing through the problem, or losing track of counted pixels due to inattention to detail.",
+        "type": "Calculation",
+        "severity": "Medium",
+        "frequency": "occasional",
+        "how_to_avoid": "Adopt a systematic counting approach (e.g., row-by-row or column-by-column), keep a tally, and mentally or physically mark pixels as they are counted. Double-check the count to ensure accuracy.",
+        "consequence": "An incorrect total count, leading to selecting an incorrect option (e.g., getting 9 or 8 instead of 11)."
+      },
+      {
+        "consequence": "Counting errors if assuming wrong grid size.",
+        "frequency": "rare",
+        "how_to_avoid": "Always verify the image size from the question text (e.g., '4 \\times 4 digital image' means 16 pixels total).",
+        "mistake": "Assuming the image has different dimensions or missing that it's 4x4.",
+        "severity": "Low",
+        "type": "Conceptual",
+        "why_students_make_it": "Not reading the question carefully; the figure might be misread."
+      }
+    ],
+    "mnemonics_memory_aids": [
+      {
+        "mnemonic": "LTE: Less Than or Equal – remember to include equal values.",
+        "concept": "Inequality U ≤ 4 includes U=4",
+        "effectiveness": "medium",
+        "context": "When applying threshold conditions in image processing"
+      },
+      {
+        "mnemonic": "PIXEL: Precise Image Examination Leads to Correct Answers",
+        "concept": "Carefully examining image data to extract relevant information",
+        "effectiveness": "high",
+        "context": "When solving image-based numerical calculation problems"
+      }
+    ],
+    "flashcards": [
+      {
+        "card_type": "concept_recall",
+        "front": "What does the condition $U \\le 4$ mean for a pixel's intensity?",
+        "back": "The pixel's intensity value ($U$) must be less than or equal to 4. This includes pixels with intensity exactly 4.",
+        "difficulty": "easy",
+        "time_limit_seconds": 20
+      },
+      {
+        "card_type": "mistake_prevention",
+        "front": "How can I ensure accurate counting and correct interpretation of inequalities like $U \\le 4$ in a grid-based problem?",
+        "back": "Count systematically, e.g., row by row or column by column, keeping a tally. Always double-check the inequality symbol (e.g., '$\\le$' means 'less than OR equal to') to ensure the boundary value is correctly included or excluded.",
+        "difficulty": "medium",
+        "time_limit_seconds": 40
+      },
+      {
+        "card_type": "application",
+        "front": "Give a real-world aerospace application of pixel intensity thresholding.",
+        "back": "Particle Image Velocimetry (PIV): thresholding is used to distinguish particle images from background noise to compute fluid velocity fields.",
+        "difficulty": "medium",
+        "time_limit_seconds": 40
+      },
+      {
+        "back": "$U \\le 4$",
+        "card_type": "formula_recall",
+        "difficulty": "easy",
+        "front": "What is the condition for counting pixels in this problem?",
+        "time_limit_seconds": 10
+      }
+    ],
+    "real_world_context": [
+      {
+        "application": "Image Segmentation and Thresholding in Image Processing and Computer Vision",
+        "industry_example": "In medical imaging, radiologists use intensity thresholding to segment different tissue types (e.g., bone, soft tissue, fluid) in CT or MRI scans. By counting pixels within specific intensity ranges, they can quantify tissue volumes or identify anomalies. Autonomous vehicle cameras also use pixel intensity analysis for object detection.",
+        "why_it_matters": "Accurate thresholding is critical for precise diagnosis, treatment planning, and monitoring disease progression in medical imaging. For autonomous vehicles, accurate pixel-level analysis is crucial for reliable object detection and recognition, essential for safe operation."
+      }
+    ],
+    "exam_strategy": {
+      "priority": "Must Attempt",
+      "triage_tip": "This is a quick, direct observation and counting problem. If the image is clear, it should be solved within 30-90 seconds. Do it early to secure easy marks, but ensure a careful, systematic count.",
+      "time_management": "Allocate minimal time (e.g., 1-2 minutes). Perform a careful, systematic count to ensure accuracy, as it's a direct observation problem.",
+      "guessing_heuristic": "If unsure, first try to eliminate obviously incorrect options. However, for this type of question, accurate counting is paramount; if time permits, re-count carefully rather than guessing based on rough estimates."
+    }
+  },
+  "tier_3_enhanced_learning": {
+    "search_keywords": [
+      "digital image pixel intensity analysis",
+      "Pixel intensity thresholding",
+      "pixel intensity counting",
+      "Digital image processing basics",
+      "computer vision pixel-level techniques",
+      "Image matrix data interpretation",
+      "4x4 image analysis",
+      "autonomous vehicle camera image processing"
+    ],
+    "alternative_methods": [
+      {
+        "name": "Programmatic/Software-based Pixel Counting",
+        "description": "For larger images or automated tasks, one would represent the image as a numerical matrix in a programming language (like Python with NumPy or MATLAB). Then, use vectorized operations or loops to apply the condition (U ≤ 4) and sum the resulting boolean array to get the count. Alternatively, generate a histogram of pixel intensities and count bins satisfying the condition.",
+        "pros_cons": "Pros: Highly efficient, accurate, and automatable for large datasets. Can provide additional statistical insights (e.g., via histograms). Cons: Requires programming knowledge and setup; may be overkill for simple, small-scale problems.",
+        "when_to_use": "When dealing with images larger than a few hundred pixels, when this operation needs to be performed repeatedly or as part of a larger image processing pipeline, or in research involving high-resolution images."
+      }
+    ],
+    "connections_to_other_subjects": {
+      "Computer Vision": "This is a fundamental operation in image processing, used for basic image segmentation, feature detection, creating binary masks, and is essential for object detection and segmentation.",
+      "Data Science": "It's a basic form of data filtering and aggregation applied to a matrix (2D array) of numerical data.",
+      "Mathematics (Discrete Mathematics)": "Involves counting elements in a finite set that satisfy a given predicate (condition).",
+      "Computer Science": "Image processing and computer vision techniques are closely related to topics in computer science, such as digital image representation, data structures, and algorithm design.",
+      "Mathematics": "Matrix operations and linear algebra are used to represent and manipulate digital images.",
+      "Signal Processing": "Pixel intensities can be treated as discrete signals, and thresholding is a form of signal binarization."
+    },
+    "deeper_dive_topics": [
+      "Image histograms and their role in determining optimal intensity thresholds and distribution analysis.",
+      "Different types of thresholding techniques (e.g., global, local, adaptive, Otsu's method).",
+      "Binary image processing and morphological operations (erosion, dilation) that often follow thresholding.",
+      "Correlation between pixel intensity and physical phenomena in experiments"
+    ]
+  },
+  "tier_4_metadata_and_future": {
+    "model_meta": {
+      "models_used": [
+        "claude_sonnet_4.5",
+        "gemini_2.5_pro",
+        "deepseek_r1"
+      ],
+      "model_count": 3,
+      "weight_strategy": "MATH_IMAGE_HYBRID",
+      "weights_applied": {
+        "gemini_2.5_pro": 0.3333333333333333,
+        "claude_sonnet_4.5": 0.3333333333333333,
+        "deepseek_r1": 0.3333333333333333
+      },
+      "consensus_method": "weighted_voting",
+      "debate_rounds": 0,
+      "converged_fields_count": 5,
+      "debated_fields_count": 0,
+      "flagged_for_review": [],
+      "gpt51_added_in_debate": false,
+      "timestamp": "2025-12-26T19:09:58.332676",
+      "pipeline_version": "1.0.0"
+    },
+    "quality_score": {
+      "overall": 0.831,
+      "band": "SILVER",
+      "metrics": {
+        "avg_model_confidence": 0.75,
+        "consensus_rate": 0.9,
+        "debate_efficiency": 1.0,
+        "rag_relevance": 0.489,
+        "field_completeness": 1.0
+      }
+    },
+    "cost_breakdown": {
+      "total_cost": 0.10525983,
+      "currency": "USD",
+      "per_model": {
+        "claude_sonnet_4.5": 0.07753499999999999,
+        "gemini_2.5_pro": 0.0038919000000000002,
+        "deepseek_r1": 0.023832930000000002
+      },
+      "classification_cost": 5e-05,
+      "image_consensus_cost": 0,
+      "debate_cost": 0.0,
+      "total_api_calls": 3
+    },
+    "token_usage": {
+      "total_input_tokens": 30762,
+      "total_output_tokens": 15400,
+      "total_tokens": 46162,
+      "per_model": {
+        "claude_sonnet_4.5": {
+          "input": 11260,
+          "output": 2917,
+          "total": 14177
+        },
+        "gemini_2.5_pro": {
+          "input": 10202,
+          "output": 3936,
+          "total": 14138
+        },
+        "deepseek_r1": {
+          "input": 9300,
+          "output": 8547,
+          "total": 17847
+        }
+      }
+    },
+    "processing_time": {
+      "total_seconds": 452.03549122810364,
+      "per_stage": {
+        "stage_1": 0.03804516792297363,
+        "stage_2": 2.2438242435455322,
+        "stage_3": 2.8899879455566406,
+        "stage_4": 11.858759641647339,
+        "stage_4_5": 34.29759383201599,
+        "stage_5": 239.873841047287,
+        "stage_6": 160.83343935012817,
+        "stage_8": 0.005136013031005859
+      },
+      "bottleneck_stage": "stage_5",
+      "parallel_generation_time": 239.873841047287,
+      "debate_time": 0
+    }
+  }
+}

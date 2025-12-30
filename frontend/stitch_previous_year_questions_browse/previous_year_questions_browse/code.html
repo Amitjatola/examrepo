@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Previous Year Questions Browse</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "card-dark": "#1A2633",
+                        "border-dark": "#2d3b4e",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display overflow-hidden antialiased">
+<div class="flex h-screen w-full">
+<!-- Side Navigation -->
+<aside class="w-72 bg-white dark:bg-card-dark border-r border-[#f0f2f4] dark:border-border-dark flex flex-col justify-between flex-shrink-0 z-20 hidden lg:flex">
+<div class="flex flex-col gap-4 p-6">
+<!-- Logo -->
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-xl size-10 shadow-sm" data-alt="Abstract blue geometric logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuArF7ycQEM5EN9kBRbjJ_si15mhnlMchmsdTSzT266lrToGITZy3we82tK3eL9MUJUqyJHTQz3L57o_qsCburqizl8_zorjl7440GwIK9NXMoAsktCozErmGYVQ1m-adZmEsMIuaNWXweKsZu7LQoN94qnKBzTKQS43pNhn7ddVxp2QpSKjQCpEOtfZRSIMcDO42m0_09nDhwPyRiZLYi74B5DYiWRUp-2tTKoiSNBh5qgyE9ah93GoHwENSZi0Fw1UtBBkunC49w");'></div>
+<h1 class="text-[#111418] dark:text-white text-xl font-bold leading-normal">ExamPrep</h1>
+</div>
+<!-- Nav Items -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617589] dark:text-gray-400 group-hover:text-primary transition-colors">dashboard</span>
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">menu_book</span>
+<p class="text-primary text-sm font-bold">Practice</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617589] dark:text-gray-400 group-hover:text-primary transition-colors">lightbulb</span>
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium">Concepts</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617589] dark:text-gray-400 group-hover:text-primary transition-colors">history</span>
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium">History</p>
+</a>
+</nav>
+</div>
+<!-- Bottom Settings -->
+<div class="p-6">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617589] dark:text-gray-400 group-hover:text-primary transition-colors">settings</span>
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium">Settings</p>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+<!-- Top Utility Bar -->
+<header class="h-20 border-b border-[#f0f2f4] dark:border-border-dark bg-white dark:bg-card-dark flex items-center px-8 justify-between shrink-0 z-10">
+<div class="flex-1 max-w-xl mr-8">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-[#617589] dark:text-gray-500">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl leading-5 bg-[#f0f2f4] dark:bg-white/5 text-[#111418] dark:text-white placeholder-[#617589] focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm transition-all" placeholder="Search for questions, topics, or exams..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative p-2 text-[#617589] dark:text-gray-400 hover:bg-[#f0f2f4] dark:hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-card-dark"></span>
+</button>
+<button class="p-2 text-[#617589] dark:text-gray-400 hover:bg-[#f0f2f4] dark:hover:bg-white/5 rounded-full transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<div class="h-8 w-[1px] bg-[#f0f2f4] dark:bg-border-dark mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white dark:border-border-dark shadow-sm" data-alt="User profile picture placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCkLJxqzSz4ZUA0v2ZrJ4lvxza-3TaMupb5PbpKmEmtk9yXDtNUUV0PpbjurLrurOFBGgqzUaZqfmfDPW2ybyFGAjxwvjQJVWnbmhjx4NUAcdzl2JzkS9RGupQgkIWVQwBBXZAXpPwJEsKbSq2V2V8HonMEOqof_B3cCwZuez91h93Nmbm1gLCY3jydxLi1tZrW2CezewCTqejPNNsc6m3HQnq1eNpV70g-Sv_yliaYpu7dh5gyBEYF2ELK4rdu6DITMJjHhHIclg");'></div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth">
+<div class="max-w-[1200px] mx-auto p-8 space-y-8">
+<!-- Page Heading -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm text-[#617589] dark:text-gray-400 mb-1">
+<span>Practice</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-medium">Previous Year Questions</span>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-[#111418] dark:text-white">JEE Advanced Papers</h1>
+<p class="text-[#617589] dark:text-gray-400 max-w-2xl">Access authentic previous year papers arranged topic-wise. Master the exam pattern by solving actual questions from the last decade.</p>
+</div>
+<!-- Year Tabs Selector -->
+<div class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm pt-4 pb-2 -mx-4 px-4 border-b border-[#dbe0e6] dark:border-border-dark">
+<div class="flex items-end gap-8 overflow-x-auto no-scrollbar">
+<button class="flex flex-col items-center justify-center pb-3 border-b-[3px] border-primary text-primary px-2 transition-all">
+<span class="text-base font-bold tracking-tight">2023</span>
+</button>
+<button class="flex flex-col items-center justify-center pb-3 border-b-[3px] border-transparent text-[#617589] hover:text-[#111418] dark:text-gray-400 dark:hover:text-white px-2 transition-all">
+<span class="text-base font-medium tracking-tight">2022</span>
+</button>
+<button class="flex flex-col items-center justify-center pb-3 border-b-[3px] border-transparent text-[#617589] hover:text-[#111418] dark:text-gray-400 dark:hover:text-white px-2 transition-all">
+<span class="text-base font-medium tracking-tight">2021</span>
+</button>
+<button class="flex flex-col items-center justify-center pb-3 border-b-[3px] border-transparent text-[#617589] hover:text-[#111418] dark:text-gray-400 dark:hover:text-white px-2 transition-all">
+<span class="text-base font-medium tracking-tight">2020</span>
+</button>
+<button class="flex flex-col items-center justify-center pb-3 border-b-[3px] border-transparent text-[#617589] hover:text-[#111418] dark:text-gray-400 dark:hover:text-white px-2 transition-all">
+<span class="text-base font-medium tracking-tight">2019</span>
+</button>
+</div>
+</div>
+<!-- Filters & Stats Row -->
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap gap-2">
+<!-- Active Chip -->
+<button class="flex h-9 items-center justify-center gap-2 rounded-full bg-[#111418] dark:bg-white text-white dark:text-[#111418] pl-4 pr-3 text-sm font-medium transition-transform active:scale-95">
+                                All Subjects
+                                <span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<!-- Inactive Chips -->
+<button class="flex h-9 items-center justify-center gap-2 rounded-full border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 pl-4 pr-4 text-sm font-medium text-[#111418] dark:text-gray-300 transition-colors">
+                                Physics
+                            </button>
+<button class="flex h-9 items-center justify-center gap-2 rounded-full border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 pl-4 pr-4 text-sm font-medium text-[#111418] dark:text-gray-300 transition-colors">
+                                Chemistry
+                            </button>
+<button class="flex h-9 items-center justify-center gap-2 rounded-full border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 pl-4 pr-4 text-sm font-medium text-[#111418] dark:text-gray-300 transition-colors">
+                                Mathematics
+                            </button>
+<div class="w-[1px] h-6 bg-gray-300 dark:bg-gray-700 mx-2 self-center"></div>
+<button class="flex h-9 items-center justify-center gap-2 rounded-full border border-dashed border-[#dbe0e6] dark:border-gray-700 text-[#617589] dark:text-gray-400 hover:text-primary hover:border-primary pl-3 pr-4 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                                Difficulty
+                            </button>
+</div>
+<div class="text-sm text-[#617589] dark:text-gray-500 font-medium">
+                            Showing 45 questions from 2023
+                        </div>
+</div>
+<!-- Content Section: Mathematics -->
+<section class="space-y-4">
+<div class="flex items-center gap-2 mb-2">
+<h2 class="text-xl font-bold text-[#111418] dark:text-white">Mathematics</h2>
+<span class="bg-blue-100 dark:bg-blue-900/30 text-primary text-xs font-bold px-2 py-0.5 rounded-full">12 Qs</span>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+<!-- Question Card 1 -->
+<div class="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-2">
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">Q. 23</span>
+<span class="inline-flex items-center rounded-md bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-400 ring-1 ring-inset ring-yellow-600/20">Medium</span>
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">4 Marks</span>
+</div>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<p class="text-[#111418] dark:text-gray-100 font-medium leading-relaxed mb-4">
+                                    Let $S$ be the set of all complex numbers $z$ satisfying $|z^2 + z + 1| = 1$. Then which of the following statements is TRUE regarding the locus of $z$?
+                                </p>
+<div class="flex items-center justify-between pt-4 border-t border-[#f0f2f4] dark:border-border-dark">
+<div class="flex items-center gap-2">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Complex Numbers</span>
+</div>
+<button class="flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        Solve Now
+                                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Question Card 2 -->
+<div class="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-2">
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">Q. 24</span>
+<span class="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10">Hard</span>
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">4 Marks</span>
+</div>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<p class="text-[#111418] dark:text-gray-100 font-medium leading-relaxed mb-4">
+                                    Consider the function $f(x) = \int_0^x (t^2 - 1)e^{t^2} dt$. Find the interval where the function is monotonically increasing for $x &gt; 0$.
+                                </p>
+<div class="flex items-center justify-between pt-4 border-t border-[#f0f2f4] dark:border-border-dark">
+<div class="flex items-center gap-2">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Calculus</span>
+<span class="text-gray-300 dark:text-gray-700">•</span>
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Integrals</span>
+</div>
+<button class="flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        Solve Now
+                                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Content Section: Physics -->
+<section class="space-y-4">
+<div class="flex items-center gap-2 mb-2 pt-4">
+<h2 class="text-xl font-bold text-[#111418] dark:text-white">Physics</h2>
+<span class="bg-blue-100 dark:bg-blue-900/30 text-primary text-xs font-bold px-2 py-0.5 rounded-full">15 Qs</span>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+<!-- Question Card 3 -->
+<div class="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-2">
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">Q. 08</span>
+<span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-900/20 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20">Easy</span>
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">3 Marks</span>
+</div>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<p class="text-[#111418] dark:text-gray-100 font-medium leading-relaxed mb-4">
+                                    A block of mass $m$ is placed on a rough inclined plane of inclination $\theta$. If the coefficient of friction is $\mu$, find the work done by friction as the block slides down distance $d$.
+                                </p>
+<div class="flex items-center justify-between pt-4 border-t border-[#f0f2f4] dark:border-border-dark">
+<div class="flex items-center gap-2">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Mechanics</span>
+<span class="text-gray-300 dark:text-gray-700">•</span>
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Work &amp; Energy</span>
+</div>
+<button class="flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        Solve Now
+                                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Question Card 4 -->
+<div class="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-2">
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">Q. 09</span>
+<span class="inline-flex items-center rounded-md bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-400 ring-1 ring-inset ring-yellow-600/20">Medium</span>
+<span class="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-white/5 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">3 Marks</span>
+</div>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<p class="text-[#111418] dark:text-gray-100 font-medium leading-relaxed mb-4">
+                                    In a Young's double slit experiment, the separation between slits is 0.5 mm and the screen is 1 m away. If light of wavelength 500 nm is used, calculate fringe width.
+                                </p>
+<div class="flex items-center justify-between pt-4 border-t border-[#f0f2f4] dark:border-border-dark">
+<div class="flex items-center gap-2">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Optics</span>
+<span class="text-gray-300 dark:text-gray-700">•</span>
+<span class="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">Wave Optics</span>
+</div>
+<button class="flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        Solve Now
+                                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Load More -->
+<div class="flex justify-center py-8">
+<button class="px-6 py-2.5 rounded-lg border border-[#dbe0e6] dark:border-gray-700 text-sm font-bold text-[#617589] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-[#111418] dark:hover:text-white transition-all">
+                            Load More Questions
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

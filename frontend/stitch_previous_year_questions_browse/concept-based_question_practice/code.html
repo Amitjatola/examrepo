@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ExamPrep - Concept Practice</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts & Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Config -->
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display overflow-hidden">
+<!-- App Container -->
+<div class="flex h-screen w-full">
+<!-- Sidebar Navigation -->
+<aside class="w-72 flex-shrink-0 bg-white dark:bg-[#1A2633] border-r border-[#e5e7eb] dark:border-[#2A3B4D] flex flex-col h-full hidden md:flex">
+<!-- Logo Area -->
+<div class="p-6 flex items-center gap-3">
+<div class="size-8 rounded bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-[#111418] dark:text-white">ExamPrep</h1>
+</div>
+<!-- Primary Navigation Actions -->
+<div class="px-4 pb-4 border-b border-[#f0f2f4] dark:border-[#2A3B4D]">
+<button class="flex w-full items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">history_edu</span>
+<span class="font-bold text-sm">Previous Year Questions</span>
+</button>
+</div>
+<!-- Hierarchical Syllabus Tree -->
+<div class="flex-1 overflow-y-auto px-4 py-4 scrollbar-hide">
+<div class="text-xs font-bold text-[#617589] dark:text-[#94A3B8] uppercase tracking-wider mb-3 px-2">Syllabus</div>
+<div class="flex flex-col gap-1">
+<!-- Subject: Physics -->
+<div class="flex flex-col">
+<button class="flex items-center justify-between px-3 py-2 text-[#111418] dark:text-gray-200 hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] rounded-lg text-sm font-medium">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">science</span>
+<span>Physics</span>
+</div>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 18px;">expand_more</span>
+</button>
+<!-- Nested Topics -->
+<div class="pl-9 flex flex-col gap-1 mt-1">
+<button class="flex items-center justify-between px-3 py-2 text-[#111418] dark:text-gray-200 hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] rounded-lg text-sm">
+<span>Mechanics</span>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 18px;">expand_more</span>
+</button>
+<!-- Active Topic -->
+<div class="pl-4 flex flex-col gap-1 border-l-2 border-[#e5e7eb] dark:border-[#2A3B4D] ml-3">
+<button class="flex items-center gap-2 px-3 py-2 bg-primary/10 text-primary rounded-r-lg text-sm font-bold border-l-4 border-primary -ml-[2px]">
+                                    Newton's Laws
+                                </button>
+<button class="flex items-center gap-2 px-3 py-2 text-[#617589] dark:text-[#94A3B8] hover:text-[#111418] dark:hover:text-white rounded-r-lg text-sm -ml-[2px]">
+                                    Kinematics
+                                </button>
+<button class="flex items-center gap-2 px-3 py-2 text-[#617589] dark:text-[#94A3B8] hover:text-[#111418] dark:hover:text-white rounded-r-lg text-sm -ml-[2px]">
+                                    Work, Energy &amp; Power
+                                </button>
+</div>
+<button class="flex items-center justify-between px-3 py-2 text-[#111418] dark:text-gray-200 hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] rounded-lg text-sm">
+<span>Thermodynamics</span>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 18px;">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Subject: Chemistry -->
+<button class="flex items-center justify-between px-3 py-2 text-[#111418] dark:text-gray-200 hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] rounded-lg text-sm font-medium">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">biotech</span>
+<span>Chemistry</span>
+</div>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 18px;">chevron_right</span>
+</button>
+<!-- Subject: Mathematics -->
+<button class="flex items-center justify-between px-3 py-2 text-[#111418] dark:text-gray-200 hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] rounded-lg text-sm font-medium">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">calculate</span>
+<span>Mathematics</span>
+</div>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 18px;">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Sidebar Footer -->
+<div class="p-4 border-t border-[#f0f2f4] dark:border-[#2A3B4D]">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-[#f0f2f4] dark:bg-[#2A3B4D]">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBsd21cZdTxUGgaa3aPqNGdZf-kKkS5R7mYWmuaRXC2jk2c-wu-jQ9vSAmZ164va5s_rMHqJlrLqMjtnSgSIgfdRZRdWgMgtonMqNTtuWF0oUOZ1UC_bY_ZiBIRr0EOLqfCTanM1ETutQSUbo6FyLOEypEuRPzjvg2yZs_V5BtaVd6UPdsknvg1SfL23KGZqZv6IYE-EhilXna1KlGITHuDp5KgSG3mmz3VZ20TJ09tgFZyEChGrrgdmbukHzgfLRs59oMshRlplw");'></div>
+<div class="flex flex-col overflow-hidden">
+<h3 class="text-sm font-bold text-[#111418] dark:text-white truncate">Alex Johnson</h3>
+<p class="text-xs text-[#617589] dark:text-[#94A3B8] truncate">Pro Student Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Column -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Top Utility Bar -->
+<header class="flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-[#101922]/80 backdrop-blur-md border-b border-[#f0f2f4] dark:border-[#2A3B4D] z-10 sticky top-0">
+<!-- Mobile Menu Button (Visible only on mobile) -->
+<button class="md:hidden p-2 text-[#111418] dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search Bar -->
+<div class="flex-1 max-w-xl mx-4">
+<label class="flex items-center w-full h-10 rounded-full bg-[#f0f2f4] dark:bg-[#1A2633] px-4 border border-transparent focus-within:border-primary focus-within:bg-white dark:focus-within:bg-[#1A2633] transition-all">
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-sm text-[#111418] dark:text-white placeholder-[#617589] dark:placeholder-[#94A3B8] ml-2" placeholder="Search questions, topics, or concepts..."/>
+</label>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] text-[#617589] dark:text-[#94A3B8] relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-[#101922]"></span>
+</button>
+<button class="hidden sm:flex items-center justify-center h-10 px-4 rounded-full bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors shadow-sm shadow-blue-200 dark:shadow-none">
+                        Resume Practice
+                    </button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-6 md:p-10">
+<div class="max-w-6xl mx-auto flex flex-col gap-8">
+<!-- Breadcrumbs & Title -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm text-[#617589] dark:text-[#94A3B8]">
+<span>Physics</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span>Mechanics</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-medium">Newton's Laws</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-bold tracking-tight text-[#111418] dark:text-white">Mechanics - Newton's Laws</h2>
+</div>
+<!-- Stats Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+<div class="p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] bg-white dark:bg-[#1A2633] flex flex-col gap-1">
+<p class="text-sm font-medium text-[#617589] dark:text-[#94A3B8]">Total Questions</p>
+<p class="text-2xl font-bold text-[#111418] dark:text-white">45</p>
+</div>
+<div class="p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] bg-white dark:bg-[#1A2633] flex flex-col gap-1">
+<p class="text-sm font-medium text-[#617589] dark:text-[#94A3B8]">Attempted</p>
+<p class="text-2xl font-bold text-[#111418] dark:text-white">12</p>
+</div>
+<div class="p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] bg-white dark:bg-[#1A2633] flex flex-col gap-1">
+<p class="text-sm font-medium text-[#617589] dark:text-[#94A3B8]">Accuracy</p>
+<p class="text-2xl font-bold text-[#111418] dark:text-white">82%</p>
+</div>
+<div class="p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] bg-white dark:bg-[#1A2633] flex flex-col gap-1">
+<p class="text-sm font-medium text-[#617589] dark:text-[#94A3B8]">Avg. Time</p>
+<p class="text-2xl font-bold text-[#111418] dark:text-white">2m 30s</p>
+</div>
+</div>
+<!-- Filters Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-4 py-2">
+<div class="flex flex-wrap gap-3">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1A2633] border border-[#e5e7eb] dark:border-[#2A3B4D] hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] transition-colors">
+<span class="text-sm font-medium text-[#111418] dark:text-white">All Difficulties</span>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1A2633] border border-[#e5e7eb] dark:border-[#2A3B4D] hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] transition-colors">
+<span class="text-sm font-medium text-[#111418] dark:text-white">All Years</span>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1A2633] border border-[#e5e7eb] dark:border-[#2A3B4D] hover:bg-[#f0f2f4] dark:hover:bg-[#2A3B4D] transition-colors">
+<span class="text-sm font-medium text-[#111418] dark:text-white">Status</span>
+<span class="material-symbols-outlined text-[#617589] dark:text-[#94A3B8]" style="font-size: 20px;">expand_more</span>
+</button>
+</div>
+<div class="flex items-center gap-2 text-sm text-[#617589] dark:text-[#94A3B8]">
+<span>Sort by:</span>
+<button class="font-bold text-[#111418] dark:text-white hover:underline">Relevance</button>
+</div>
+</div>
+<!-- Question Cards Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-10">
+<!-- Card 1 -->
+<div class="bg-white dark:bg-[#1A2633] p-6 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wider">JEE Mains 2022</span>
+<span class="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">Friction</span>
+</div>
+<span class="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span> Medium
+                                    </span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<p class="text-[#111418] dark:text-white font-serif leading-relaxed text-lg">
+                                            A block of mass <em class="font-serif">m</em> is placed on a rough inclined plane of inclination θ. The coefficient of friction between the block and the plane is μ. If the block is just about to slide down...
+                                        </p>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-[#f0f2f4] dark:border-[#2A3B4D] flex items-center justify-between">
+<span class="text-xs text-[#617589] dark:text-[#94A3B8]">ID: PHY-NL-2022-45</span>
+<button class="px-5 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-colors shadow-sm shadow-blue-200 dark:shadow-none">
+                                    Practice
+                                </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white dark:bg-[#1A2633] p-6 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 text-xs font-bold uppercase tracking-wider">JEE Adv 2021</span>
+<span class="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">Pulley Systems</span>
+</div>
+<span class="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt_2_bar</span> Hard
+                                    </span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<p class="text-[#111418] dark:text-white font-serif leading-relaxed text-lg">
+                                            Two blocks of masses <em class="font-serif">M</em> and <em class="font-serif">2M</em> are connected by a light string passing over a massless pulley. The system is released from rest. Calculate the tension in the string during motion.
+                                        </p>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-[#f0f2f4] dark:border-[#2A3B4D] flex items-center justify-between">
+<span class="text-xs text-[#617589] dark:text-[#94A3B8]">ID: PHY-NL-2021-12</span>
+<button class="px-5 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-colors shadow-sm shadow-blue-200 dark:shadow-none">
+                                    Practice
+                                </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white dark:bg-[#1A2633] p-6 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wider">JEE Mains 2020</span>
+<span class="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">Momentum</span>
+</div>
+<span class="flex items-center gap-1 text-xs font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_1_bar</span> Easy
+                                    </span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<p class="text-[#111418] dark:text-white font-serif leading-relaxed text-lg">
+                                            A body of mass 5 kg moves with a velocity of 20 m/s. If a constant force of 100N is applied for 2 seconds in the opposite direction, the final velocity of the body will be?
+                                        </p>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-[#f0f2f4] dark:border-[#2A3B4D] flex items-center justify-between">
+<span class="text-xs text-[#617589] dark:text-[#94A3B8]">ID: PHY-NL-2020-08</span>
+<button class="px-5 py-2 bg-white border border-[#e5e7eb] dark:bg-[#1A2633] dark:border-[#2A3B4D] text-[#111418] dark:text-white text-sm font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-[#2A3B4D] transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-green-500 text-[18px]">check_circle</span> Solved
+                                </button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white dark:bg-[#1A2633] p-6 rounded-xl border border-[#e5e7eb] dark:border-[#2A3B4D] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">NEET 2019</span>
+<span class="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">Gravitation</span>
+</div>
+<span class="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span> Medium
+                                    </span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<p class="text-[#111418] dark:text-white font-serif leading-relaxed text-lg">
+                                            Three particles each of mass <em class="font-serif">m</em> are placed at the three corners of an equilateral triangle of side <em class="font-serif">a</em>. The force exerted by this system on another particle of mass <em class="font-serif">m</em> placed at the midpoint of a side is?
+                                        </p>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-[#f0f2f4] dark:border-[#2A3B4D] flex items-center justify-between">
+<span class="text-xs text-[#617589] dark:text-[#94A3B8]">ID: PHY-GR-2019-33</span>
+<button class="px-5 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-colors shadow-sm shadow-blue-200 dark:shadow-none">
+                                    Practice
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button (Optional for Mobile/Tablet context but good for "Quick Action") -->
+<div class="absolute bottom-6 right-6 lg:hidden">
+<button class="size-14 bg-primary rounded-full text-white shadow-lg shadow-blue-500/30 flex items-center justify-center">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

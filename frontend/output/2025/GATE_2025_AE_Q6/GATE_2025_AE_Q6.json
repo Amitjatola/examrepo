@@ -1,0 +1,397 @@
+{
+  "question_id": "GATE_2025_AE_Q6",
+  "exam_name": "GATE AE",
+  "subject": "Aerospace Engineering",
+  "year": 2025,
+  "question_number": 6,
+  "question_text": "Column-I has statements made by Shanthala; and, Column-II has responses given by Kanishk.\nColumn-I\nP. This house is in a mess.\nQ. I am not happy with the marks given to me.\nR. Politics is a subject I avoid talking about.\nS. I don’t know what this word means.\n\nColumn-II\n1. Alright, I won’t bring it up during our conversations.\n2. Well, you can easily look it up.\n3. No problem, let me clear it up for you.\n4. Don’t worry, I will take it up with your teacher.\n\nIdentify the option that has the correct match between Column-I and Column-II.",
+  "question_text_latex": null,
+  "question_type": "MCQ",
+  "marks": 2.0,
+  "negative_marks": 0.66,
+  "options": {
+    "A": "P – 2; Q – 3; R – 1; S – 4",
+    "B": "P – 3; Q – 4; R – 1; S – 2",
+    "C": "P – 4; Q – 1; R – 2; S – 3",
+    "D": "P – 1; Q – 2; R – 4; S – 3"
+  },
+  "answer_key": "B",
+  "has_question_image": false,
+  "image_metadata": null,
+  "tier_0_classification": {
+    "content_type": "conceptual_application",
+    "media_type": "text_only",
+    "difficulty_score": 5,
+    "complexity_flags": {
+      "requires_derivation": false,
+      "multi_concept_integration": false,
+      "ambiguous_wording": false,
+      "image_interpretation_complex": false,
+      "edge_case_scenario": false,
+      "multi_step_reasoning": true,
+      "approximation_needed": false
+    },
+    "use_gpt51": false,
+    "classification_confidence": 0.9,
+    "classification_reasoning": "The question requires matching statements with appropriate responses, which is a form of conceptual application. It involves understanding the context of each statement and choosing the most logical response. It requires multi-step reasoning to evaluate each possible match.",
+    "combined_type": "conceptual_application_text_only",
+    "weight_strategy": "APPLICATION_WEIGHTED",
+    "classification_method": "llm_assisted",
+    "classifier_model": "gemini_2.0_flash_exp"
+  },
+  "tier_1_core_research": {
+    "answer_validation": {
+      "correct_answer": "B",
+      "is_correct": true,
+      "confidence": 0.96,
+      "confidence_type": "single_model",
+      "reasoning": "The task is to match each statement in Column-I with the most appropriate and logical response from Column-II. Let's analyze each pair:\n\n*   **P. \"This house is in a mess.\"**\n    *   This statement expresses a problem or an observation about a disorderly situation. A helpful and direct response would be an offer to fix it.\n    *   **Response 3: \"No problem, let me clear it up for you.\"** This is a direct offer to help resolve the mess, making it the most appropriate match.\n\n*   **Q. \"I am not happy with the marks given to me.\"**\n    *   This statement expresses dissatisfaction with an academic outcome and implies a desire for intervention or resolution.\n    *   **Response 4: \"Don’t worry, I will take it up with your teacher.\"** This is the appropriate action to address a student's concern about their marks, suggesting advocacy or mediation.\n\n*   **R. \"Politics is a subject I avoid talking about.\"**\n    *   This statement clearly expresses a personal boundary or preference regarding conversation topics.\n    *   **Response 1: \"Alright, I won’t bring it up during our conversations.\"** This response acknowledges and respects the stated boundary, ensuring the topic is avoided in future discussions.\n\n*   **S. \"I don’t know what this word means.\"**\n    *   This statement indicates a lack of understanding regarding a specific word and is a request for information or a definition.\n    *   **Response 2: \"Well, you can easily look it up.\"** This response suggests a self-reliant method for finding the definition, which is a common and practical suggestion in such a scenario. While offering to explain (Response 3) is also possible, if P is matched with 3, then S must be matched with 2.\n\nBased on this analysis, the correct matches are: P-3, Q-4, R-1, S-2. This corresponds to Option B."
+    },
+    "explanation": {
+      "question_nature": "Application",
+      "step_by_step": [
+        "Understand the nature of each statement in Column-I, identifying the core complaint, expression, or boundary.",
+        "Evaluate each response in Column-II to determine its intent and suitability as a cooperative or accommodating reply.",
+        "Match statement P ('This house is in a mess.') with the most appropriate response: 'No problem, let me clear it up for you.' (Response 3).",
+        "Match statement Q ('I am not happy with the marks given to me.') with the most appropriate response: 'Don't worry, I will take it up with your teacher.' (Response 4).",
+        "Match statement R ('Politics is a subject I avoid talking about.') with the most appropriate response: 'Alright, I won't bring it up during our conversations.' (Response 1).",
+        "Match statement S ('I don't know what this word means.') with the most appropriate response: 'Well, you can easily look it up.' (Response 2).",
+        "Verify that the complete mapping (P-3, Q-4, R-1, S-2) is consistent and select the option that represents these matches."
+      ],
+      "formulas_used": [],
+      "estimated_time_minutes": 1.62
+    },
+    "hierarchical_tags": {
+      "subject": {
+        "name": "Structures",
+        "confidence": 1.0
+      },
+      "topic": {
+        "name": "Truss Analysis",
+        "syllabus_ref": "Section 2: Statics of Structures"
+      },
+      "concepts": [
+        {
+          "name": "Contextual Understanding",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Communication Skills",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Consistent Assumption of Tension",
+          "importance": "secondary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Problem-Solving (Social)",
+          "importance": "secondary",
+          "consensus": "single_model"
+        }
+      ]
+    },
+    "prerequisites": {
+      "essential": [
+        "Axial Loading: Stress and Strain",
+        "Pin-Jointed Frames and Trusses"
+      ],
+      "helpful": [
+        "Free-Body Diagram Analysis",
+        "Vocabulary"
+      ],
+      "dependency_tree": {
+        "Main Concept": [
+          "requires: English language comprehension",
+          "requires: Basic social etiquette and conversational norms",
+          "enables: Effective communication in daily life",
+          "enables: Understanding nuances in language"
+        ],
+        "Consistent Assumption of Tension": [
+          "requires: Interpreting Sign of Member Forces"
+        ],
+        "Interpreting Sign of Member Forces": [
+          "requires: Tension and Compression in Truss Members",
+          "enables: Consistent Assumption of Tension"
+        ],
+        "Tension and Compression in Truss Members": [
+          "requires: Axial Loading: Stress and Strain",
+          "enables: Interpreting Sign of Member Forces"
+        ]
+      }
+    },
+    "difficulty_analysis": {
+      "overall": "Easy",
+      "score": 2.75,
+      "complexity_breakdown": {
+        "conceptual": 4,
+        "mathematical": 1,
+        "problem_solving": 3
+      },
+      "estimated_solve_time_seconds": 75,
+      "expected_accuracy_percent": 85,
+      "difficulty_factors": [
+        "Requires careful reading and understanding of implied context and tone.",
+        "Distinguishing between plausible but suboptimal responses and the most appropriate one."
+      ]
+    },
+    "textbook_references": [
+      {
+        "source_type": "book",
+        "book": "Aircraft Structures for Engineering Students",
+        "author": "T.H.G. Megson",
+        "chapter_title": "Statics of Structures",
+        "section": "2.5 Pin-Jointed Frames",
+        "complexity": "intermediate",
+        "relevance_score": 0.8,
+        "source": "rag_retrieval",
+        "chapter_number": "2",
+        "page_range": "45-52",
+        "text_snippet": "After applying the method of joints (or sections) and solving for member forces, the sign of the calculated value indicates whether the initial assumption about the member's nature (tension or compression) was correct."
+      }
+    ],
+    "video_references": [
+      {
+        "source_type": "video",
+        "professor": "Prof. Nachiketa Tiwari",
+        "timestamp_start": "00:25:22",
+        "timestamp_end": "None",
+        "video_url": "https://www.youtube.com/watch?v=3By6vS5xY6s",
+        "book_reference": "Aircraft Structures for Engineering Students",
+        "topic_covered": "Interpretation of Member Forces (Tension and Compression)",
+        "relevance_score": 0.8,
+        "source": "rag_retrieval"
+      }
+    ],
+    "step_by_step_solution": {
+      "approach_type": "Conceptual Application",
+      "total_steps": 5,
+      "solution_path": "Identify Key Concepts -> Apply Tension/Compression Interpretation -> Match Statements to Responses",
+      "key_insights": [
+        "Positive force result means initial assumption was correct",
+        "Negative force result means actual force is in opposite direction",
+        "Consistently assuming tension for unknown members is a recommended practice"
+      ]
+    },
+    "formulas_principles": [
+      {
+        "formula": "",
+        "name": "Cooperative Principle (Grice)",
+        "conditions": "In conversation, participants are expected to be informative, truthful, relevant, and clear.",
+        "type": "principle",
+        "relevance": "Guides the selection of appropriate responses; responses should be relevant and helpful."
+      }
+    ],
+    "real_world_applications": {
+      "industry_examples": [
+        "Design and analysis of truss structures in buildings, bridges, and other civil infrastructure",
+        null
+      ],
+      "specific_systems": [
+        "Roof trusses in residential and commercial buildings"
+      ],
+      "practical_relevance": "Correctly interpreting member forces is crucial for ensuring the structural integrity and safety of truss systems in various applications."
+    }
+  },
+  "tier_2_student_learning": {
+    "common_mistakes": [
+      {
+        "mistake": "Misinterpreting the tone or underlying intent of the statement.",
+        "why_students_make_it": "Students might focus only on the literal meaning of words without considering the emotional context or the implied request/problem.",
+        "type": "Conceptual",
+        "severity": "Medium",
+        "frequency": "common",
+        "how_to_avoid": "Always read the statement carefully and try to infer the speaker's feeling or what action they expect. Ask: 'What is the speaker trying to convey or achieve?'",
+        "consequence": "Leads to choosing a grammatically correct but socially or contextually inappropriate response."
+      },
+      {
+        "mistake": "Choosing a plausible but not the 'best' or most direct response.",
+        "why_students_make_it": "Some options might seem acceptable, but one option is usually a more direct, empathetic, or logical fit for the specific situation.",
+        "type": "Conceptual",
+        "severity": "Medium",
+        "frequency": "occasional",
+        "how_to_avoid": "After making an initial match, quickly review all other unmatched options to ensure no better fit exists. Consider which response offers the most complete or appropriate resolution.",
+        "consequence": "Incorrect pairing, especially if another statement has a perfect match with the 'second-best' option."
+      },
+      {
+        "mistake": "Rushing through the options and not considering all pairings.",
+        "why_students_make_it": "Under exam pressure, students might quickly pick the first seemingly correct match without fully evaluating all possibilities.",
+        "type": "Problem Solving",
+        "severity": "Medium",
+        "frequency": "common",
+        "how_to_avoid": "Allocate sufficient time for verbal ability questions. Treat each statement and response as a unique puzzle piece that must fit perfectly. Use elimination for incorrect options.",
+        "consequence": "Leads to errors in matching, especially in questions where multiple options seem superficially similar."
+      }
+    ],
+    "mnemonics_memory_aids": [
+      {
+        "mnemonic": "TACT: Tension Assumed, Correct if Positive, Opposite if Negative",
+        "concept": "Interpreting the sign of member forces in a truss",
+        "effectiveness": "high",
+        "context": "When solving truss analysis problems and interpreting the calculated member forces"
+      }
+    ],
+    "flashcards": [
+      {
+        "card_type": "application",
+        "front": "Statement: \"I'm feeling overwhelmed with my workload.\"",
+        "back": "Best Response: \"How can I help you prioritize, or is there anything I can take off your plate?\" (Focus on offering practical help and empathy).",
+        "difficulty": "easy",
+        "time_limit_seconds": 20
+      },
+      {
+        "card_type": "concept_recall",
+        "front": "What is the key to matching statements and responses in verbal ability questions?",
+        "back": "Understanding the context, implied emotion, and the most logical/socially appropriate action or acknowledgment required by the statement.",
+        "difficulty": "medium",
+        "time_limit_seconds": 20
+      },
+      {
+        "card_type": "mistake_prevention",
+        "front": "How to avoid choosing a 'second-best' response?",
+        "back": "After an initial match, quickly scan remaining options to ensure no other statement has a more perfect fit with the chosen response. Always seek the 'most' appropriate match.",
+        "difficulty": "medium",
+        "time_limit_seconds": 30
+      },
+      {
+        "back": "Response 1: 'Alright, I won't bring it up during our conversations.' This respects the stated conversational boundary.",
+        "card_type": "application",
+        "difficulty": "easy",
+        "front": "Map the following: Statement: 'Politics is a subject I avoid talking about.' Response?",
+        "time_limit_seconds": 15
+      }
+    ],
+    "real_world_context": [
+      {
+        "application": "Truss design and analysis for buildings, bridges, and other civil infrastructure",
+        "industry_example": "The roof trusses of a large commercial building are designed to support the weight of the roof and any additional loads, such as snow or wind. Correctly interpreting the member forces is crucial to ensure the structural integrity and safety of the truss system.",
+        "why_it_matters": "Misinterpreting the member forces could lead to underdesigning or overdesigning the truss, resulting in potential structural failures or unnecessary material costs."
+      }
+    ],
+    "exam_strategy": {
+      "priority": "Must Attempt",
+      "triage_tip": "These are quick verbal reasoning questions. Read carefully, grasp the context, and do not overthink. Start by finding the most logically solid pair, then use elimination by scanning for the most obvious matches and building from there.",
+      "guessing_heuristic": "If stuck between options, prioritize responses that are proactive, empathetic, cooperative, positive, or directly address the core issue. Avoid responses that deflect, are dismissive, or irrelevant.",
+      "time_management": "Aim to solve such questions within 60-90 seconds. They are good opportunities to secure marks quickly."
+    }
+  },
+  "tier_3_enhanced_learning": {
+    "search_keywords": [
+      "truss member force interpretation",
+      "tension and compression in trusses",
+      "consistent assumption of tension in truss analysis",
+      "GATE General Aptitude verbal reasoning matching statements",
+      "Effective communication scenarios",
+      "conversational analysis practice questions",
+      "GATE AE General Aptitude preparation",
+      "speech act theory in communication"
+    ],
+    "alternative_methods": [
+      {
+        "name": "Explicit Assumption of Compression",
+        "description": "Instead of consistently assuming tension, one could explicitly assume compression for all unknown members and then interpret the sign of the results accordingly.",
+        "pros_cons": "Pros: May be easier to visualize for some students. Cons: Less common practice, can lead to more confusion if not applied consistently.",
+        "when_to_use": "When the direct matching isn't immediately obvious."
+      }
+    ],
+    "connections_to_other_subjects": {
+      "Psychology": "Understanding human emotions, social cues, and appropriate responses in interpersonal interactions.",
+      "Linguistics": "Study of pragmatics (how context contributes to meaning) and discourse analysis (how language is used in social contexts).",
+      "Management Studies": "Effective communication and conflict resolution are core components of leadership and team management.",
+      "Mechanics of Materials": "Concepts of axial loading, stress, and strain are fundamental to understanding tension and compression in truss members.",
+      "Professional Communication": "Directly applicable to training in effective workplace communication."
+    },
+    "deeper_dive_topics": [
+      "Advanced truss analysis techniques, such as the method of sections and the method of joints",
+      "Factors affecting the choice of truss configuration (e.g., Pratt, Howe, Vierendeel) for different applications",
+      "Non-verbal communication cues and their impact on message interpretation."
+    ]
+  },
+  "tier_4_metadata_and_future": {
+    "model_meta": {
+      "models_used": [
+        "gemini_2.5_pro",
+        "claude_sonnet_4.5",
+        "deepseek_r1"
+      ],
+      "model_count": 3,
+      "weight_strategy": "APPLICATION_WEIGHTED",
+      "weights_applied": {
+        "gemini_2.5_pro": 0.37499999999999994,
+        "claude_sonnet_4.5": 0.37499999999999994,
+        "deepseek_r1": 0.25
+      },
+      "consensus_method": "weighted_voting",
+      "debate_rounds": 0,
+      "converged_fields_count": 5,
+      "debated_fields_count": 0,
+      "flagged_for_review": [],
+      "gpt51_added_in_debate": false,
+      "timestamp": "2025-12-26T19:28:32.556580",
+      "pipeline_version": "1.0.0"
+    },
+    "quality_score": {
+      "overall": 0.831,
+      "band": "SILVER",
+      "metrics": {
+        "avg_model_confidence": 0.75,
+        "consensus_rate": 0.9,
+        "debate_efficiency": 1.0,
+        "rag_relevance": 0.489,
+        "field_completeness": 1.0
+      }
+    },
+    "cost_breakdown": {
+      "total_cost": 0.11116958000000002,
+      "currency": "USD",
+      "per_model": {
+        "gemini_2.5_pro": 0.0039657,
+        "claude_sonnet_4.5": 0.09153900000000001,
+        "deepseek_r1": 0.01566488
+      },
+      "classification_cost": 5e-05,
+      "image_consensus_cost": 0,
+      "debate_cost": 0.0,
+      "total_api_calls": 3
+    },
+    "token_usage": {
+      "total_input_tokens": 39178,
+      "total_output_tokens": 10747,
+      "total_tokens": 49925,
+      "per_model": {
+        "gemini_2.5_pro": {
+          "input": 13182,
+          "output": 3314,
+          "total": 16496
+        },
+        "claude_sonnet_4.5": {
+          "input": 13808,
+          "output": 3341,
+          "total": 17149
+        },
+        "deepseek_r1": {
+          "input": 12188,
+          "output": 4092,
+          "total": 16280
+        }
+      }
+    },
+    "processing_time": {
+      "total_seconds": 300.8599464893341,
+      "per_stage": {
+        "stage_1": 0.00592494010925293,
+        "stage_2": 1.9286420345306396,
+        "stage_3": 3.1931819915771484,
+        "stage_4": 30.271219730377197,
+        "stage_5": 102.09887909889221,
+        "stage_6": 163.36209869384766,
+        "stage_8": 0.0030417442321777344
+      },
+      "bottleneck_stage": "stage_6",
+      "parallel_generation_time": 102.09887909889221,
+      "debate_time": 0
+    }
+  }
+}

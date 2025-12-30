@@ -1,0 +1,378 @@
+{
+  "question_id": "GATE_2025_AE_Q1",
+  "exam_name": "GATE AE",
+  "subject": "Aerospace Engineering",
+  "year": 2025,
+  "question_number": 1,
+  "question_text": "Courage : Bravery :: Yearning : __________\nSelect the most appropriate option to complete the analogy.",
+  "question_text_latex": null,
+  "question_type": "MCQ",
+  "marks": 1.0,
+  "negative_marks": 0.33,
+  "options": {
+    "A": "Longing",
+    "B": "Yelling",
+    "C": "Yawning",
+    "D": "Glaring"
+  },
+  "answer_key": "A",
+  "has_question_image": false,
+  "image_metadata": null,
+  "tier_0_classification": {
+    "content_type": "conceptual_application",
+    "media_type": "text_only",
+    "difficulty_score": 3,
+    "complexity_flags": {
+      "requires_derivation": false,
+      "multi_concept_integration": false,
+      "ambiguous_wording": false,
+      "image_interpretation_complex": false,
+      "edge_case_scenario": false,
+      "multi_step_reasoning": false,
+      "approximation_needed": false
+    },
+    "use_gpt51": false,
+    "classification_confidence": 1.0,
+    "classification_reasoning": "This question tests vocabulary and the ability to understand relationships between words. It's a straightforward analogy question requiring basic vocabulary knowledge.",
+    "combined_type": "conceptual_application_text_only",
+    "weight_strategy": "APPLICATION_WEIGHTED",
+    "classification_method": "llm_assisted",
+    "classifier_model": "gemini_2.0_flash_exp"
+  },
+  "tier_1_core_research": {
+    "answer_validation": {
+      "correct_answer": "A",
+      "is_correct": true,
+      "confidence": 0.98,
+      "confidence_type": "single_model",
+      "reasoning": "The analogy 'Courage : Bravery' establishes a synonym relationship, where 'Bravery' is a synonym for 'Courage'. To complete the analogy 'Yearning : __________', we must find a word that is a synonym for 'Yearning'. Among the given options, 'Longing' is a direct synonym for 'Yearning'. The other options ('Yelling', 'Yawning', 'Glaring') are not synonyms of 'Yearning' and do not fit the established relationship."
+    },
+    "explanation": {
+      "question_nature": "Conceptual",
+      "step_by_step": [
+        "Understand the structure of the analogy (A:B :: C:D). Identify the relationship between the given terms 'Courage' and 'Bravery'.",
+        "Recognize that 'Courage' and 'Bravery' are synonyms, meaning they have similar meanings.",
+        "Apply the same synonym relationship to the first word of the second pair, 'Yearning', to find its synonym.",
+        "Evaluate the given options to find the word that is a synonym for 'Yearning'. 'Longing' means a strong feeling of desire, which is synonymous with 'Yearning'.",
+        "Specifically, 'Longing' is a direct synonym for 'Yearning'. Other options like 'Yelling', 'Yawning', and 'Glaring' are not synonyms of 'Yearning'.",
+        "Conclude that 'Longing' is the most appropriate option to complete the analogy."
+      ],
+      "formulas_used": [],
+      "estimated_time_minutes": 1.38
+    },
+    "hierarchical_tags": {
+      "subject": {
+        "name": "General Aptitude",
+        "confidence": 1.0
+      },
+      "topic": {
+        "name": "Verbal Ability - Analogies",
+        "syllabus_ref": "GATE General Aptitude -> Verbal Ability -> Analogies"
+      },
+      "concepts": [
+        {
+          "name": "Synonyms",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Analogical Reasoning",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Vocabulary",
+          "importance": "secondary",
+          "consensus": "ensemble"
+        }
+      ]
+    },
+    "prerequisites": {
+      "essential": [
+        "Basic English vocabulary",
+        "Understanding of word relationships (e.g., synonyms, antonyms, cause-effect)"
+      ],
+      "helpful": [
+        "Familiarity with common analogy types and their structures"
+      ],
+      "dependency_tree": {
+        "Main Concept": [
+          "requires: Vocabulary",
+          "requires: Understanding of Word Relationships",
+          "enables: Logical Reasoning in Verbal Ability",
+          "enables: Effective Communication"
+        ],
+        "Analogy": [
+          "requires: Synonymy",
+          "enables: Conceptual Application"
+        ]
+      }
+    },
+    "difficulty_analysis": {
+      "overall": "Very Easy",
+      "score": 1.75,
+      "complexity_breakdown": {
+        "conceptual": 1,
+        "mathematical": 1,
+        "problem_solving": 2
+      },
+      "estimated_solve_time_seconds": 30,
+      "expected_accuracy_percent": 90,
+      "difficulty_factors": [
+        "Requires recognizing the synonymous relationship between the given terms and basic vocabulary knowledge.",
+        "Direct application of synonym relationship is straightforward."
+      ]
+    },
+    "textbook_references": [
+      {
+        "source_type": "book",
+        "book": "High School English Grammar and Composition",
+        "author": "Wren & Martin",
+        "chapter_title": "Vocabulary Building",
+        "section": "Synonyms and Antonyms",
+        "complexity": "introductory",
+        "relevance_score": 0.9,
+        "source": "model_consensus",
+        "text_snippet": "Synonyms are words that have the same or nearly the same meaning in the same language."
+      }
+    ],
+    "video_references": [],
+    "step_by_step_solution": {
+      "approach_type": "Pattern Recognition and Vocabulary Application",
+      "total_steps": 4,
+      "solution_path": "Identify Relationship in Given Pair -> Apply Relationship to Target Word -> Evaluate Options -> Select Match",
+      "key_insights": [
+        "The core of solving an analogy is to first pinpoint the precise relationship between the first two words and then apply that same type of relationship to the second pair.",
+        "The most common relationships are synonyms, antonyms, part-to-whole, cause-and-effect, and characteristic."
+      ]
+    },
+    "formulas_principles": [
+      {
+        "formula": "",
+        "name": "Analogy Principle (Synonym Type)",
+        "conditions": "When A and B are synonyms, then for any word C, the correct D is its synonym.",
+        "type": "principle",
+        "relevance": "Core logical rule for solving this type of verbal analogy."
+      }
+    ],
+    "real_world_applications": {
+      "industry_examples": [
+        "Analogical reasoning is used in various fields, such as psychology, education, and language learning, to help students understand and apply concepts by drawing connections to familiar ideas."
+      ],
+      "specific_systems": [
+        "Analogical reasoning is a fundamental cognitive process that is used in problem-solving, decision-making, and creative thinking across many domains."
+      ],
+      "practical_relevance": "Strong verbal reasoning and vocabulary are fundamental for clear communication, understanding technical documentation, writing reports, and effective collaboration in any engineering discipline. Developing the ability to recognize and apply analogies helps in critical thinking and problem-solving, skills assessed in competitive exams like GATE to ensure well-rounded aptitude."
+    }
+  },
+  "tier_2_student_learning": {
+    "common_mistakes": [
+      {
+        "mistake": "Misidentifying the core semantic relationship (e.g., synonymy) between words.",
+        "why_students_make_it": "Students may rush, misidentify the intended semantic relationship (e.g., synonymy), or focus on superficial features rather than deep meaning.",
+        "type": "Conceptual",
+        "severity": "Medium",
+        "frequency": "occasional",
+        "how_to_avoid": "Always take a moment to precisely define the relationship between the first two words before attempting to solve the second pair. Consider multiple possible relationships if unsure and ignore spelling or sound similarities.",
+        "consequence": "Applying the wrong relationship will lead to an incorrect answer, even if the vocabulary is known."
+      },
+      {
+        "mistake": "Choosing an option based on phonetic similarity or loose association rather than strict semantic meaning or synonymy.",
+        "why_students_make_it": "Students may be misled by phonetic similarities, confuse related words with true synonyms, or suffer from weak vocabulary and exam pressure.",
+        "type": "Conceptual",
+        "severity": "Medium",
+        "frequency": "occasional",
+        "how_to_avoid": "Build a strong vocabulary, read each word carefully, and focus strictly on precise definitions and meanings to distinguish between related and synonymous words.",
+        "consequence": "Selecting a phonetically similar but semantically incorrect word, leading to an incorrect analogy."
+      },
+      {
+        "consequence": "Selects option B or D, which are related by context but not by core meaning.",
+        "how_to_avoid": "Remember that for 'A : B :: C : D', the relationship between A&B must be IDENTICAL to the relationship between C&D. If A and B are synonyms, C and D must be synonyms, not just associated.",
+        "mistake": "Selecting an option that is a loose association (e.g., 'Yearning' might lead to 'Yelling' if one is yearning loudly) rather than a strict synonym.",
+        "severity": "High",
+        "type": "Conceptual"
+      }
+    ],
+    "mnemonics_memory_aids": [
+      {
+        "mnemonic": "SCAR: Synonymy, Comparison, Analogy, Relationship",
+        "concept": "Remembering the key elements of analogical reasoning",
+        "effectiveness": "high",
+        "context": "When solving analogy-based questions"
+      },
+      {
+        "mnemonic": "S.A.M.E. for Synonyms in Analogies: Spot the relationship, Apply it, Match Exactly.",
+        "concept": "Solving synonym-based analogies",
+        "effectiveness": "medium",
+        "context": "When facing a verbal analogy question, first check if the given pair are Synonyms."
+      }
+    ],
+    "flashcards": [
+      {
+        "card_type": "concept_recall",
+        "front": "What is the relationship between 'Courage' and 'Bravery'?",
+        "back": "The relationship is synonymy (words with similar meanings). For A:B :: C:D, the relationship between C and D must be identical to that of A and B.",
+        "difficulty": "easy",
+        "time_limit_seconds": 30
+      },
+      {
+        "card_type": "application",
+        "front": "Complete the analogy: Courage : Bravery :: Yearning : ?",
+        "back": "The missing term to complete the analogy is 'Longing', as it is synonymous with 'Yearning' in the same way that 'Bravery' is synonymous with 'Courage'.",
+        "difficulty": "easy",
+        "time_limit_seconds": 45
+      },
+      {
+        "card_type": "mistake_prevention",
+        "front": "How can you avoid common pitfalls when solving verbal analogies?",
+        "back": "1. Clearly define the exact relationship in the first pair (e.g., synonym, antonym, cause-effect). 2. Apply *that exact* relationship to the second pair. 3. Avoid superficial connections like rhyming or similar starting letters. Focus on the logical meaning.",
+        "difficulty": "medium",
+        "time_limit_seconds": 60
+      },
+      {
+        "back": "Think (Hasten and Rush are synonyms meaning to move quickly; Ponder and Think are synonyms meaning to consider).",
+        "card_type": "application",
+        "difficulty": "medium",
+        "front": "Complete the analogy: Hasten : Rush :: Ponder : ________ (Options: Think, Run, Shout, Sleep)",
+        "time_limit_seconds": 25
+      }
+    ],
+    "real_world_context": [
+      {
+        "application": "Standardized Testing, Professional Communication, and Language Development",
+        "industry_example": "Verbal analogies are crucial in aptitude tests (GATE, GRE, GMAT) for assessing logical reasoning and vocabulary. In professional fields like engineering, precise word usage and understanding semantic relationships are vital for interpreting technical specifications, writing clear reports, and ensuring effective communication, preventing errors in design or manufacturing.",
+        "why_it_matters": "Accurate language use and strong analogical reasoning prevent misinterpretations, ensure clarity in technical documentation, and facilitate effective communication and problem-solving, thereby avoiding critical errors in professional and academic contexts."
+      }
+    ],
+    "exam_strategy": {
+      "priority": "Must Attempt",
+      "triage_tip": "Quickly identify the precise relationship (e.g., synonymy, antonymy) between the given terms. If the vocabulary is known, answer immediately; otherwise, eliminate clearly wrong options and make an educated guess.",
+      "guessing_heuristic": "Eliminate options that are clearly unrelated or do not fit the analogy structure. If stuck, try to form a sentence or identify the option closest in meaning to the given word, considering the part of speech and type of word (e.g., emotion vs. action).",
+      "time_management": "Aim to spend no more than 30-60 seconds on these questions to secure quick marks and save time for more complex problems."
+    }
+  },
+  "tier_3_enhanced_learning": {
+    "search_keywords": [
+      "Verbal analogies GATE",
+      "Synonym relationships in analogies",
+      "GATE General Aptitude verbal ability",
+      "Vocabulary building for competitive exams",
+      "Analogical reasoning practice",
+      "vocabulary for competitive exams",
+      "courage bravery synonym",
+      "yearning meaning synonym"
+    ],
+    "alternative_methods": [
+      {
+        "name": "Proportional Analogy",
+        "description": "Another type of analogy that focuses on the proportional relationship between two pairs of terms, rather than just synonymy. For example: A is to B as C is to D.",
+        "pros_cons": "Proportional analogies can be more complex but also more versatile in testing higher-order thinking skills. However, they require a deeper understanding of the relationships between the terms.",
+        "when_to_use": null
+      },
+      {
+        "name": "Elimination by Word Type",
+        "description": "Classify the given words and options by their part of speech or semantic category (e.g., emotion, action, sound). 'Courage' and 'Bravery' are abstract nouns describing a quality. 'Yearning' is also an abstract noun (desire). Therefore, the answer should be an abstract noun. 'Longing' fits. 'Yelling', 'Yawning', 'Glaring' are more associated with actions/verbs.",
+        "pros_cons": "Pro: Helps when you are unsure of exact meanings. Con: Not always reliable if multiple options share the same category.",
+        "when_to_use": "When you cannot immediately recall the meaning of the target word."
+      }
+    ],
+    "connections_to_other_subjects": {
+      "English Language": "This question directly tests vocabulary, semantics, and the understanding of various word relationships, which are core components of English language studies.",
+      "Logical Reasoning": "Solving analogies requires identifying patterns and applying deductive reasoning, which are fundamental skills in logical reasoning.",
+      "Cognitive Psychology": "Analogy solving tests fluid intelligence and relational reasoning, skills used in problem-solving and pattern recognition in engineering design.",
+      "Language Arts": "Analogies are commonly used in language learning and vocabulary development to help students understand word relationships and expand their lexical knowledge.",
+      "Linguistics": "Understanding semantic relationships (synonymy, antonymy, hyponymy) is part of lexical semantics.",
+      "Psychology": "Analogical reasoning is a fundamental cognitive process studied in psychology, with applications in problem-solving, decision-making, and creative thinking."
+    },
+    "deeper_dive_topics": [
+      "Different types of analogies (e.g., proportional, functional, descriptive, categorical, part-whole, antonym, degree)",
+      "Strategies for improving vocabulary and verbal reasoning for competitive examinations, including advanced technical English, and the role of analogical reasoning in critical thinking and problem-solving.",
+      "Etymology of words to understand core meanings and relationships, strategies for teaching and learning analogical reasoning skills, and the role of verbal reasoning in engineering aptitude tests (GRE, GATE)."
+    ]
+  },
+  "tier_4_metadata_and_future": {
+    "model_meta": {
+      "models_used": [
+        "gemini_2.5_pro",
+        "claude_sonnet_4.5",
+        "deepseek_r1"
+      ],
+      "model_count": 3,
+      "weight_strategy": "APPLICATION_WEIGHTED",
+      "weights_applied": {
+        "gemini_2.5_pro": 0.37499999999999994,
+        "claude_sonnet_4.5": 0.37499999999999994,
+        "deepseek_r1": 0.25
+      },
+      "consensus_method": "weighted_voting",
+      "debate_rounds": 0,
+      "converged_fields_count": 5,
+      "debated_fields_count": 0,
+      "flagged_for_review": [],
+      "gpt51_added_in_debate": false,
+      "timestamp": "2025-12-26T18:57:28.701750",
+      "pipeline_version": "1.0.0"
+    },
+    "quality_score": {
+      "overall": 0.831,
+      "band": "SILVER",
+      "metrics": {
+        "avg_model_confidence": 0.75,
+        "consensus_rate": 0.9,
+        "debate_efficiency": 1.0,
+        "rag_relevance": 0.489,
+        "field_completeness": 1.0
+      }
+    },
+    "cost_breakdown": {
+      "total_cost": 0.08526749,
+      "currency": "USD",
+      "per_model": {
+        "gemini_2.5_pro": 0.0028928999999999995,
+        "claude_sonnet_4.5": 0.068814,
+        "deepseek_r1": 0.01356059
+      },
+      "classification_cost": 5e-05,
+      "image_consensus_cost": 0,
+      "debate_cost": 0.0,
+      "total_api_calls": 3
+    },
+    "token_usage": {
+      "total_input_tokens": 24035,
+      "total_output_tokens": 10010,
+      "total_tokens": 34045,
+      "per_model": {
+        "gemini_2.5_pro": {
+          "input": 8022,
+          "output": 2816,
+          "total": 10838
+        },
+        "claude_sonnet_4.5": {
+          "input": 8523,
+          "output": 2883,
+          "total": 11406
+        },
+        "deepseek_r1": {
+          "input": 7490,
+          "output": 4311,
+          "total": 11801
+        }
+      }
+    },
+    "processing_time": {
+      "total_seconds": 276.73666763305664,
+      "per_stage": {
+        "stage_1": 0.0021119117736816406,
+        "stage_2": 2.293982744216919,
+        "stage_3": 6.603590726852417,
+        "stage_4": 8.190653800964355,
+        "stage_5": 126.69971513748169,
+        "stage_6": 132.94661331176758,
+        "stage_8": 0.003532886505126953
+      },
+      "bottleneck_stage": "stage_6",
+      "parallel_generation_time": 126.69971513748169,
+      "debate_time": 0
+    }
+  }
+}

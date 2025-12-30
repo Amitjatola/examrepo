@@ -1,0 +1,407 @@
+{
+  "question_id": "GATE_2025_AE_Q2",
+  "exam_name": "GATE AE",
+  "subject": "Aerospace Engineering",
+  "year": 2025,
+  "question_number": 2,
+  "question_text": "We __________ tennis in the lawn when it suddenly started to rain.\nSelect the most appropriate option to complete the above sentence.",
+  "question_text_latex": null,
+  "question_type": "MCQ",
+  "marks": 1.0,
+  "negative_marks": 0.33,
+  "options": {
+    "A": "have been playing",
+    "B": "had been playing",
+    "C": "would have been playing",
+    "D": "could be playing"
+  },
+  "answer_key": "B",
+  "has_question_image": false,
+  "image_metadata": null,
+  "tier_0_classification": {
+    "content_type": "conceptual_application",
+    "media_type": "text_only",
+    "difficulty_score": 3,
+    "complexity_flags": {
+      "requires_derivation": false,
+      "multi_concept_integration": false,
+      "ambiguous_wording": false,
+      "image_interpretation_complex": false,
+      "edge_case_scenario": false,
+      "multi_step_reasoning": false,
+      "approximation_needed": false
+    },
+    "use_gpt51": false,
+    "classification_confidence": 0.95,
+    "classification_reasoning": "This question tests the understanding of English grammar and tense usage in a sentence. It's a straightforward application of grammatical rules, making it a conceptual application question with low difficulty.",
+    "combined_type": "conceptual_application_text_only",
+    "weight_strategy": "APPLICATION_WEIGHTED",
+    "classification_method": "llm_assisted",
+    "classifier_model": "gemini_2.0_flash_exp"
+  },
+  "tier_1_core_research": {
+    "answer_validation": {
+      "correct_answer": "B",
+      "is_correct": true,
+      "confidence": 0.98,
+      "confidence_type": "single_model",
+      "reasoning": "The sentence describes an action ('playing tennis') that was ongoing for a duration in the past and was interrupted by another past action ('it suddenly started to rain'). This grammatical structure requires the Past Perfect Continuous tense. The Past Perfect Continuous tense is formed by 'had + been + verb-ing'. Option B, 'had been playing', correctly forms this tense, indicating that the action of playing tennis had been in progress for some time before the rain started. Other options are incorrect: 'have been playing' is Present Perfect Continuous (action continuing to present), 'would have been playing' is Conditional Perfect Continuous (hypothetical past), and 'could be playing' implies present/future possibility. The phrase 'When it suddenly started to rain' establishes a simple past interrupting event, confirming the need for a past continuous tense that precedes it."
+    },
+    "explanation": {
+      "question_nature": "Application (Grammar)",
+      "step_by_step": [
+        "Identify the time frame and key events in the sentence, noting that 'it suddenly started to rain' indicates a past event.",
+        "Determine the relationship between the two actions: the action of playing tennis was ongoing and interrupted by the rain.",
+        "Recall the grammar rule for an ongoing past action interrupted by another past event: the Past Perfect Continuous tense is used for the longer, ongoing action.",
+        "Formulate the Past Perfect Continuous tense: Subject + had been + Verb-ing (present participle). Then, evaluate the options based on this structure and temporal context.",
+        "Select option B, 'had been playing', as it correctly uses the Past Perfect Continuous tense to describe an action ongoing before another past event."
+      ],
+      "formulas_used": [
+        "Past Perfect Continuous Tense Structure: Subject + had been + present participle (verb-ing)"
+      ],
+      "estimated_time_minutes": 1.62
+    },
+    "hierarchical_tags": {
+      "subject": {
+        "name": "English Grammar",
+        "confidence": 1.0
+      },
+      "topic": {
+        "name": "Verb Tenses",
+        "syllabus_ref": "GATE General Aptitude Section: English Grammar / Verbal Ability"
+      },
+      "concepts": [
+        {
+          "name": "Past Perfect Continuous Tense",
+          "importance": "primary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Interrupted Past Actions",
+          "importance": "secondary",
+          "consensus": "ensemble"
+        },
+        {
+          "name": "Interrupted Past Actions",
+          "importance": "tertiary",
+          "consensus": "ensemble"
+        }
+      ]
+    },
+    "prerequisites": {
+      "essential": [
+        "Basic understanding of English verb tenses (Simple Past, Past Continuous, Present Perfect Continuous, Present Perfect).",
+        "Ability to identify the sequence of events in a sentence and apply appropriate verb tenses based on context."
+      ],
+      "helpful": [
+        "Familiarity with the nuances of continuous tenses and general English grammar rules."
+      ],
+      "dependency_tree": {
+        "Past Perfect Continuous Tense": [
+          "requires: Understanding of Past Simple Tense",
+          "requires: Continuous Aspect",
+          "enables: Describing Interrupted Past Actions",
+          "enables: Precise communication of past events"
+        ],
+        "Past Perfect Continuous for Interrupted Actions": [
+          "requires: Understanding of Simple Past tense",
+          "requires: Understanding of Past Continuous tense",
+          "requires: Concept of 'interrupted action' in narrative",
+          "enables: Accurate construction of complex past narratives"
+        ]
+      }
+    },
+    "difficulty_analysis": {
+      "overall": "Easy",
+      "score": 2.38,
+      "complexity_breakdown": {
+        "conceptual": 3,
+        "mathematical": 1,
+        "problem_solving": 2
+      },
+      "estimated_solve_time_seconds": 30,
+      "expected_accuracy_percent": 90,
+      "difficulty_factors": [
+        "Requires understanding of tense sequencing and temporal relationships between past actions.",
+        "Distractor options use similar verb forms (perfect continuous)"
+      ]
+    },
+    "textbook_references": [
+      {
+        "source_type": "book",
+        "book": "English Grammar in Use",
+        "author": "Raymond Murphy",
+        "chapter_number": "3",
+        "chapter_title": "Past and Present",
+        "section": "3.6 Past Perfect Continuous",
+        "page_range": "36-37",
+        "complexity": "intermediate",
+        "relevance_score": 0.9,
+        "source": "model_consensus",
+        "text_snippet": "The past perfect continuous is used to describe an action that was in progress before something else happened."
+      },
+      {
+        "source_type": "book",
+        "book": "High School English Grammar and Composition",
+        "author": "Wren & Martin",
+        "chapter_number": "20-22",
+        "chapter_title": "Tenses and Their Uses",
+        "section": "Past Perfect Continuous",
+        "complexity": "introductory",
+        "relevance_score": 1.0,
+        "source": "model_consensus",
+        "text_snippet": "The Past Perfect Continuous is used for an action that began before a certain point in the past and continued up to that time, or was interrupted by another past event."
+      }
+    ],
+    "video_references": [],
+    "step_by_step_solution": {
+      "approach_type": "Grammatical Rule Application",
+      "total_steps": 5,
+      "solution_path": "Identify time frame and temporal relationship → Analyze context and action relationship → Determine appropriate tense rule → Evaluate options → Select correct tense.",
+      "key_insights": [
+        "The 'when' clause often signals an interruption of a prior ongoing action in the past, indicating the use of a continuous past tense (like Past Perfect Continuous) for the longer action.",
+        "The Past Perfect Continuous emphasizes the duration of an action before another past event."
+      ]
+    },
+    "formulas_principles": [
+      {
+        "formula": "Subject + had + been + Verb-ing (present participle)",
+        "name": "Past Perfect Continuous Tense Structure",
+        "conditions": "Used for an action that started in the past, continued for some duration, and was interrupted or completed by another action in the past.",
+        "type": "principle",
+        "relevance": "Core principle for solving this grammar question."
+      }
+    ],
+    "real_world_applications": {
+      "industry_examples": [
+        "Using the appropriate verb tenses is crucial in technical and professional writing, such as in engineering reports, project documentation, and business communications.",
+        "Aircraft incident reporting (describing sequences of events)",
+        "Clear communication in operational manuals"
+      ],
+      "specific_systems": [
+        "N/A"
+      ],
+      "practical_relevance": "Accurate use of verb tenses is crucial for clear, unambiguous, and professional communication in all academic and professional settings, including technical documentation, reports, safety analyses, and presentations, ensuring correct interpretation of timelines and events."
+    }
+  },
+  "tier_2_student_learning": {
+    "common_mistakes": [
+      {
+        "mistake": "Confusing Past Perfect Continuous with Present Perfect Continuous, or generally using the wrong verb tense for past actions.",
+        "why_students_make_it": "Students often confuse present and past time frames, incorrectly associating 'have been' with recent or ongoing actions, failing to distinguish between an action continuing up to the present moment versus an action continuing up to a specific point in the past.",
+        "type": "Conceptual",
+        "severity": "Medium",
+        "frequency": "common",
+        "how_to_avoid": "Carefully analyze the context and time frame of the action, specifically looking for time markers like 'when it suddenly started to rain' which clearly place the interruption in the past, thereby guiding the selection of the appropriate past tense.",
+        "consequence": "Grammatically incorrect sentence, which can lead to misinterpretation of the timeline of events."
+      },
+      {
+        "mistake": "Using Simple Past Continuous ('were playing') instead of Past Perfect Continuous.",
+        "why_students_make_it": "Students might miss the subtle distinction or the emphasis on prior duration that Past Perfect Continuous provides, even though Simple Past Continuous might be grammatically acceptable in some contexts.",
+        "type": "Conceptual",
+        "severity": "Medium",
+        "frequency": "occasional",
+        "how_to_avoid": "Understand that Past Continuous describes an action ongoing at a specific past moment, while Past Perfect Continuous describes an action ongoing *for a period* up to a specific past moment, often implying a cause-and-effect or duration leading to the interruption. Pay close attention to the overall time frame.",
+        "consequence": "Less precise or less emphatic communication of the duration of the prior action."
+      },
+      {
+        "consequence": "Completely mismatches the past narrative tense.",
+        "frequency": "common",
+        "how_to_avoid": "Identify the time frame first. The sentence is narrating a past event, not discussing present or future possibility. 'Could be' suggests present/future uncertainty.",
+        "mistake": "Choosing D ('could be playing') - Modal with present continuous.",
+        "severity": "High",
+        "type": "Conceptual",
+        "why_students_make_it": "Focusing on the possibility ('could') rather than the actual past sequence of events."
+      }
+    ],
+    "mnemonics_memory_aids": [
+      {
+        "mnemonic": "PAST PERFECT CONTINUOUS: 'Had been' + verb-ing",
+        "concept": "Past Perfect Continuous Tense",
+        "effectiveness": "high",
+        "context": "Use this mnemonic to quickly identify and apply the past perfect continuous tense when describing an ongoing past action that was interrupted."
+      },
+      {
+        "mnemonic": "When PAST interrupts PAST, use HAD + been + ING for the longer action.",
+        "concept": "Sequence of past tenses for interrupted actions",
+        "effectiveness": "high",
+        "context": "Quick rule for sentences with 'when' or 'while' describing two past actions."
+      },
+      {
+        "mnemonic": "When PAST interrupts PAST, use HAD + been + ING for the longer action.",
+        "concept": "Sequence of past tenses for interrupted actions",
+        "effectiveness": "high",
+        "context": "Quick rule for sentences with 'when' or 'while' describing two past actions."
+      }
+    ],
+    "flashcards": [
+      {
+        "card_type": "concept_recall",
+        "front": "What is the primary use of the Past Perfect Continuous tense?",
+        "back": "The Past Perfect Continuous tense is used to describe an action that started in the past, continued for some duration, and was interrupted or completed by another action in the past. The structure is 'had been' + verb-ing. Example: We had been playing when it started to rain.",
+        "difficulty": "easy",
+        "time_limit_seconds": 30
+      },
+      {
+        "card_type": "formula_recall",
+        "front": "What is the structure of the Past Perfect Continuous tense?",
+        "back": "Subject + had + been + Verb-ing (present participle).",
+        "difficulty": "easy",
+        "time_limit_seconds": 15
+      },
+      {
+        "card_type": "application",
+        "front": "Complete the sentence: 'They __________ (wait) for an hour when the bus finally arrived.'",
+        "back": "'They had been waiting for an hour when the bus finally arrived.'",
+        "difficulty": "medium",
+        "time_limit_seconds": 45
+      },
+      {
+        "card_type": "mistake_prevention",
+        "front": "How do you differentiate between 'have been' and 'had been'?",
+        "back": "'Have been' (Present Perfect Continuous) refers to an action continuing up to the present. 'Had been' (Past Perfect Continuous) refers to an action continuing up to a specific point in the past.",
+        "difficulty": "easy",
+        "time_limit_seconds": 30
+      }
+    ],
+    "real_world_context": [
+      {
+        "application": "Technical report writing and documentation in engineering.",
+        "industry_example": "An accident investigation report might state: 'The aircraft had been experiencing minor vibrations for several minutes when the engine failure occurred.' This clearly establishes the sequence and duration of events leading to the failure.",
+        "why_it_matters": "Precise use of tenses ensures that the sequence and duration of events are communicated accurately, which is critical for analysis, troubleshooting, and preventing future incidents."
+      },
+      {
+        "application": "Project Status Reporting",
+        "industry_example": "In a project review: 'The team had been testing the prototype for two weeks when the funding was paused.' This accurately communicates the progress up to the interruption.",
+        "why_it_matters": "Clear communication of timelines helps in assessing project delays and resource allocation."
+      }
+    ],
+    "exam_strategy": {
+      "priority": "Must Attempt",
+      "triage_tip": "Quickly identify the overall time frame (past) and look for an interrupting event. Look for keywords like 'when', 'before', 'by the time' to understand the temporal relationship between actions. If an action was ongoing for a duration before another past action, consider Past Perfect Continuous.",
+      "guessing_heuristic": "If unsure, eliminate options that clearly refer to the present or future. Focus on past tenses and consider which one best conveys duration leading up to another past event. For conditional perfect continuous, ensure the sentence implies a condition.",
+      "time_management": "This type of question should be solved quickly, ideally within 30-60 seconds, to save time for more complex problems."
+    }
+  },
+  "tier_3_enhanced_learning": {
+    "search_keywords": [
+      "past perfect continuous tense",
+      "interrupted past actions grammar",
+      "Difference between Past Continuous and Past Perfect Continuous",
+      "difference between past perfect and past perfect continuous",
+      "when to use had been + ing",
+      "GATE General Aptitude English grammar",
+      "English grammar rules for past tenses"
+    ],
+    "alternative_methods": [
+      {
+        "name": "Rewriting the Sentence in Different Tenses",
+        "description": "To further solidify understanding, try rewriting the given sentence using other past tense forms, such as simple past, past continuous, or past perfect. Observe how the meaning and context changes with each tense.",
+        "pros_cons": "Pros: Provides deeper practice and reinforcement of verb tense usage. Cons: May be time-consuming for exam situations.",
+        "when_to_use": null
+      },
+      {
+        "name": "Time Line Visualization",
+        "description": "Draw a horizontal time line. Mark the point when 'it started to rain'. Then show the action of 'playing tennis' as a continuous line leading up to and stopping at that point. This visual reinforces that the playing happened before and up to the rain.",
+        "pros_cons": "Pros: Intuitive for visual learners. Cons: Not feasible in an exam setting, but good for study.",
+        "when_to_use": "During initial learning or when confused about the sequence."
+      }
+    ],
+    "connections_to_other_subjects": {
+      "Technical Communication": "Understanding and correctly applying grammar rules is fundamental for clear, concise, and professional technical writing, which is essential in all engineering disciplines.",
+      "General Aptitude": "Grammar and verbal ability questions are a standard component of the General Aptitude section in competitive exams like GATE, testing foundational language skills.",
+      "English Language": "Proper use of verb tenses is a fundamental skill in English grammar, which is applicable across all academic and professional disciplines.",
+      "Logic and Sequencing": "Understanding tense sequence parallels logical sequencing of cause and effect or events in time, a skill useful in algorithm design and systems analysis."
+    },
+    "deeper_dive_topics": [
+      "Sequence of tenses in complex and compound sentences.",
+      "The use of 'for' and 'since' with perfect continuous tenses.",
+      "Passive voice constructions with Past Perfect Continuous."
+    ]
+  },
+  "tier_4_metadata_and_future": {
+    "model_meta": {
+      "models_used": [
+        "gemini_2.5_pro",
+        "claude_sonnet_4.5",
+        "deepseek_r1"
+      ],
+      "model_count": 3,
+      "weight_strategy": "APPLICATION_WEIGHTED",
+      "weights_applied": {
+        "gemini_2.5_pro": 0.37499999999999994,
+        "claude_sonnet_4.5": 0.37499999999999994,
+        "deepseek_r1": 0.25
+      },
+      "consensus_method": "weighted_voting",
+      "debate_rounds": 0,
+      "converged_fields_count": 5,
+      "debated_fields_count": 0,
+      "flagged_for_review": [],
+      "gpt51_added_in_debate": false,
+      "timestamp": "2025-12-26T19:02:25.949829",
+      "pipeline_version": "1.0.0"
+    },
+    "quality_score": {
+      "overall": 0.831,
+      "band": "SILVER",
+      "metrics": {
+        "avg_model_confidence": 0.75,
+        "consensus_rate": 0.9,
+        "debate_efficiency": 1.0,
+        "rag_relevance": 0.489,
+        "field_completeness": 1.0
+      }
+    },
+    "cost_breakdown": {
+      "total_cost": 0.09085187,
+      "currency": "USD",
+      "per_model": {
+        "gemini_2.5_pro": 0.0033762,
+        "claude_sonnet_4.5": 0.073419,
+        "deepseek_r1": 0.01405667
+      },
+      "classification_cost": 5e-05,
+      "image_consensus_cost": 0,
+      "debate_cost": 0.0,
+      "total_api_calls": 3
+    },
+    "token_usage": {
+      "total_input_tokens": 28898,
+      "total_output_tokens": 10221,
+      "total_tokens": 39119,
+      "per_model": {
+        "gemini_2.5_pro": {
+          "input": 9544,
+          "output": 3241,
+          "total": 12785
+        },
+        "claude_sonnet_4.5": {
+          "input": 10313,
+          "output": 2832,
+          "total": 13145
+        },
+        "deepseek_r1": {
+          "input": 9041,
+          "output": 4148,
+          "total": 13189
+        }
+      }
+    },
+    "processing_time": {
+      "total_seconds": 296.7438404560089,
+      "per_stage": {
+        "stage_1": 0.005669593811035156,
+        "stage_2": 1.9923961162567139,
+        "stage_3": 2.966676950454712,
+        "stage_4": 8.13815450668335,
+        "stage_5": 119.46860456466675,
+        "stage_6": 164.17233872413635,
+        "stage_8": 0.004106283187866211
+      },
+      "bottleneck_stage": "stage_6",
+      "parallel_generation_time": 119.46860456466675,
+      "debate_time": 0
+    }
+  }
+}
