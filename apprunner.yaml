@@ -1,0 +1,16 @@
+version: 1.0
+runtime: python3
+build:
+  commands:
+    build:
+      - cd backend
+      - pip install -r requirements.txt
+run:
+  # Start the application from the backend directory
+  command: cd backend && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8080
+network:
+  port: 8080
+  env:
+    # These can be overridden in the App Runner console
+    PYTHONUNBUFFERED: "1"
+    APP_MODULE: "app.main:app"

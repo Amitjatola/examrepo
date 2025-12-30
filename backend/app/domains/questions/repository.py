@@ -7,12 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_, and_, Text, text, cast, String
 from sqlalchemy.dialects.postgresql import JSONB
 from pgvector.sqlalchemy import Vector
+from pgvector.sqlalchemy import Vector
 from typing import Optional, List, Set
 import uuid
 
 from app.domains.questions.models import Question
 from app.domains.questions.schemas import QuestionCreate, SearchFilters
 from app.core.embedding import generate_embeddings
+
 
 
 class QuestionRepository:
