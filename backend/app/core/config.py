@@ -3,9 +3,10 @@ Application configuration using Pydantic Settings.
 Loads from environment variables and .env file.
 """
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from functools import lru_cache
-from typing import List
+from typing import Any, List, Union
 
 
 class Settings(BaseSettings):
@@ -22,8 +23,15 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://user:password@localhost:5432/aerogate"
     
-    # CORS - expects JSON array format: ["https://example.com"]
-    cors_origins: List[str] = ["*"]
+    # CORS - Compatible with comma-separated string "http://a.com,http://b.com" or JSON
+    cors_origins: Union[str, list[str]] = ["*"]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v: Any) -> Any:
+        if isinstance(v, str) and not v.strip().startswith("["):
+            return [i.strip() for i in v.split(",")]
+        return v
     
     class Config:
         env_file = ".env"

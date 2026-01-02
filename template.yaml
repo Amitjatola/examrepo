@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Aerogate Backend
+  Serverless FastAPI deployment using AWS Lambda and API Gateway.
+
+Globals:
+  Function:
+    Timeout: 120
+    MemorySize: 2048
+
+Resources:
+  AerogateApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - arm64
+      Events:
+        HttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: any
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+          CORS_ORIGINS: !Ref CorsOrigins
+          HF_HOME: "/tmp/huggingface"  # Tell HuggingFace to use writable temp dir
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+    Metadata:
+      DockerTag: dependencies-v1
+      DockerContext: backend
+      Dockerfile: Dockerfile.lambda
+
+  # Log Group for the function
+  AerogateApiFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AerogateApiFunction}"
+      RetentionInDays: 7
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: Connection string for the PostgreSQL database
+    NoEcho: true
+  CorsOrigins:
+    Type: String
+    Description: Allowed CORS origins
+    Default: "*"
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"

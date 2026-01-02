@@ -80,7 +80,8 @@ def main():
     
     # Check if API is healthy first
     try:
-        health = requests.get(f"https://examrepo-production.up.railway.app/health", timeout=10)
+        # Check API health
+        health = requests.get(f"{API_BASE.replace('/api/v1', '')}/health", timeout=10)
         if health.status_code != 200:
             print("⚠️ API Health check failed. Is the backend running?")
             # Proceed anyway as health check path might vary

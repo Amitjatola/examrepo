@@ -4,6 +4,7 @@ Aerogate API - GATE Aerospace Question Bank Backend
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 from contextlib import asynccontextmanager
 from loguru import logger
 
@@ -17,7 +18,11 @@ async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
     logger.info("Starting Aerogate API...")
-    logger.add("logs/app.log", rotation="10 MB", retention="7 days", level="INFO")
+    # Try to log to file (works locally, skips on Lambda read-only FS)
+    try:
+        logger.add("logs/app.log", rotation="10 MB", retention="7 days", level="INFO")
+    except OSError:
+        logger.warning("Could not write to logs/app.log (likely running in Lambda/ReadOnly environment)")
     
     # Initialize database tables
     try:
@@ -77,6 +82,10 @@ async def health_check():
         "service": "aerogate-api",
         "database": "postgresql",
     }
+
+
+# Lambda Handler
+handler = Mangum(app)
 
 
 if __name__ == "__main__":

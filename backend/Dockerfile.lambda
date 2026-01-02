@@ -1,0 +1,24 @@
+FROM public.ecr.aws/lambda/python:3.9
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install build dependencies (needed for some ML libraries like hf-xet)
+RUN yum install -y gcc gcc-c++ make git
+
+# Install dependencies (flag --no-cache-dir to keep image small)
+# The --extra-index-url is already in requirements.txt, but sometimes explicit command helps if fails
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Force cache invalidation for app code updates
+ARG CACHE_BUST=3
+COPY app ${LAMBDA_TASK_ROOT}/app
+
+# Pre-download the AI model to bake it into the image (Faster Cold Starts!)
+# We set HF_HOME temporarily for build, but runtime will override or use it if we copy.
+# Actually, better to set HF_HOME env in Dockerfile so it persists?
+# But Lambda overrides HOME. We trust the runtime env var.
+RUN python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
+
+# Set the CMD to your handler (could also be done as a parameter override in template.yaml)
+CMD [ "app.main.handler" ]

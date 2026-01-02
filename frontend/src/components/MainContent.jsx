@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 function MainContent() {
     const { theme, toggleTheme } = useTheme();
     const { openLogin, openRegister, user, logout } = useAuth();
-    const [isZenMode, setIsZenMode] = useState(false);
+    const [isZenMode, setIsZenMode] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
 
     // Persist app state to localStorage for page refresh support
     const getInitialState = () => {
@@ -62,6 +62,22 @@ function MainContent() {
         };
         localStorage.setItem('aerogate_state', JSON.stringify(stateToSave));
     }, [view, activeTab, query, selectedSubject, selectedTopic, selectedQuestionId]);
+
+    // Handle resize to auto-hide sidebar on mobile
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) {
+                setIsZenMode(true);
+            } else {
+                setIsZenMode(false);
+            }
+        };
+
+        // We only want to set this on resize, but maybe not override user preference too aggressively?
+        // Actually for a simple fix, let's just use the initial state. 
+        // Adding a forced listener overrides user toggle if they resize slightly. 
+        // Let's skip the resize listener for now as the initial state fix covers the "loading properly" request.
+    }, []);
 
     // Re-run search on page load if we have a saved query but no results
     useEffect(() => {
@@ -427,7 +443,7 @@ function MainContent() {
                 </>
             ) : (
                 <div className={`min-h-screen bg-background-light dark:bg-background-dark flex transition-colors duration-300 font-sans`}>
-                    {!isZenMode && <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onLogoClick={() => setView('landing')} />}
+                    {!isZenMode && <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onLogoClick={() => setView('landing')} onClose={() => setIsZenMode(true)} />}
 
                     <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${!isZenMode && 'lg:ml-72'}`}>
                         <Header

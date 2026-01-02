@@ -1,0 +1,35 @@
+{
+    "version": "2.0",
+    "routeKey": "GET /docs",
+    "rawPath": "/docs",
+    "rawQueryString": "",
+    "headers": {
+        "accept": "*/*",
+        "content-length": "0",
+        "host": "localhost",
+        "user-agent": "curl/7.64.1",
+        "x-amzn-trace-id": "Root=1-64a66e33-2c7c2e365c69781878895055",
+        "x-forwarded-for": "127.0.0.1",
+        "x-forwarded-port": "3000",
+        "x-forwarded-proto": "http"
+    },
+    "requestContext": {
+        "accountId": "123456789012",
+        "apiId": "r3pmxmplak",
+        "domainName": "localhost",
+        "domainPrefix": "r3pmxmplak",
+        "http": {
+            "method": "GET",
+            "path": "/docs",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "127.0.0.1",
+            "userAgent": "curl/7.64.1"
+        },
+        "requestId": "JKJaXmPLvHcESHA=",
+        "routeKey": "GET /docs",
+        "stage": "$default",
+        "time": "12/Mar/2020:19:03:58 +0000",
+        "timeEpoch": 1583348638390
+    },
+    "isBase64Encoded": false
+}

@@ -15,11 +15,14 @@ from app.domains.auth.models import User
 
 
 
+from sqlalchemy.pool import NullPool
+
 # Create async engine
 engine = create_async_engine(
     settings.database_url,
     echo=settings.debug,
     future=True,
+    poolclass=NullPool,  # Critical for Lambda: Disable pooling to avoid frozen/stale connections
 )
 
 # Create async session factory
