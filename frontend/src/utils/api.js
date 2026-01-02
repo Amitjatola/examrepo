@@ -10,8 +10,21 @@ export const api = {
             }
         });
 
-        const response = await fetch(url.toString());
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        const token = localStorage.getItem('token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(url.toString(), { headers });
         if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login'; // Simple redirect for now
+            }
             throw new Error(`API Error: ${response.statusText}`);
         }
         return response.json();
@@ -21,23 +34,27 @@ export const api = {
         console.log('[API DEBUG] POST Request:', { baseURL: BASE_URL, endpoint, fullUrl: `${BASE_URL}${endpoint}`, body });
         const url = new URL(`${BASE_URL}${endpoint}`);
 
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        const token = localStorage.getItem('token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(url.toString(), {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: JSON.stringify(body),
         });
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
-            // Handle error.detail which can be a string, object, or array
             let errorMessage = `API Error: ${response.statusText}`;
             if (error.detail) {
                 if (typeof error.detail === 'string') {
                     errorMessage = error.detail;
                 } else if (Array.isArray(error.detail)) {
-                    // Pydantic validation errors format
                     errorMessage = error.detail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
                 } else if (typeof error.detail === 'object') {
                     errorMessage = error.detail.message || error.detail.msg || JSON.stringify(error.detail);

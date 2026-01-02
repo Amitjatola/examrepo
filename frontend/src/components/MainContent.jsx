@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import SearchBox from './SearchBox';
 import QuestionCard from './QuestionCard';
 import SkeletonCard from './SkeletonCard';
-import PreviousYearPapers from './PreviousYearPapers';
+import PaperAttemptView from './PaperAttemptView';
 import QuestionDetail from './QuestionDetail';
 import YearSelection from './YearSelection';
 import LandingPage from './LandingPage';
@@ -43,12 +43,16 @@ function MainContent() {
     const [syllabusTree, setSyllabusTree] = useState({});
     const [selectedSubject, setSelectedSubject] = useState(savedState?.selectedSubject || null);
     const [selectedTopic, setSelectedTopic] = useState(savedState?.selectedTopic || null);
+    const [selectedYear, setSelectedYear] = useState(savedState?.selectedYear || null);
     const [selectedQuestionId, setSelectedQuestionId] = useState(savedState?.selectedQuestionId || null);
 
     const toggleZenMode = () => setIsZenMode(!isZenMode);
     const [results, setResults] = useState([]);
     const [error, setError] = useState(null);
     const [total, setTotal] = useState(0);
+
+    // State for back button handling
+    const isPopping = React.useRef(false);
 
     // Save state to localStorage when it changes
     useEffect(() => {
@@ -61,7 +65,49 @@ function MainContent() {
             selectedQuestionId,
         };
         localStorage.setItem('aerogate_state', JSON.stringify(stateToSave));
+
+        // Push to history stack if not popping
+        if (!isPopping.current) {
+            window.history.pushState(stateToSave, '', '');
+        } else {
+            // Reset the flag
+            isPopping.current = false;
+        }
     }, [view, activeTab, query, selectedSubject, selectedTopic, selectedQuestionId]);
+
+    // Handle back button (popstate)
+    useEffect(() => {
+        const handlePopState = (event) => {
+            if (event.state) {
+                isPopping.current = true; // Prevent pushing this state back
+                // Restore state from history
+                const s = event.state;
+                if (s.view) setView(s.view);
+                if (s.activeTab) setActiveTab(s.activeTab);
+                if (s.query !== undefined) setQuery(s.query); // checking undefined allows empty string
+                if (s.selectedSubject !== undefined) setSelectedSubject(s.selectedSubject);
+                if (s.selectedTopic !== undefined) setSelectedTopic(s.selectedTopic);
+                if (s.selectedQuestionId !== undefined) setSelectedQuestionId(s.selectedQuestionId);
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        // Initial replaceState to ensure we have a valid starting state
+        const initialState = {
+            view,
+            activeTab,
+            query,
+            selectedSubject,
+            selectedTopic,
+            selectedQuestionId,
+        };
+        window.history.replaceState(initialState, '', '');
+
+        return () => window.removeEventListener('popstate', handlePopState);
+        // We only want to set up the listener once
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Handle resize to auto-hide sidebar on mobile
     useEffect(() => {
@@ -171,7 +217,8 @@ function MainContent() {
     };
 
     const handleYearClick = (year) => {
-        performSearch(year.toString());
+        setSelectedYear(year);
+        setView('years');
     };
 
     const handleSubjectClick = (subject) => {
@@ -179,15 +226,35 @@ function MainContent() {
         setView('syllabus-topics');
     };
 
-    const handleTopicClick = (topic) => {
+    const handleTopicClick = async (topic) => {
         setSelectedTopic(topic);
-        performSearch(topic); // Search using the topic name
+        setQuery(topic); // Optional: show topic name in search box
+
+        setView('results');
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Use exact topic filtering instead of text search
+            const data = await api.get('/search', { topic: topic, q: '' });
+            setResults(data.questions);
+            setTotal(data.total);
+        } catch (err) {
+            setError(`Error: ${err.message}. Make sure the backend is running.`);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleBack = () => {
         if (view === 'question-detail') {
-            // Basic history management
-            if (activeTab === 'year_select') setView('years');
+            // From Detail -> List
+            if (activeTab === 'year_select') setView('results');
+            else if (activeTab === 'concepts') setView('results');
+            else setView('results');
+        } else if (view === 'results') {
+            // From List -> Category/Index
+            if (activeTab === 'year_select') setView('year_select');
             else if (activeTab === 'concepts') setView('syllabus-topics');
             else setView('home');
         }
@@ -233,10 +300,10 @@ function MainContent() {
         }
 
         if (view === 'years') {
-            return <PreviousYearPapers onQuestionSelect={(q) => {
-                setSelectedQuestionId(q.question_id);
-                setView('question-detail');
-            }} />;
+            return <PaperAttemptView
+                year={selectedYear}
+                onBack={() => setView('year_select')}
+            />;
         }
 
         if (view === 'syllabus-subjects') {
@@ -449,7 +516,7 @@ function MainContent() {
                         <Header
                             toggleTheme={toggleTheme}
                             theme={theme}
-                            variant={view === 'question-detail' ? 'detail' : 'default'}
+                            variant={['question-detail', 'results'].includes(view) ? 'detail' : 'default'}
                             onBack={handleBack}
                             onToggleSidebar={toggleZenMode}
                             breadcrumbs={getBreadcrumbs()}

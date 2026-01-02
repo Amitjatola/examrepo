@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Sun, Moon, ChevronRight, Menu, User, LogOut, LogIn } from 'lucide-react';
+import { Search, Sun, Moon, ChevronRight, Menu, User, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, breadcrumbs = [] }) => {
@@ -55,53 +55,17 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
                             </div>
                         )}
                     </div>
-                ) : (
-                    /* Main Search Bar */
-                    <div className={`relative group ${!showSearch ? 'invisible' : ''}`}>
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="text-[#617589] dark:text-gray-500" size={20} />
-                        </div>
-                        <input
-                            type="text"
-                            className="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl leading-5 bg-[#f0f2f4] dark:bg-background-dark/50 text-slate-900 dark:text-white placeholder-[#617589] focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm transition-all shadow-none"
-                            placeholder="Search for questions, topics, or exams..."
-                        />
-                    </div>
-                )}
+                ) : null}
             </div>
 
             {/* Right Section */}
             <div className={`flex items-center ${isDetail ? 'gap-6 flex-1 justify-end' : 'gap-6'}`}>
-                {/* Detail View Small Search */}
-                {isDetail && (
-                    <label className="hidden sm:flex flex-col min-w-40 w-full max-w-xs h-10">
-                        <div className="flex w-full flex-1 items-stretch rounded-lg h-full relative">
-                            <div className="text-[#617589] absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-                                <Search size={20} />
-                            </div>
-                            <input
-                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-transparent bg-[#f0f2f4] dark:bg-background-dark/50 h-full placeholder:text-[#617589] pl-10 pr-4 text-sm font-normal leading-normal transition-all"
-                                placeholder="Search questions..."
-                            />
-                        </div>
-                    </label>
-                )}
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 md:gap-6">
-                    {!isDetail && (
-                        <button className="relative p-2 text-[#617589] dark:text-gray-400 hover:bg-[#f0f2f4] dark:hover:bg-white/5 rounded-full transition-colors cursor-pointer">
-                            <Bell size={24} />
-                            <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-card-dark"></span>
-                        </button>
-                    )}
 
-                    {isDetail && (
-                        <button className="relative flex items-center justify-center rounded-lg size-10 bg-[#f0f2f4] dark:bg-background-dark/50 text-slate-900 dark:text-white hover:bg-[#e2e4e7] dark:hover:bg-[#4a5568] transition-colors cursor-pointer">
-                            <Bell size={20} />
-                            <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border border-white dark:border-card-dark"></span>
-                        </button>
-                    )}
+
+
 
                     <button
                         onClick={toggleTheme}

@@ -17,8 +17,8 @@ const PreviousYearPapers = ({ onQuestionSelect }) => {
             setLoading(true);
             try {
                 // Fetch all questions for the year.
-                // Note: The API supports filtering by year.
-                const data = await api.get('/questions', { year: selectedYear });
+                // Note: The API supports filtering by year. Requesting 100 to ensure full paper is loaded.
+                const data = await api.get('/questions', { year: selectedYear, page_size: 100 });
                 setQuestions(data);
             } catch (err) {
                 console.error("Failed to fetch questions:", err);
@@ -44,9 +44,9 @@ const PreviousYearPapers = ({ onQuestionSelect }) => {
         return acc;
     }, {});
 
-    // Sort each subject's questions by question number
+    // Sort each subject's questions by question number (using backend numeric field)
     Object.keys(questionsBySubject).forEach(subject => {
-        questionsBySubject[subject].sort((a, b) => getQuestionNumber(a) - getQuestionNumber(b));
+        questionsBySubject[subject].sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
     });
 
     return (

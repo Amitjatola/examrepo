@@ -5,7 +5,7 @@ import LatexRenderer from './LatexRenderer';
 const QuestionCard = ({ qNo, difficulty, marks, text, tags, type, onClick, question }) => {
     // Adapter if 'question' object is passed instead of direct props (handling legacy usage in App.jsx)
     if (question && !text) {
-        text = question.question_text;
+        text = question.question_text_latex || question.question_text;
         tags = question.concepts || [];
         qNo = question.question_id || '00';
         difficulty = question.difficulty_level || 'Medium'; // Mapped from backend data if available
@@ -25,7 +25,7 @@ const QuestionCard = ({ qNo, difficulty, marks, text, tags, type, onClick, quest
     return (
         <div
             onClick={onClick}
-            className="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer flex flex-col h-full"
+            className="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer flex flex-col h-full min-w-0"
         >
             <div className="flex justify-between items-start mb-3">
                 <div className="flex gap-2 flex-wrap">

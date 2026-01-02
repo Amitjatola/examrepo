@@ -53,11 +53,14 @@ class QuestionListItem(BaseModel):
     id: uuid.UUID
     question_id: str
     year: int
+    question_number: int
     subject: str
     question_text: str
+    question_text_latex: Optional[str] = None
     question_type: str
     marks: float
     difficulty_score: Optional[int] = None
+    difficulty_level: Optional[str] = "Medium" # Default to Medium if unknown
     topic: Optional[str] = None
     concepts: list[str] = []
     options: Optional[dict] = None
@@ -114,3 +117,23 @@ class FilterOptions(BaseModel):
     topics: list[str]
     question_types: list[str]
     concepts: list[str]
+
+
+class DashboardStats(BaseModel):
+    """Stats for user dashboard."""
+    questions_attempted: int
+    attempt_percentage: float
+    hours_studied: float
+    time_studied_seconds: int = 0
+    current_streak: int
+    syllabus_progress: float = 0.0
+    topic_performance: dict[str, float] = {}
+    # Future fields can be added here
+
+
+class AttemptRequest(BaseModel):
+    """Request schema for recording an attempt."""
+    is_correct: bool
+    time_taken_seconds: int = 0
+
+

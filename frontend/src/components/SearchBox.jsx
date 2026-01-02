@@ -8,10 +8,17 @@ const SearchBox = ({ onSearch, initialValue = '' }) => {
     const [activeIndex, setActiveIndex] = useState(-1);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const wrapperRef = useRef(null);
+    const isSelection = useRef(false);
 
     // Debounce suggestion fetching
     useEffect(() => {
         const fetchSuggestions = async () => {
+            // If this update was caused by a selection, ignore it
+            if (isSelection.current) {
+                isSelection.current = false;
+                return;
+            }
+
             if (inputValue.length < 2) {
                 setSuggestions([]);
                 return;
@@ -61,6 +68,7 @@ const SearchBox = ({ onSearch, initialValue = '' }) => {
     };
 
     const selectSuggestion = (suggestion) => {
+        isSelection.current = true;
         setInputValue(suggestion);
         onSearch(suggestion);
         setShowSuggestions(false);

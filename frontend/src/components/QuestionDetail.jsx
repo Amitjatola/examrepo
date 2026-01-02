@@ -7,6 +7,7 @@ import {
 import { api } from '../utils/api';
 import LatexRenderer from './LatexRenderer';
 import QuestionCard from './QuestionCard'; // Reusing the unified card for parts of the UI if needed, or just standardizing styles
+import { useAuth } from '../context/AuthContext';
 
 const QuestionDetail = ({ questionId, onBack }) => {
     const [question, setQuestion] = useState(null);
@@ -15,6 +16,9 @@ const QuestionDetail = ({ questionId, onBack }) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [showSolution, setShowSolution] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+
+    const startTimeRef = React.useRef(Date.now());
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchQuestion = async () => {
@@ -37,6 +41,10 @@ const QuestionDetail = ({ questionId, onBack }) => {
         fetchQuestion();
     }, [questionId]);
 
+    // Reset timer when question changes
+    useEffect(() => {
+        startTimeRef.current = Date.now();
+    }, [questionId]);
 
     if (loading) return <div className="p-8 flex justify-center text-gray-500">Loading question...</div>;
     if (error) return <div className="p-8 flex justify-center text-red-500">Error: {error}</div>;
@@ -63,10 +71,24 @@ const QuestionDetail = ({ questionId, onBack }) => {
     const validation = tier1.answer_validation || {};
     const reasoning = validation.reasoning || "";
 
-    const handleCheckAnswer = () => {
+    const handleCheckAnswer = async () => {
         if (!selectedOption) return;
         setIsChecked(true);
-        // setShowSolution(true); // Optional: Reveal solution immediately or let user decide
+
+        // Record attempt if user is logged in
+        // Ideally we should use the user object from context, but let's assume api handles auth header
+        try {
+            const timeTaken = Math.round((Date.now() - startTimeRef.current) / 1000);
+            const isCorrect = selectedOption === question.answer_key;
+
+            // Fire and forget, or handle error? For UX speed, fire and forget or simple log
+            await api.post(`/questions/${question.question_id}/attempt`, {
+                is_correct: isCorrect,
+                time_taken_seconds: timeTaken
+            });
+        } catch (err) {
+            console.error("Failed to record attempt:", err);
+        }
     };
 
     const isCorrect = selectedOption === question.answer_key;
