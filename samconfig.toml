@@ -5,10 +5,10 @@ stack_name = "examapp-backend"
 resolve_s3 = true
 s3_prefix = "examapp-backend"
 region = "ap-south-1"
-confirm_changeset = true
+confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "CorsOrigins=\"https://main.d29xdjd1t26hts.amplifyapp.com,https://qbt.world,https://www.qbt.world,http://localhost:5173\""
-image_repositories = ["AerogateApiFunction=231399652159.dkr.ecr.ap-south-1.amazonaws.com/examappbackend55d0eed5/aerogateapifunction0918621crepo"]
+
 
 [default.global.parameters]
 region = "ap-south-1"

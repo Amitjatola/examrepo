@@ -7,6 +7,13 @@ from pydantic import BaseModel, Field
 from typing import Optional, Any
 from datetime import datetime
 import uuid
+from app.schemas.analytics import (
+    Tier0Classification,
+    Tier1CoreResearch,
+    Tier2StudentLearning,
+    Tier3EnhancedLearning,
+    Tier4Metadata
+)
 
 
 # ============== Request Schemas ==============
@@ -27,11 +34,11 @@ class QuestionCreate(BaseModel):
     answer_key: str
     has_question_image: bool = False
     image_metadata: Optional[dict] = None
-    tier_0_classification: Optional[dict] = None
-    tier_1_core_research: Optional[dict] = None
-    tier_2_student_learning: Optional[dict] = None
-    tier_3_enhanced_learning: Optional[dict] = None
-    tier_4_metadata: Optional[dict] = None
+    tier_0_classification: Optional[Tier0Classification] = None
+    tier_1_core_research: Optional[Tier1CoreResearch] = None
+    tier_2_student_learning: Optional[Tier2StudentLearning] = None
+    tier_3_enhanced_learning: Optional[Tier3EnhancedLearning] = None
+    tier_4_metadata: Optional[Tier4Metadata] = None
 
 
 class SearchFilters(BaseModel):
@@ -88,11 +95,11 @@ class QuestionResponse(BaseModel):
     answer_key: str
     has_question_image: bool
     image_metadata: Optional[dict]
-    tier_0_classification: Optional[dict]
-    tier_1_core_research: Optional[dict]
-    tier_2_student_learning: Optional[dict]
-    tier_3_enhanced_learning: Optional[dict]
-    tier_4_metadata: Optional[dict]
+    tier_0_classification: Optional[Tier0Classification]
+    tier_1_core_research: Optional[Tier1CoreResearch]
+    tier_2_student_learning: Optional[Tier2StudentLearning]
+    tier_3_enhanced_learning: Optional[Tier3EnhancedLearning]
+    tier_4_metadata: Optional[Tier4Metadata]
     created_at: datetime
     updated_at: datetime
     

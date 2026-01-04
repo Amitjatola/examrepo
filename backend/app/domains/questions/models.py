@@ -69,3 +69,18 @@ class Question(SQLModel, table=True):
                 "marks": 1.0,
             }
         }
+
+
+class UserAttempt(SQLModel, table=True):
+    """
+    Tracks a user's attempt at a question.
+    """
+    __tablename__ = "user_attempts"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(index=True)
+    question_id: uuid.UUID = Field(index=True)
+    is_correct: bool = Field(default=False)
+    time_taken_seconds: int = Field(default=0)
+    attempted_at: datetime = Field(default_factory=datetime.utcnow)
+

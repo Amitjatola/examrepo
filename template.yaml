@@ -13,7 +13,10 @@ Resources:
   AerogateApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      PackageType: Image
+      PackageType: Zip
+      CodeUri: backend/
+      Handler: app.main.handler
+      Runtime: python3.13
       Architectures:
         - arm64
       Events:
@@ -26,14 +29,11 @@ Resources:
         Variables:
           DATABASE_URL: !Ref DatabaseUrl
           CORS_ORIGINS: !Ref CorsOrigins
-          HF_HOME: "/tmp/huggingface"  # Tell HuggingFace to use writable temp dir
+          HF_HOME: "/tmp/huggingface"
       Policies:
         - AWSLambdaBasicExecutionRole
 
-    Metadata:
-      DockerTag: dependencies-v1
-      DockerContext: backend
-      Dockerfile: Dockerfile.lambda
+
 
   # Log Group for the function
   AerogateApiFunctionLogGroup:

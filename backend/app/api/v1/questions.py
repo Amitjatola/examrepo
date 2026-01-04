@@ -10,7 +10,10 @@ import uuid
 
 from app.core.database import get_session
 from app.domains.questions.service import QuestionService
-from app.domains.questions.schemas import QuestionResponse, SearchFilters
+from app.domains.questions.schemas import QuestionResponse, SearchFilters, AttemptRequest
+from app.domains.auth.deps import get_current_user
+from app.domains.auth.models import User
+
 
 
 router = APIRouter(prefix="/questions", tags=["questions"])
@@ -78,6 +81,32 @@ async def get_question(
         raise HTTPException(status_code=404, detail="Question not found")
     
     return question
+
+
+@router.post("/{question_id}/attempt", response_model=dict)
+async def record_attempt(
+    question_id: str,
+    attempt: AttemptRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Record a user's attempt at a question.
+    """
+    service = QuestionService(session)
+    try:
+        await service.record_attempt(
+            user_id=current_user.id,
+            question_id=question_id,
+            is_correct=attempt.is_correct,
+            time_taken=attempt.time_taken_seconds
+        )
+        return {"status": "success", "message": "Attempt recorded"}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.post("/import", response_model=dict)

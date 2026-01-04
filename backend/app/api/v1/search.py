@@ -16,13 +16,15 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.get("", response_model=SearchResult)
+@router.get("", response_model=SearchResult)
 async def search_questions(
-    q: str = Query(..., min_length=1, description="Search query - concept, topic, or keyword"),
+    q: Optional[str] = Query(None, description="Search query - concept, topic, or keyword"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Results per page"),
     year: Optional[int] = Query(None, description="Filter by exam year"),
     years: Optional[str] = Query(None, description="Filter by multiple years (comma-separated)"),
     subject: Optional[str] = Query(None, description="Filter by subject"),
+    topic: Optional[str] = Query(None, description="Filter by exact topic"),
     question_type: Optional[str] = Query(None, description="MCQ or NAT"),
     difficulty_min: Optional[int] = Query(None, ge=1, le=10, description="Minimum difficulty"),
     difficulty_max: Optional[int] = Query(None, ge=1, le=10, description="Maximum difficulty"),
@@ -53,12 +55,19 @@ async def search_questions(
         year=year,
         years=years_list,
         subject=subject,
+        topic=topic,
         question_type=question_type,
         difficulty_min=difficulty_min,
         difficulty_max=difficulty_max,
     )
     
-    result = await service.search_questions(q, filters, page, page_size)
+    # Ensure at least one filter or query is present
+    if not q and not (year or years or subject or topic or question_type):
+        # Fallback to empty result if nothing provided to prevent full DB dump if that was the intention
+        # Or maybe we allow listing all questions? Current repo implementation lists all if !query.
+        pass
+    
+    result = await service.search_questions(q or "", filters, page, page_size)
     return result
 
 

@@ -51,7 +51,7 @@ python-multipart>=0.0.17
 # ML / Embeddings (CPU-only for smaller Docker image)
 # ========================================
 # This special index provides CPU-only PyTorch (~400MB vs 2GB+ with CUDA)
---extra-index-url https://download.pytorch.org/whl/cpu
-torch>=2.0.0
-sentence-transformers>=2.2.0
-numpy>=1.24.0
+# This special index provides CPU-only PyTorch (~400MB vs 2GB+ with CUDA)
+# torch==2.1.0
+# sentence-transformers>=2.2.0
+# numpy>=1.24.0

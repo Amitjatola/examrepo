@@ -10,6 +10,7 @@ import YearSelection from './YearSelection';
 import LandingPage from './LandingPage';
 import AuthModal from './AuthModal';
 import Dashboard from './Dashboard';
+import PremiumPage from './PremiumPage';
 import { useTheme } from '../hooks/useTheme';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
@@ -213,6 +214,8 @@ function MainContent() {
             setView('syllabus-subjects');
             setSelectedSubject(null);
             setSelectedTopic(null);
+        } else if (tabId === 'premium') {
+            setView('premium');
         }
     };
 
@@ -425,6 +428,10 @@ function MainContent() {
                     </div>
                 </div>
             );
+        }
+
+        if (view === 'premium') {
+            return <PremiumPage />;
         }
 
 

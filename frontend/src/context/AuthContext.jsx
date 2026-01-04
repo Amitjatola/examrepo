@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
+    const [subscription, setSubscription] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
@@ -21,6 +22,8 @@ export const AuthProvider = ({ children }) => {
                     const storedUser = localStorage.getItem('user');
                     if (storedUser) {
                         setUser(JSON.parse(storedUser));
+                        // Fetch subscription status
+                        await fetchSubscription();
                     }
                     // TODO: In production, validate token with /me endpoint
                 } catch (error) {
@@ -29,6 +32,7 @@ export const AuthProvider = ({ children }) => {
                 }
             } else {
                 setUser(null);
+                setSubscription(null);
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
             }
@@ -37,6 +41,16 @@ export const AuthProvider = ({ children }) => {
 
         verifyToken();
     }, [token]);
+
+    const fetchSubscription = async () => {
+        try {
+            const data = await api.get('/subscriptions/me');
+            setSubscription(data);
+        } catch (error) {
+            console.error("Failed to fetch subscription:", error);
+            setSubscription(null);
+        }
+    };
 
     const login = async (email, password) => {
         try {
@@ -47,6 +61,8 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('user', JSON.stringify(userData));
             setAuthModalOpen(false);
+            // Fetch subscription after successful login
+            await fetchSubscription();
             return { success: true };
         } catch (error) {
             console.error("Login Error:", error);
@@ -69,6 +85,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setToken(null);
         setUser(null);
+        setSubscription(null);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     };
@@ -91,10 +108,13 @@ export const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             user,
             token,
+            subscription,
+            isPremium: subscription?.is_premium || false,
             isLoading,
             login,
             register,
             logout,
+            fetchSubscription,
             authModalOpen,
             authMode,
             openLogin,

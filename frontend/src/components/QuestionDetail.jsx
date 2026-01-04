@@ -6,8 +6,9 @@ import {
 } from 'lucide-react';
 import { api } from '../utils/api';
 import LatexRenderer from './LatexRenderer';
-import QuestionCard from './QuestionCard'; // Reusing the unified card for parts of the UI if needed, or just standardizing styles
+import QuestionCard from './QuestionCard';
 import { useAuth } from '../context/AuthContext';
+import { TierViews } from './premium/TierViews';
 
 const QuestionDetail = ({ questionId, onBack }) => {
     const [question, setQuestion] = useState(null);
@@ -18,7 +19,7 @@ const QuestionDetail = ({ questionId, onBack }) => {
     const [isChecked, setIsChecked] = useState(false);
 
     const startTimeRef = React.useRef(Date.now());
-    const { user } = useAuth();
+    const { user, isPremium } = useAuth();
 
     useEffect(() => {
         const fetchQuestion = async () => {
@@ -293,6 +294,20 @@ const QuestionDetail = ({ questionId, onBack }) => {
                         </div>
                     </div>
                 )}
+
+                {/* Premium Analysis Tiers */}
+                {/* 
+                    Premium access requires:
+                    1. User must be logged in
+                    2. User must have premium subscription OR active free trial
+                    
+                    TODO: Add backend API to check subscription status
+                    For now, we'll check if user is logged in as a basic gate
+                */}
+                <TierViews
+                    question={question}
+                    isPremium={isPremium}
+                />
             </div>
         </div>
     );

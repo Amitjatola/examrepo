@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, BookOpen, Lightbulb, History, GraduationCap, LogOut, LogIn, Tag, Info, X } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lightbulb, History, GraduationCap, LogOut, LogIn, Tag, Info, X, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, onLogoClick, onClose }) => {
@@ -14,6 +14,8 @@ const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, on
                 { id: 'year_select', label: 'Practice by Year', icon: <BookOpen size={20} /> },
                 { id: 'concepts', label: 'Browse by Syllabus', icon: <Lightbulb size={20} /> },
                 { id: 'history', label: 'History', icon: <History size={20} /> },
+                { type: 'label', label: 'ACCOUNT' },
+                { id: 'premium', label: 'Upgrade / Premium', icon: <Sparkles size={20} className="text-blue-500" /> },
             ];
         } else {
             // Not logged in: Show limited browse options
@@ -75,6 +77,13 @@ const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, on
                         {menuItems.map((item, index) => {
                             if (item.type === 'divider') {
                                 return <div key={`divider-${index}`} className="h-px bg-slate-200 dark:bg-border-dark my-2 mx-3"></div>;
+                            }
+                            if (item.type === 'label') {
+                                return (
+                                    <div key={`label-${index}`} className="px-3 mt-4 mb-2">
+                                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{item.label}</p>
+                                    </div>
+                                );
                             }
 
                             const isActive = activeTab === item.id;

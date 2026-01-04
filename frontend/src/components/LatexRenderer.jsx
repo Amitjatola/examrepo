@@ -1,32 +1,58 @@
-
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
 const LatexRenderer = ({ text, block = false, inline = false }) => {
     if (!text) return null;
 
-    // Sanitize and prepare text
-    // Ensure all backslashes are properly escaped if needed, though raw string from API usually fine
+    // Helper to render math string using katex
+    const renderMath = (math, isDisplayMode) => {
+        try {
+            return katex.renderToString(math, {
+                displayMode: isDisplayMode,
+                throwOnError: false,
+                output: 'html',
+                strict: false,
+                trust: true
+            });
+        } catch (e) {
+            console.error("KaTeX Error:", e);
+            return math;
+        }
+    };
 
-    // If inline forced, wrap in $...$ if not already
-    let content = text;
+    // Regex to split text by delimiters: $$...$$ or $...$
+    // Capture groups: 1=$$block$$, 2=$inline$
+    const regex = /(\$\$[\s\S]*?\$\$)|(\$[\s\S]*?\$)/g;
 
-    // Simple heuristic: if text doesn't look like markdown/latex, just render it?
-    // But we want to support mixed content.
+    const parts = text.split(regex);
 
     return (
-        <ReactMarkdown
-            remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-            components={{
-                p: ({ node, ...props }) => inline ? <span {...props} /> : <p className="mb-4" {...props} />
-            }}
-        >
-            {content}
-        </ReactMarkdown>
+        <span className={block ? "block w-full" : ""}>
+            {parts.map((part, index) => {
+                if (!part) return null;
+
+                if (part.startsWith('$$') && part.endsWith('$$') && part.length >= 4) {
+                    // Block math
+                    const math = part.slice(2, -2);
+                    const html = renderMath(math, true);
+                    return <span key={index} className="block my-4 text-center" dangerouslySetInnerHTML={{ __html: html }} />;
+                } else if (part.startsWith('$') && part.endsWith('$') && part.length >= 2) {
+                    // Inline math
+                    const math = part.slice(1, -1);
+                    const html = renderMath(math, false);
+                    return <span key={index} dangerouslySetInnerHTML={{ __html: html }} />;
+                } else {
+                    // Regular markdown text
+                    return (
+                        <span key={index} className="inline">
+                            <ReactMarkdown components={{ p: 'span' }}>{part}</ReactMarkdown>
+                        </span>
+                    );
+                }
+            })}
+        </span>
     );
 };
 

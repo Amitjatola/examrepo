@@ -142,6 +142,12 @@ class QuestionRepository:
                 conditions.append(func.lower(Question.subject).contains(filters.subject.lower()))
             if filters.question_type:
                 conditions.append(Question.question_type == filters.question_type)
+            if filters.topic:
+                # Query JSONB path for topic name
+                # tier_1_core_research -> hierarchical_tags -> topic -> name
+                conditions.append(
+                    Question.tier_1_core_research['hierarchical_tags', 'topic', 'name'].astext == filters.topic
+                )
         
         # Apply all conditions
         if conditions:

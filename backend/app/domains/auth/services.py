@@ -50,9 +50,16 @@ async def get_user_by_email(session: AsyncSession, email: str):
 
 
 async def create_user(session: AsyncSession, user: UserCreate):
+    from app.domains.subscriptions.service import SubscriptionService
+    
     hashed_password = get_password_hash(user.password)
     db_user = User(email=user.email, hashed_password=hashed_password, full_name=user.full_name)
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)
+    
+    # Auto-create 7-day trial subscription for new users
+    subscription_service = SubscriptionService(session)
+    await subscription_service.create_trial_subscription(db_user.id, trial_days=7)
+    
     return db_user
