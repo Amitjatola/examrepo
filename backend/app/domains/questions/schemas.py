@@ -15,6 +15,13 @@ from app.schemas.analytics import (
     Tier4Metadata
 )
 
+class RecentActivityItem(BaseModel):
+    """Recent question attempt for dashboard."""
+    question_id: str
+    question_text: str
+    is_correct: bool
+    attempted_at: datetime
+
 
 # ============== Request Schemas ==============
 
@@ -135,6 +142,7 @@ class DashboardStats(BaseModel):
     current_streak: int
     syllabus_progress: float = 0.0
     topic_performance: dict[str, float] = {}
+    recent_activity: list[RecentActivityItem] = []
     # Future fields can be added here
 
 

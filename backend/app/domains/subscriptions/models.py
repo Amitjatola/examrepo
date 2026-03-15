@@ -26,7 +26,7 @@ class UserSubscription(SQLModel, table=True):
     __tablename__ = "user_subscriptions"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="users.id", index=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
     
     subscription_type: SubscriptionType = Field(default=SubscriptionType.FREE)
     status: SubscriptionStatus = Field(default=SubscriptionStatus.ACTIVE)
@@ -76,7 +76,7 @@ class UserSubscription(SQLModel, table=True):
         return None
 
     @staticmethod
-    def create_trial_subscription(user_id: UUID, trial_days: int = 7) -> "UserSubscription":
+    def create_trial_subscription(user_id: int, trial_days: int = 7) -> "UserSubscription":
         """Create a new trial subscription for a user."""
         now = datetime.utcnow()
         return UserSubscription(

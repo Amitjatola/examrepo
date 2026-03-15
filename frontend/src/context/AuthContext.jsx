@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+    const [authPromptMessage, setAuthPromptMessage] = useState('');
 
     // Configure API URL from env or default
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -102,6 +103,16 @@ export const AuthProvider = ({ children }) => {
 
     const closeAuthModal = () => {
         setAuthModalOpen(false);
+        setAuthPromptMessage('');
+    };
+
+    // Helper: checks if user is logged in. If not, opens auth modal with contextual message.
+    const requireAuth = (message = '') => {
+        if (user) return true;
+        setAuthPromptMessage(message);
+        setAuthMode('register');
+        setAuthModalOpen(true);
+        return false;
     };
 
     return (
@@ -117,10 +128,12 @@ export const AuthProvider = ({ children }) => {
             fetchSubscription,
             authModalOpen,
             authMode,
+            authPromptMessage,
             openLogin,
             openRegister,
             closeAuthModal,
-            setAuthMode
+            setAuthMode,
+            requireAuth
         }}>
             {children}
         </AuthContext.Provider>

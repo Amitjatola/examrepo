@@ -13,18 +13,12 @@ const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, on
                 { id: 'home', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
                 { id: 'year_select', label: 'Practice by Year', icon: <BookOpen size={20} /> },
                 { id: 'concepts', label: 'Browse by Syllabus', icon: <Lightbulb size={20} /> },
-                { id: 'history', label: 'History', icon: <History size={20} /> },
-                { type: 'label', label: 'ACCOUNT' },
-                { id: 'premium', label: 'Upgrade / Premium', icon: <Sparkles size={20} className="text-blue-500" /> },
             ];
         } else {
             // Not logged in: Show limited browse options
             return [
                 { id: 'year_select', label: 'Practice by Year', icon: <BookOpen size={20} /> },
                 { id: 'concepts', label: 'Browse Concepts', icon: <Lightbulb size={20} /> },
-                { type: 'divider' },
-                { id: 'pricing', label: 'Pricing', icon: <Tag size={20} /> },
-                { id: 'about', label: 'About Platform', icon: <Info size={20} /> },
             ];
         }
     };
@@ -94,13 +88,13 @@ const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, on
                                     className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group text-left w-full cursor-pointer
                                         ${isActive
                                             ? 'bg-primary/10 text-primary'
-                                            : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-white/5'
                                         }`}
                                 >
-                                    <span className={`transition-colors ${isActive ? 'text-primary' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-100'}`}>
+                                    <span className={`transition-colors ${isActive ? 'text-primary' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100'}`}>
                                         {item.icon}
                                     </span>
-                                    <span className={`text-sm font-medium ${isActive ? 'text-primary' : 'text-slate-900 dark:text-slate-300'}`}>
+                                    <span className={`text-sm font-medium ${isActive ? 'text-primary' : 'text-slate-700 dark:text-slate-300'}`}>
                                         {item.label}
                                     </span>
                                 </button>

@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.domains.questions.models import Question, UserAttempt
 from app.domains.auth.models import User
 from app.domains.subscriptions.models import UserSubscription
+from app.domains.discussions.models import Discussion
 
 
 from sqlalchemy.pool import NullPool

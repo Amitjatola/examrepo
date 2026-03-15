@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import {
     Menu, ChevronRight, Search, Sun, Moon, Bell, Signal,
-    CheckCircle, Eye, Bookmark, Flag, ChevronLeft, Lightbulb
+    CheckCircle, Eye, Bookmark, Flag, ChevronLeft, Lightbulb, History
 } from 'lucide-react';
 import { api } from '../utils/api';
 import LatexRenderer from './LatexRenderer';
 import QuestionCard from './QuestionCard';
 import { useAuth } from '../context/AuthContext';
 import { TierViews } from './premium/TierViews';
+import { cn } from './premium/ui';
 
 const QuestionDetail = ({ questionId, onBack }) => {
     const [question, setQuestion] = useState(null);
@@ -17,6 +18,11 @@ const QuestionDetail = ({ questionId, onBack }) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [showSolution, setShowSolution] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [guestAttempts, setGuestAttempts] = useState(() => {
+        return parseInt(localStorage.getItem('guest_attempts') || '0');
+    });
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [hasUsedDailySolution, setHasUsedDailySolution] = useState(false);
 
     const startTimeRef = React.useRef(Date.now());
     const { user, isPremium } = useAuth();
@@ -33,6 +39,7 @@ const QuestionDetail = ({ questionId, onBack }) => {
                 setSelectedOption(null);
                 setShowSolution(false);
                 setIsChecked(false);
+                setHasUsedDailySolution(false);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -82,6 +89,17 @@ const QuestionDetail = ({ questionId, onBack }) => {
             const timeTaken = Math.round((Date.now() - startTimeRef.current) / 1000);
             const isCorrect = selectedOption === question.answer_key;
 
+            if (!user) {
+                const newAttempts = guestAttempts + 1;
+                setGuestAttempts(newAttempts);
+                localStorage.setItem('guest_attempts', newAttempts.toString());
+                
+                if (newAttempts >= 4) {
+                    setShowAuthModal(true);
+                    return;
+                }
+            }
+
             // Fire and forget, or handle error? For UX speed, fire and forget or simple log
             await api.post(`/questions/${question.question_id}/attempt`, {
                 is_correct: isCorrect,
@@ -93,6 +111,37 @@ const QuestionDetail = ({ questionId, onBack }) => {
     };
 
     const isCorrect = selectedOption === question.answer_key;
+
+    const handleShowSolutionToggle = () => {
+        if (showSolution) {
+            setShowSolution(false);
+            return;
+        }
+
+        if (isPremium || hasUsedDailySolution) {
+            setShowSolution(true);
+            return;
+        }
+
+        const today = new Date().toDateString();
+        let lastReset = localStorage.getItem('last_reset_date');
+        let count = parseInt(localStorage.getItem('solution_count') || '0');
+
+        if (lastReset !== today) {
+            count = 0;
+            localStorage.setItem('last_reset_date', today);
+        }
+
+        if (count < 3) {
+            count++;
+            localStorage.setItem('solution_count', count.toString());
+            setHasUsedDailySolution(true);
+            setShowSolution(true);
+        } else {
+            // Out of free solutions, just show blurred view
+            setShowSolution(true);
+        }
+    };
 
     return (
         <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center bg-background-light dark:bg-background-dark h-full">
@@ -209,7 +258,13 @@ const QuestionDetail = ({ questionId, onBack }) => {
                         <div className="flex gap-3">
                             {!isChecked ? (
                                 <button
-                                    onClick={handleCheckAnswer}
+                                    onClick={() => {
+                                        if (!user && guestAttempts >= 3) {
+                                            setShowAuthModal(true);
+                                        } else {
+                                            handleCheckAnswer();
+                                        }
+                                    }}
                                     disabled={!selectedOption}
                                     className={`px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all flex items-center gap-2 
                                         ${!selectedOption
@@ -227,7 +282,7 @@ const QuestionDetail = ({ questionId, onBack }) => {
                             )}
 
                             <button
-                                onClick={() => setShowSolution(!showSolution)}
+                                onClick={handleShowSolutionToggle}
                                 className="bg-white dark:bg-card-dark border border-[#e5e7eb] dark:border-border-dark hover:bg-gray-50 dark:hover:bg-white/5 text-slate-900 dark:text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
                             >
                                 <Eye size={18} />
@@ -257,7 +312,7 @@ const QuestionDetail = ({ questionId, onBack }) => {
                 {/* Collapsible Solution Panel */}
                 {showSolution && (
                     <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-xl p-6 md:p-8 animate-fade-in relative overflow-hidden">
-                        <div className="relative z-10">
+                        <div className={cn("relative z-10", !(isPremium || hasUsedDailySolution) && "blur-md select-none pointer-events-none")}>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                                 <CheckCircle className="text-primary" size={24} />
                                 Correct Answer: {question.answer_key}
@@ -292,6 +347,26 @@ const QuestionDetail = ({ questionId, onBack }) => {
                                 )}
                             </div>
                         </div>
+
+                        {!(isPremium || hasUsedDailySolution) && (
+                            <div className="absolute inset-0 z-20 flex items-center justify-center p-6 bg-gradient-to-b from-transparent via-white/40 to-white/80 dark:via-black/20 dark:to-[#0f1323]/80">
+                                <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 text-center max-w-sm animate-fade-in-up">
+                                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <Sparkles className="text-primary" size={32} />
+                                    </div>
+                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Unlock Pro Solutions</h4>
+                                    <p className="text-slate-500 dark:text-gray-400 text-sm mb-6">
+                                        Get step-by-step derivations and in-depth research insights for this question.
+                                    </p>
+                                    <button
+                                        onClick={() => { /* Navigate to premium or emit event */ }}
+                                        className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-1 active:scale-95"
+                                    >
+                                        Upgrade to Pro
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -309,6 +384,41 @@ const QuestionDetail = ({ questionId, onBack }) => {
                     isPremium={isPremium}
                 />
             </div>
+
+            {/* Guest Limit Modal */}
+            {showAuthModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white dark:bg-card-dark max-w-md w-full rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-white/5 overflow-hidden animate-fade-in-up">
+                        <div className="p-10 text-center">
+                            <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6 text-primary">
+                                <History size={40} />
+                            </div>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Free Daily Limit Reached</h3>
+                            <p className="text-slate-500 dark:text-gray-400 mb-8 leading-relaxed font-medium">
+                                Sign up for free to save your progress and continue practicing with unlimited attempts.
+                            </p>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowAuthModal(false);
+                                        // Trigger login/signup modal from context
+                                        window.dispatchEvent(new CustomEvent('open-auth-modal'));
+                                    }}
+                                    className="w-full bg-primary hover:bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all transform hover:-translate-y-1 active:scale-95"
+                                >
+                                    Sign Up to Continue
+                                </button>
+                                <button
+                                    onClick={() => setShowAuthModal(false)}
+                                    className="w-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-sm font-bold transition-colors py-2"
+                                >
+                                    Wait for tomorrow
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

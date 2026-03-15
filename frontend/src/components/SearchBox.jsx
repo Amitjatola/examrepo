@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Sparkles, CornerDownLeft } from 'lucide-react';
 import { api } from '../utils/api';
 
-const SearchBox = ({ onSearch, initialValue = '' }) => {
+const SearchBox = ({ onSearch, initialValue = '', placeholder = "Type a concept (e.g. 'Eigenvalues', 'Boundary Layer')..." }) => {
     const [inputValue, setInputValue] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -83,7 +83,7 @@ const SearchBox = ({ onSearch, initialValue = '' }) => {
             <input
                 type="text"
                 className="search-input"
-                placeholder="Type a concept (e.g. 'Eigenvalues', 'Boundary Layer')..."
+                placeholder={placeholder}
                 value={inputValue}
                 onChange={(e) => {
                     setInputValue(e.target.value);

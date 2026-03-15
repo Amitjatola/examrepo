@@ -9,6 +9,7 @@ const AuthModal = () => {
         closeAuthModal,
         authMode,
         setAuthMode,
+        authPromptMessage,
         login,
         register
     } = useAuth();
@@ -194,9 +195,16 @@ const AuthModal = () => {
                             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 font-display">
                                 {authMode === 'login' ? 'Welcome Back' : 'Create Account'}
                             </h2>
-                            <p className="text-slate-500 dark:text-gray-400 text-sm">
-                                {authMode === 'login' ? 'Enter your details to sign in' : 'Sign up to start tracking your progress'}
-                            </p>
+                            {/* Contextual prompt message from GatedAction */}
+                            {authPromptMessage ? (
+                                <p className="text-primary text-sm font-medium bg-primary/5 rounded-lg px-3 py-2 mt-2">
+                                    {authPromptMessage}
+                                </p>
+                            ) : (
+                                <p className="text-slate-500 dark:text-gray-400 text-sm">
+                                    {authMode === 'login' ? 'Enter your details to sign in' : 'Sign up to start tracking your progress'}
+                                </p>
+                            )}
                         </div>
 
                         {error && (
@@ -272,7 +280,7 @@ const AuthModal = () => {
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                                     >
-                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                     </button>
                                 </div>
                             </div>

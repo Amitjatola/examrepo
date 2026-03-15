@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, CornerDownLeft, BookOpen, Clock, Flame, Play, History, ChevronRight, Quote, TrendingUp } from 'lucide-react';
+import { Search, Sparkles, CornerDownLeft, BookOpen, Clock, Flame, Play, History, ChevronRight, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 
@@ -68,7 +68,8 @@ const Dashboard = ({ onSearch, onNavigate }) => {
                     hoursStudied: data.hours_studied,
                     currentStreak: data.current_streak,
                     syllabusProgress: data.syllabus_progress,
-                    topicPerformance: data.topic_performance
+                    topicPerformance: data.topic_performance,
+                    recentActivity: data.recent_activity || []
                 }));
             } catch (error) {
                 console.error("Failed to fetch dashboard stats:", error);
@@ -84,45 +85,8 @@ const Dashboard = ({ onSearch, onNavigate }) => {
 
 
 
-    // Quote logic
-    const [quote, setQuote] = useState({
-        text: "Success is the sum of small efforts, repeated day in and day out.",
-        author: "Robert Collier"
-    });
-
-    useEffect(() => {
-        const fetchQuote = async () => {
-            try {
-                // Try Quotable API first for specific motivational/success quotes
-                const res = await fetch('https://api.quotable.io/random?tags=motivational,success');
-                // Check if response is OK
-                if (!res.ok) throw new Error("Quotable API Failed");
-
-                const data = await res.json();
-                if (data && data.content) {
-                    setQuote({
-                        text: data.content,
-                        author: data.author
-                    });
-                }
-            } catch (err) {
-                console.log("Primary API failed, falling back to local exam quotes.", err);
-                // Fallback to local high-quality exam/success quotes if API fails
-                const backupQuotes = [
-                    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-                    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
-                    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-                    { text: "The secret of success is to do the common thing uncommonly well.", author: "John D. Rockefeller Jr." },
-                    { text: "Success doesn't come to you, you've got to go to it.", author: "Marva Collins" }
-                ];
-                const randomBackup = backupQuotes[Math.floor(Math.random() * backupQuotes.length)];
-                setQuote(randomBackup);
-            }
-        };
-
-        fetchQuote();
-    }, []);
-
+    // Removed quote logic as per refactor plan
+    
     const formatStudyTime = (seconds) => {
         if (!seconds) return '0h';
         if (seconds < 60) return '< 1m';
@@ -205,12 +169,12 @@ const Dashboard = ({ onSearch, onNavigate }) => {
                         </div>
                     </div>
 
-                    {/* Top Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* Stat 1: Questions Attempted */}
-                        <div className="flex flex-col justify-between gap-2 rounded-xl p-5 border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] hover:border-primary/30 transition-colors">
-                            <div className="flex justify-between items-start">
-                                <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#2f396a]/50 text-slate-600 dark:text-white">
+                    {/* Performance Ribbon */}
+                    <div className="flex flex-col md:flex-row bg-white dark:bg-[#15192b] border border-slate-200 dark:border-border-dark rounded-xl divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-border-dark overflow-hidden shadow-sm">
+                        {/* Stat 1: Questions Attempted (Link to History) */}
+                        <button onClick={() => onNavigate('history')} className="flex-1 flex flex-col gap-1 p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left group">
+                            <div className="flex justify-between items-start mb-2">
+                                <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#2f396a]/50 text-slate-600 dark:text-white group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                                     <BookOpen size={20} />
                                 </div>
                                 <div className="flex items-center gap-1 text-green-600 bg-green-100 dark:bg-green-500/10 px-2 py-0.5 rounded text-xs font-medium">
@@ -218,41 +182,36 @@ const Dashboard = ({ onSearch, onNavigate }) => {
                                     {stats.attemptPercentage}%
                                 </div>
                             </div>
-                            <div>
-                                <p className="text-slate-500 dark:text-text-muted text-sm font-medium">Questions Attempted</p>
-                                <p className="text-slate-900 dark:text-white text-2xl font-bold mt-1">{loading ? '-' : stats.questionsAttempted.toLocaleString()}</p>
+                            <p className="text-slate-500 dark:text-text-muted text-sm font-medium">Questions Attempted</p>
+                            <div className="flex items-center justify-between mt-1">
+                                <p className="text-slate-900 dark:text-white text-2xl font-bold">{loading ? '-' : stats.questionsAttempted.toLocaleString()}</p>
+                                <ChevronRight size={16} className="text-slate-400 group-hover:text-primary transition-colors transform group-hover:translate-x-1" />
                             </div>
-                        </div>
+                        </button>
 
                         {/* Stat 2: Hours Studied */}
-                        <div className="flex flex-col justify-between gap-2 rounded-xl p-5 border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] hover:border-primary/30 transition-colors">
-                            <div className="flex justify-between items-start">
+                        <div className="flex-1 flex flex-col gap-1 p-5">
+                            <div className="flex justify-between items-start mb-2">
                                 <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#2f396a]/50 text-slate-600 dark:text-white">
                                     <Clock size={20} />
                                 </div>
                             </div>
-                            <div>
-                                <p className="text-slate-500 dark:text-text-muted text-sm font-medium">Time Studied</p>
-                                <p className="text-slate-900 dark:text-white text-2xl font-bold mt-1">
-                                    {loading ? '-' : formatStudyTime(stats.timeStudiedSeconds || stats.hoursStudied * 3600)}
-                                </p>
-                            </div>
+                            <p className="text-slate-500 dark:text-text-muted text-sm font-medium">Time Studied</p>
+                            <p className="text-slate-900 dark:text-white text-2xl font-bold mt-1">
+                                {loading ? '-' : formatStudyTime(stats.timeStudiedSeconds || stats.hoursStudied * 3600)}
+                            </p>
                         </div>
 
                         {/* Stat 3: Current Streak */}
-                        <div className="flex flex-col justify-between gap-2 rounded-xl p-5 border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] hover:border-primary/30 transition-colors">
-                            <div className="flex justify-between items-start">
+                        <div className="flex-1 flex flex-col gap-1 p-5">
+                            <div className="flex justify-between items-start mb-2">
                                 <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#2f396a]/50 text-slate-600 dark:text-white">
                                     <Flame size={20} />
                                 </div>
                             </div>
-                            <div>
-                                <p className="text-slate-500 dark:text-text-muted text-sm font-medium">Current Streak</p>
-                                <p className="text-slate-900 dark:text-white text-2xl font-bold mt-1">{stats.currentStreak} Days</p>
-                            </div>
+                            <p className="text-slate-500 dark:text-text-muted text-sm font-medium">Current Streak</p>
+                            <p className="text-slate-900 dark:text-white text-2xl font-bold mt-1">{stats.currentStreak} Days</p>
                         </div>
-
-
                     </div>
 
                     {/* Main Content Split */}
@@ -294,21 +253,58 @@ const Dashboard = ({ onSearch, onNavigate }) => {
                                                 );
                                             })
                                     ) : (
-                                        <div className="py-8 text-center text-slate-400 dark:text-text-muted text-sm italic">
-                                            No practice data yet. Solve questions to see your heatmap!
+                                        <div className="relative py-4">
+                                            {/* Ghost Grid */}
+                                            <div className="grid grid-cols-10 gap-1 opacity-20">
+                                                {Array.from({ length: 50 }).map((_, i) => (
+                                                    <div key={i} className="aspect-square bg-slate-400 dark:bg-slate-600 rounded-sm"></div>
+                                                ))}
+                                            </div>
+                                            {/* Overlay */}
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 dark:bg-[#15192b]/70 backdrop-blur-[2px]">
+                                                <p className="text-sm font-semibold text-slate-900 dark:text-white mb-2">No data recorded yet.</p>
+                                                <button
+                                                    onClick={() => onNavigate('year_select')}
+                                                    className="px-4 py-1.5 bg-primary text-white text-sm font-medium rounded shadow-sm hover:bg-primary/90 transition-colors"
+                                                >
+                                                    Start Practicing
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Motivational Quote */}
-                            <div className="rounded-xl p-6 bg-gradient-to-br from-primary/10 to-slate-50 dark:from-primary/20 dark:to-[#15192b] border border-primary/20 relative overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-2">
-                                    <Quote size={24} className="text-primary mb-2" />
-                                    <p className="text-slate-800 dark:text-white font-medium text-lg leading-snug">"{quote.text}"</p>
-                                    <p className="text-slate-500 dark:text-text-muted text-sm mt-2">— {quote.author}</p>
+                            {/* Recent Activity */}
+                            <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-4">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
+                                        <History size={18} className="text-slate-400" />
+                                        Recent Activity
+                                    </h3>
                                 </div>
-                                <div className="absolute -right-6 -bottom-6 size-32 bg-primary/20 rounded-full blur-3xl"></div>
+                                
+                                <div className="flex flex-col gap-3 mt-1">
+                                    {stats.recentActivity && stats.recentActivity.length > 0 ? (
+                                        stats.recentActivity.map((attempt, index) => (
+                                            <div key={index} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5">
+                                                <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${attempt.is_correct ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                                                        {attempt.question_id.replace(/_/g, ' ')}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                                        {attempt.question_text}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-6 text-slate-400 dark:text-text-muted text-sm italic">
+                                            Complete questions to track your history.
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

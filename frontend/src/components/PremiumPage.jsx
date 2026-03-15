@@ -71,10 +71,14 @@ const PremiumPage = () => {
 
                 {/* Pricing Section */}
                 <div className="flex justify-center pb-12 w-full">
-                    {/* Toggle Switch (Visual only for now) */}
-                    <div className="flex items-center justify-end w-full max-w-4xl mb-6 gap-3">
-                        <span className="text-sm font-medium text-slate-500">Monthly</span>
-                        <span className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-sm font-bold text-slate-900 shadow-sm">Annual <span className="text-green-600">-35%</span></span>
+                    {/* Toggle Switch */}
+                    <div className="flex items-center justify-center w-full max-w-4xl mb-6 gap-4">
+                        <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Monthly</span>
+                        <div className="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10">
+                            <div className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 shadow-sm text-sm font-bold text-slate-900 dark:text-white">Annual</div>
+                            <div className="px-3 py-1 rounded-full bg-green-500 text-[10px] font-black text-white uppercase tracking-wider animate-pulse">-35% SAVE</div>
+                        </div>
+                        <span className="text-sm font-medium text-slate-400">Lifetime</span>
                     </div>
                 </div>
 
@@ -84,54 +88,59 @@ const PremiumPage = () => {
                         <div className="p-8 rounded-3xl border border-slate-200 dark:border-border-dark bg-white/50 dark:bg-card-dark/30 flex flex-col h-full">
                             <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">Basic</h3>
                             <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-4">Free</h2>
-                            <p className="text-slate-500 dark:text-slate-400 mb-8">Forever free plan for casual study.</p>
+                            <p className="text-slate-500 dark:text-slate-400 mb-8">Everything you need to start practicing.</p>
 
                             <ul className="space-y-4 mb-8 flex-1">
                                 <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
                                     <Check size={18} className="text-green-500" />
-                                    <span>20 Practice questions / day</span>
+                                    <span>Unlimited practice questions</span>
                                 </li>
                                 <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
                                     <Check size={18} className="text-green-500" />
-                                    <span>Basic score tracking</span>
+                                    <span>All papers (2007–2024)</span>
                                 </li>
-                                <li className="flex items-center gap-3 text-slate-400">
-                                    <div className="p-0.5"><Check size={12} className="opacity-0" /></div>
-                                    <span className="line-through opacity-70">No detailed analytics</span>
+                                <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                                    <Check size={18} className="text-green-500" />
+                                    <span>Full search & community discussions</span>
                                 </li>
                             </ul>
                         </div>
 
                         {/* Premium Plan */}
-                        <div className="relative p-8 rounded-3xl border-2 border-primary bg-white dark:bg-card-dark shadow-2xl overflow-hidden flex flex-col h-full">
-                            <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wide">
-                                Most Popular
+                        <div className="relative p-10 rounded-[2.5rem] border-2 border-primary bg-white dark:bg-[#15192b] shadow-[0_0_50px_-12px_rgba(56,88,250,0.3)] dark:shadow-[0_0_50px_-12px_rgba(56,88,250,0.2)] overflow-hidden flex flex-col h-full transform transition-transform hover:scale-[1.02] duration-300">
+                            <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-black px-6 py-2 rounded-bl-3xl uppercase tracking-[0.2em] shadow-lg">
+                                Popular
                             </div>
 
-                            <h3 className="text-lg font-bold text-primary mb-2">Premium</h3>
+                            <h3 className="text-xl font-black text-primary mb-3 uppercase tracking-widest">Pro Access</h3>
                             <div className="flex items-baseline gap-1 mb-2">
-                                <div className="text-5xl font-extrabold text-slate-900 dark:text-white">$19</div>
-                                <div className="text-slate-500 font-medium">/mo</div>
+                                <div className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">$19</div>
+                                <div className="text-slate-400 font-bold text-lg">/mo</div>
                             </div>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">Billed annually ($228/year)</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-10 font-medium">Everything you need to master GATE.</p>
 
-                            <ul className="space-y-4 mb-8 flex-1">
-                                <li className="flex items-center gap-3 text-slate-900 dark:text-white font-medium">
-                                    <div className="p-0.5 rounded-full bg-primary text-white"><Check size={12} strokeWidth={3} /></div>
-                                    <span>Unlimited Practice questions</span>
+                            <ul className="space-y-5 mb-12 flex-1">
+                                <li className="flex items-center gap-4 text-slate-900 dark:text-white font-bold">
+                                    <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"><Check size={14} strokeWidth={4} /></div>
+                                    <span className="text-sm">Full Step-by-Step Solutions</span>
                                 </li>
-                                <li className="flex items-center gap-3 text-slate-900 dark:text-white font-medium">
-                                    <div className="p-0.5 rounded-full bg-primary text-white"><Check size={12} strokeWidth={3} /></div>
-                                    <span>Advanced Analytics & Heatmaps</span>
+                                <li className="flex items-center gap-4 text-slate-900 dark:text-white font-bold">
+                                    <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"><Check size={14} strokeWidth={4} /></div>
+                                    <span className="text-sm">AI Performance Analytics</span>
                                 </li>
-                                <li className="flex items-center gap-3 text-slate-900 dark:text-white font-medium">
-                                    <div className="p-0.5 rounded-full bg-primary text-white"><Check size={12} strokeWidth={3} /></div>
-                                    <span>Premium Video Solutions</span>
+                                <li className="flex items-center gap-4 text-slate-900 dark:text-white font-bold">
+                                    <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"><Check size={14} strokeWidth={4} /></div>
+                                    <span className="text-sm">Topic Research Insights</span>
+                                </li>
+                                <li className="flex items-center gap-4 text-slate-900 dark:text-white font-bold">
+                                    <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"><Check size={14} strokeWidth={4} /></div>
+                                    <span className="text-sm">Unlimited Mock Exams</span>
                                 </li>
                             </ul>
 
-                            <button className="w-full py-4 bg-primary hover:bg-blue-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-primary/20">
-                                Start 7-Day Free Trial
+                            <button className="w-full py-5 bg-primary hover:bg-blue-600 text-white rounded-2xl font-black text-lg transition-all shadow-xl shadow-primary/30 transform active:scale-95 group relative overflow-hidden">
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                <span className="relative z-10">Get Full Access</span>
                             </button>
                         </div>
                     </div>

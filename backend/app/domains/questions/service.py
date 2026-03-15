@@ -222,6 +222,29 @@ class QuestionService:
         if total_questions > 0:
             percentage = round((attempted_count / total_questions) * 100, 1)
             
+        # Get Recent Activity
+        recent_stmt = (
+            select(UserAttempt, Question)
+            .join(Question, UserAttempt.question_id == Question.id)
+            .where(UserAttempt.user_id == user_id)
+            .order_by(UserAttempt.attempted_at.desc())
+            .limit(3)
+        )
+        recent_result = await self.repo.session.execute(recent_stmt)
+        
+        recent_activity_items = []
+        for attempt, question in recent_result.all():
+            q_text = question.question_text
+            if len(q_text) > 100:
+                q_text = q_text[:100] + "..."
+                
+            recent_activity_items.append({
+                "question_id": question.question_id,
+                "question_text": q_text,
+                "is_correct": attempt.is_correct,
+                "attempted_at": attempt.attempted_at
+            })
+            
         return DashboardStats(
             questions_attempted=attempted_count,
             attempt_percentage=percentage,
@@ -229,7 +252,8 @@ class QuestionService:
             time_studied_seconds=int(total_seconds),
             current_streak=streak,
             syllabus_progress=0.0,  # Placeholder for future implementation
-            topic_performance=topic_performance
+            topic_performance=topic_performance,
+            recent_activity=recent_activity_items
         )
 
     async def record_attempt(self, user_id: int, question_id: str, is_correct: bool, time_taken: int) -> UserAttempt:

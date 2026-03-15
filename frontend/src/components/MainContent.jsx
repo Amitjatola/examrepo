@@ -11,6 +11,7 @@ import LandingPage from './LandingPage';
 import AuthModal from './AuthModal';
 import Dashboard from './Dashboard';
 import PremiumPage from './PremiumPage';
+import SyllabusSelection from './SyllabusSelection';
 import { useTheme } from '../hooks/useTheme';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
@@ -306,73 +307,18 @@ function MainContent() {
             return <PaperAttemptView
                 year={selectedYear}
                 onBack={() => setView('year_select')}
+                onPremium={() => setView('pricing')}
             />;
         }
 
         if (view === 'syllabus-subjects') {
-            // Subject icons mapping for visual variety
-            const subjectIcons = {
-                'Aerospace Engineering': '🚀',
-                'Mathematics': '📐',
-                'General Aptitude': '🧠',
-                'Flight Mechanics': '✈️',
-                'Propulsion': '🔥',
-                'Structures': '🏗️',
-                'Aerodynamics': '💨',
-                'default': '📚'
-            };
-
             return (
-                <div className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth h-full">
-                    <div className="max-w-[1200px] mx-auto p-8 space-y-8">
-                        {/* Header Section */}
-                        <div className="flex flex-col gap-2">
-                            <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-display">Browse by Syllabus</h1>
-                            <p className="text-slate-500 dark:text-gray-400 text-lg">Master each subject area with topic-wise practice questions.</p>
-                        </div>
-
-                        {/* Subjects Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {Object.keys(syllabusTree).map((subject) => {
-                                const topicCount = syllabusTree[subject]?.length || 0;
-                                const icon = subjectIcons[subject] || subjectIcons['default'];
-
-                                return (
-                                    <button
-                                        key={subject}
-                                        onClick={() => handleSubjectClick(subject)}
-                                        className="bg-white dark:bg-[#15192b] p-6 rounded-xl border border-slate-200 dark:border-border-dark 
-                                                 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/50 
-                                                 hover:-translate-y-0.5 cursor-pointer transition-all duration-200 group text-left"
-                                    >
-                                        <div className="flex flex-col gap-4">
-                                            {/* Icon */}
-                                            <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-2xl group-hover:bg-primary/20 transition-colors">
-                                                {icon}
-                                            </div>
-
-                                            {/* Content */}
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                                                    {subject}
-                                                </h3>
-                                                <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">
-                                                    {topicCount} {topicCount === 1 ? 'Topic' : 'Topics'} available
-                                                </p>
-                                            </div>
-
-                                            {/* Action hint */}
-                                            <div className="flex items-center gap-2 text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span>Browse Questions</span>
-                                                <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
-                                            </div>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
+                <SyllabusSelection
+                    syllabusTree={syllabusTree}
+                    onSubjectSelect={handleSubjectClick}
+                    onSearch={performSearch}
+                    query={query}
+                />
             );
         }
 
@@ -435,6 +381,94 @@ function MainContent() {
         }
 
 
+        if (view === 'pricing') {
+            return (
+                <div className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth h-full">
+                    <div className="max-w-4xl mx-auto p-8 space-y-8 text-center">
+                        <h1 className="text-4xl font-bold text-slate-900 dark:text-white font-display mb-4">Simple, Transparent Pricing</h1>
+                        <p className="text-lg text-slate-600 dark:text-gray-400 mb-12">Start for free, upgrade for mastery.</p>
+
+                        <div className="grid md:grid-cols-2 gap-8 text-left">
+                            {/* Free Plan */}
+                            <div className="p-8 rounded-2xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark relative">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Basic</h3>
+                                <div className="mt-4 flex items-baseline text-slate-900 dark:text-white">
+                                    <span className="text-4xl font-extrabold tracking-tight">Free</span>
+                                </div>
+                                <p className="mt-4 text-slate-500 dark:text-gray-400">Everything you need to start practicing.</p>
+                                <ul className="mt-8 space-y-4">
+                                    {['Access to ALL papers (2007–2024)', 'Full search & syllabus browsing', 'Community discussions', 'Basic answer checking'].map(feature => (
+                                        <li key={feature} className="flex items-center">
+                                            <span className="material-symbols-outlined text-green-500 mr-3 text-sm">check</span>
+                                            <span className="text-slate-600 dark:text-gray-300">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button onClick={() => setView('home')} className="mt-8 w-full block bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                                    Current Plan
+                                </button>
+                            </div>
+
+                            {/* Pro Plan */}
+                            <div className="p-8 rounded-2xl border-2 border-primary bg-white dark:bg-card-dark relative shadow-2xl shadow-primary/10">
+                                <div className="absolute top-0 right-0 -mr-1 -mt-1 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-lg">POPULAR</div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Pro</h3>
+                                <div className="mt-4 flex items-baseline text-slate-900 dark:text-white">
+                                    <span className="text-4xl font-extrabold tracking-tight">$9</span>
+                                    <span className="ml-1 text-xl font-semibold text-slate-500">/month</span>
+                                </div>
+                                <p className="mt-4 text-slate-500 dark:text-gray-400">For serious aspirants.</p>
+                                <ul className="mt-8 space-y-4">
+                                    {['Everything in Free, plus:', 'AI-powered deep-dive analytics', 'Step-by-step solution derivations', 'Topic classification & research insights', 'Priority support'].map(feature => (
+                                        <li key={feature} className="flex items-center">
+                                            <span className="material-symbols-outlined text-primary mr-3 text-sm">check_circle</span>
+                                            <span className="text-slate-600 dark:text-gray-300 font-medium">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button className="mt-8 w-full block bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25">
+                                    Upgrade Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (view === 'about') {
+            return (
+                <div className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth h-full">
+                    <div className="max-w-3xl mx-auto p-8 space-y-8">
+                        <h1 className="text-4xl font-bold text-slate-900 dark:text-white font-display mb-2">About ExamPrep</h1>
+                        <p className="text-xl text-slate-600 dark:text-gray-400 leading-relaxed">
+                            We are building the world's most intelligent platform for competitive exam preparation.
+                        </p>
+
+                        <div className="prose dark:prose-invert max-w-none">
+                            <p>
+                                Traditional preparation involves sifting through PDF books and random websites. ExamPrep brings structure to the chaos by indexing thousands of questions by <strong>concept</strong>, not just year.
+                            </p>
+                            <p>
+                                Our mission is to help you minimize time spent <em>searching</em> for questions and maximize time spent <em>solving</em> them.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mt-8">
+                            <div className="p-6 bg-slate-50 dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark">
+                                <h4 className="font-bold text-slate-900 dark:text-white mb-2">Data Driven</h4>
+                                <p className="text-sm text-slate-500 dark:text-gray-400">Everything is tagged and analyzed to give you insights.</p>
+                            </div>
+                            <div className="p-6 bg-slate-50 dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark">
+                                <h4 className="font-bold text-slate-900 dark:text-white mb-2">Community Focused</h4>
+                                <p className="text-sm text-slate-500 dark:text-gray-400">Learn from peers in our dedicated discussion threads.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <>
                 {view === 'home' && (
@@ -444,10 +478,51 @@ function MainContent() {
                             onNavigate={(tab) => handleTabChange(tab)}
                         />
                     ) : (
-                        <div className="hero">
-                            <h1>Master Aerospace Engineering</h1>
-                            <p>Search previous year questions by concept, topic, or keyword.</p>
-                            <SearchBox onSearch={performSearch} initialValue={query} />
+                        <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center animate-in fade-in duration-500 pb-40">
+                            {/* Decorative background elements */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
+
+                            <div className="relative z-10 max-w-2xl w-full">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-6">
+                                    <span className="flex size-2 rounded-full bg-primary animate-pulse"></span>
+                                    READY TO PRACTICE?
+                                </div>
+
+                                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white font-display tracking-tight mb-4">
+                                    Master Your Exam
+                                </h1>
+                                <p className="text-lg text-slate-600 dark:text-gray-400 mb-10 max-w-lg mx-auto">
+                                    Search thousands of past questions by topic, concept, or keyword.
+                                </p>
+
+                                <div className="relative group">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                                    <div className="relative">
+                                        <SearchBox onSearch={performSearch} initialValue={query} />
+                                    </div>
+                                </div>
+
+                                {/* Popular Topics / Exploration */}
+                                <div className="mt-12">
+                                    <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Popular Topics</p>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        {['Fluid Mechanics', 'Thermodynamics', 'Calculus', 'Linear Algebra', 'Propulsion'].map((topic) => (
+                                            <button
+                                                key={topic}
+                                                onClick={() => {
+                                                    setQuery(topic);
+                                                    performSearch(topic);
+                                                }}
+                                                className="px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark 
+                                                         text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary hover:text-primary 
+                                                         dark:hover:border-primary dark:hover:text-primary transition-colors shadow-sm"
+                                            >
+                                                {topic}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )
                 )}

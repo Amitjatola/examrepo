@@ -21,9 +21,9 @@ export const api = {
         const response = await fetch(url.toString(), { headers });
         if (!response.ok) {
             if (response.status === 401) {
+                // Clear stale tokens — let the component/auth modal handle re-auth
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '/login'; // Simple redirect for now
             }
             throw new Error(`API Error: ${response.statusText}`);
         }
@@ -65,14 +65,37 @@ export const api = {
         return response.json();
     },
 
-    /**
-     * Get autocomplete suggestions.
-     * @param {string} query 
-     * @param {number} limit 
-     * @returns {Promise<string[]>}
-     */
-    async getSuggestions(query, limit = 5) {
+    async delete(endpoint) {
+        console.log('[API DEBUG] DELETE Request:', { baseURL: BASE_URL, endpoint });
+        const url = new URL(`${BASE_URL}${endpoint}`);
+        const headers = { 'Content-Type': 'application/json' };
+        const token = localStorage.getItem('token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const response = await fetch(url.toString(), { method: 'DELETE', headers });
+        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+        return response.json();
+    },
+
+    getSuggestions(query, limit = 5) {
         if (!query || query.length < 2) return [];
-        return this.get('/search/suggestions', { q: query, limit });
+        return this.get(`/search/suggestions`, { q: query, limit });
+    },
+
+    // Discussions
+    getDiscussions(questionId) {
+        return this.get(`/questions/${questionId}/discussions`);
+    },
+
+    postDiscussion(questionId, content, parentId = null) {
+        return this.post(`/questions/${questionId}/discussions`, { content, parent_id: parentId });
+    },
+
+    voteDiscussion(discussionId, voteType) {
+        return this.post(`/discussions/${discussionId}/vote`, { vote_type: voteType });
+    },
+
+    deleteDiscussion(discussionId) {
+        return this.delete(`/discussions/${discussionId}`);
     }
 };

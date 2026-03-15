@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Sun, Moon, ChevronRight, Menu, User, LogOut, LogIn } from 'lucide-react';
+import { Search, Sun, Moon, ChevronRight, Menu, User, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, breadcrumbs = [] }) => {
@@ -80,6 +80,16 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
                     {!isDetail && (
                         <>
                             <div className="h-8 w-[1px] bg-[#f0f2f4] dark:bg-border-dark mx-2"></div>
+
+                            {!user?.isPremium && (
+                                <button
+                                    onClick={() => {/* Navigate to premium page if handled in parent, or add Navigation prop */}}
+                                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+                                >
+                                    <Sparkles size={16} />
+                                    Go Pro
+                                </button>
+                            )}
 
                             {/* User Avatar / Login Button */}
                             <div className="relative" ref={menuRef}>
