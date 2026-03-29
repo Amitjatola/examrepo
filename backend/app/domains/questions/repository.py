@@ -143,10 +143,12 @@ class QuestionRepository:
             if filters.question_type:
                 conditions.append(Question.question_type == filters.question_type)
             if filters.topic:
-                # Query JSONB path for topic name
-                # tier_1_core_research -> hierarchical_tags -> topic -> name
+                # Cast json column to jsonb so we can use the ->> operator on it
+                # tier_1_core_research -> hierarchical_tags -> topic ->> name
                 conditions.append(
-                    Question.tier_1_core_research['hierarchical_tags', 'topic', 'name'].astext == filters.topic
+                    text(
+                        "tier_1_core_research::jsonb->'hierarchical_tags'->'topic'->>'name' = :topic_name"
+                    ).bindparams(topic_name=filters.topic)
                 )
         
         # Apply all conditions

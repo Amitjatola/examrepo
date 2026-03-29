@@ -7,6 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.domains.auth.models import User
 from app.domains.auth.schemas import UserCreate
+from app.core.config import settings
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+import secrets
 
 # SECRET_KEY should ideally be in env vars
 SECRET_KEY = "supersecretkey"  # TODO: Move to .env
@@ -63,3 +67,19 @@ async def create_user(session: AsyncSession, user: UserCreate):
     await subscription_service.create_trial_subscription(db_user.id, trial_days=7)
     
     return db_user
+
+async def verify_google_token(token: str):
+    """Verifies a Google OAuth token and returns user info."""
+    try:
+        # Verify the token against Google's API
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), settings.google_client_id
+        )
+
+        return {
+            "email": idinfo.get("email"),
+            "full_name": idinfo.get("name"),
+            "email_verified": idinfo.get("email_verified"),
+        }
+    except ValueError as e:
+        return None

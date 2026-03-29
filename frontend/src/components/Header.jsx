@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Sun, Moon, ChevronRight, Menu, User, LogOut, LogIn, Sparkles } from 'lucide-react';
+import { Search, Sun, Moon, ChevronRight, Menu, ArrowLeft, User, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, breadcrumbs = [] }) => {
+const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, breadcrumbs = [], isSidebarOpen = true }) => {
     const isDark = theme === 'dark';
     const isDetail = variant === 'detail';
     const { user, openLogin, logout } = useAuth();
@@ -23,12 +23,13 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
     return (
         <header className={`border-b border-[#f0f2f4] dark:border-border-dark bg-white dark:bg-card-dark flex items-center px-6 justify-between shrink-0 z-10 transition-colors duration-300 ${isDetail ? 'py-3 shadow-sm' : 'h-20 px-8'}`}>
 
-            {/* Mobile/Sidebar Toggle Button */}
+            {/* Sidebar Toggle Button */}
             <button
                 onClick={onToggleSidebar}
                 className="mr-4 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             >
-                <Menu size={24} />
+                {isSidebarOpen ? <ArrowLeft size={24} /> : <Menu size={24} />}
             </button>
 
             {/* Left Section: Search (Default) OR Breadcrumbs (Detail) */}

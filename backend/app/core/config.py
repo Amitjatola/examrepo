@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     
     # CORS - Compatible with comma-separated string "http://a.com,http://b.com" or JSON
     cors_origins: Union[str, list[str]] = ["*"]
+    
+    # OAuth
+    google_client_id: str = ""
 
     @field_validator("cors_origins", mode="before")
     @classmethod

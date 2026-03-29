@@ -5,6 +5,7 @@ import SearchBox from './SearchBox';
 import QuestionCard from './QuestionCard';
 import SkeletonCard from './SkeletonCard';
 import PaperAttemptView from './PaperAttemptView';
+import GateCbtWorkflow from './GateCbtWorkflow';
 import QuestionDetail from './QuestionDetail';
 import YearSelection from './YearSelection';
 import LandingPage from './LandingPage';
@@ -304,11 +305,7 @@ function MainContent() {
         }
 
         if (view === 'years') {
-            return <PaperAttemptView
-                year={selectedYear}
-                onBack={() => setView('year_select')}
-                onPremium={() => setView('pricing')}
-            />;
+            return null; // Handled directly in main return
         }
 
         if (view === 'syllabus-subjects') {
@@ -590,6 +587,12 @@ function MainContent() {
                     />
                     <AuthModal />
                 </>
+            ) : view === 'years' ? (
+                <GateCbtWorkflow 
+                    year={selectedYear}
+                    onBack={() => setView('year_select')}
+                    user={user}
+                />
             ) : (
                 <div className={`min-h-screen bg-background-light dark:bg-background-dark flex transition-colors duration-300 font-sans`}>
                     {!isZenMode && <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onLogoClick={() => setView('landing')} onClose={() => setIsZenMode(true)} />}
@@ -601,6 +604,7 @@ function MainContent() {
                             variant={['question-detail', 'results'].includes(view) ? 'detail' : 'default'}
                             onBack={handleBack}
                             onToggleSidebar={toggleZenMode}
+                            isSidebarOpen={!isZenMode}
                             breadcrumbs={getBreadcrumbs()}
                             showSearch={view !== 'home'}
                         />

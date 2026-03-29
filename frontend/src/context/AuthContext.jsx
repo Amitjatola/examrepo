@@ -53,35 +53,36 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = async (email, password) => {
+
+    const loginWithGoogle = async (credential) => {
         try {
-            const data = await api.post('/auth/login', { email, password });
-            const userData = { email, full_name: data.full_name || email.split('@')[0] };
+            const data = await api.post('/auth/google', { token: credential });
+            
+            // Decode google token for user data
+            const base64Url = credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const googleProfile = JSON.parse(jsonPayload);
+            
+            const userData = { email: googleProfile.email, full_name: googleProfile.name || googleProfile.email.split('@')[0] };
+            
             setToken(data.access_token);
             setUser(userData);
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('user', JSON.stringify(userData));
             setAuthModalOpen(false);
-            // Fetch subscription after successful login
+            
             await fetchSubscription();
             return { success: true };
         } catch (error) {
-            console.error("Login Error:", error);
-            return { success: false, error: error.message };
+            console.error("Google Login Error:", error);
+            return { success: false, error: 'Google authentication failed' };
         }
     };
 
-    const register = async (email, password, fullName) => {
-        try {
-            await api.post('/auth/register', { email, password, full_name: fullName });
 
-            // Auto login after register
-            return await login(email, password);
-        } catch (error) {
-            console.error("Register Error:", error);
-            return { success: false, error: error.message };
-        }
-    };
 
     const logout = () => {
         setToken(null);
@@ -122,8 +123,7 @@ export const AuthProvider = ({ children }) => {
             subscription,
             isPremium: subscription?.is_premium || false,
             isLoading,
-            login,
-            register,
+            loginWithGoogle,
             logout,
             fetchSubscription,
             authModalOpen,
