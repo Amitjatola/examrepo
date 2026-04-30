@@ -7,7 +7,7 @@ s3_prefix = "examapp-backend"
 region = "ap-south-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "CorsOrigins=\"https://main.d29xdjd1t26hts.amplifyapp.com,https://qbt.world,https://www.qbt.world,http://localhost:5173\""
+parameter_overrides = "CorsOrigins=\"https://main.d29xdjd1t26hts.amplifyapp.com,https://qbt.world,https://www.qbt.world,http://localhost:5173\" GoogleClientId=\"1037832084603-1urot8c52r4psifqui2rp4udisvqmt1r.apps.googleusercontent.com\""
 
 
 [default.global.parameters]

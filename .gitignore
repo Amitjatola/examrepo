@@ -76,6 +76,16 @@ build/
 # AWS SAM
 .aws-sam/
 
+# Cursor/agent local state
+.cursor/
+.agents/
+
+# Graphify generated artifacts
+graphify-out/
+
+# Local skill lockfile
+skills-lock.json
+
 # Data directories (not tracked)
 input/
 output/

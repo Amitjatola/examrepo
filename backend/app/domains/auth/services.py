@@ -70,6 +70,9 @@ async def create_user(session: AsyncSession, user: UserCreate):
 
 async def verify_google_token(token: str):
     """Verifies a Google OAuth token and returns user info."""
+    if not settings.google_client_id:
+        return None
+
     try:
         # Verify the token against Google's API
         idinfo = id_token.verify_oauth2_token(

@@ -29,6 +29,7 @@ Resources:
         Variables:
           DATABASE_URL: !Ref DatabaseUrl
           CORS_ORIGINS: !Ref CorsOrigins
+          GOOGLE_CLIENT_ID: !Ref GoogleClientId
           HF_HOME: "/tmp/huggingface"
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -51,6 +52,9 @@ Parameters:
     Type: String
     Description: Allowed CORS origins
     Default: "*"
+  GoogleClientId:
+    Type: String
+    Description: Google OAuth client ID used to validate ID tokens
 
 Outputs:
   ApiUrl:
