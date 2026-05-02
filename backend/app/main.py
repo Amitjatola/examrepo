@@ -47,10 +47,12 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configure CORS
+# Configure CORS — explicit origins from CORS_ORIGINS plus regex so apex/www/subdomains of qbt.world
+# always work even if the SAM CorsOrigins parameter drifts during deploys.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    allow_origin_regex=r"https://(?:[\w-]+\.)*qbt\.world",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
