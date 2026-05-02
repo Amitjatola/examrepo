@@ -13,6 +13,34 @@ from app.core.database import init_db
 from app.api.v1 import router as api_v1_router
 
 
+async def _seed_superuser():
+    """Create the superuser row + lifetime premium when env vars are present."""
+    import os
+    su_email = os.getenv("AEROGATE_SUPERUSER_EMAIL")
+    su_password = os.getenv("AEROGATE_SUPERUSER_PASSWORD")
+    if not su_email or not su_password:
+        return
+    try:
+        from app.core.database import async_session_maker
+        from app.domains.auth.services import get_user_by_email, create_user
+        from app.domains.auth.schemas import UserCreate
+        from app.domains.subscriptions.service import SubscriptionService
+
+        async with async_session_maker() as session:
+            existing = await get_user_by_email(session, su_email)
+            if existing:
+                logger.info(f"Superuser {su_email} already exists, skipping seed")
+                return
+            user_in = UserCreate(email=su_email, password=su_password, full_name="Pro User")
+            user = await create_user(session=session, user=user_in)
+            sub_svc = SubscriptionService(session)
+            await sub_svc.set_lifetime_premium(user.id)
+            await session.commit()
+            logger.info(f"Superuser {su_email} seeded with lifetime premium")
+    except Exception as e:
+        logger.warning(f"Superuser seed failed: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
@@ -30,7 +58,10 @@ async def lifespan(app: FastAPI):
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.warning(f"Database initialization skipped: {e}")
-    
+
+    # Seed superuser if env vars are set and user doesn't exist yet
+    await _seed_superuser()
+
     yield
     
     # Shutdown
