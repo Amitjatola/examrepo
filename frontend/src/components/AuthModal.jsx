@@ -4,17 +4,22 @@ import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 
+const emailLoginEnabled = import.meta.env.VITE_ENABLE_EMAIL_LOGIN === 'true';
+
 const AuthModal = () => {
     const {
         authModalOpen,
         closeAuthModal,
         authMode,
         authPromptMessage,
-        loginWithGoogle
+        loginWithGoogle,
+        loginWithEmailPassword
     } = useAuth();
 
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     if (!authModalOpen) return null;
 
@@ -34,7 +39,24 @@ const AuthModal = () => {
 
     const handleClose = () => {
         setError('');
+        setEmail('');
+        setPassword('');
         closeAuthModal();
+    };
+
+    const handleEmailSubmit = async (e) => {
+        e.preventDefault();
+        if (!email?.trim() || !password) {
+            setError('Enter email and password');
+            return;
+        }
+        setLoading(true);
+        setError('');
+        const result = await loginWithEmailPassword(email.trim(), password);
+        if (!result.success) {
+            setError(result.error);
+        }
+        setLoading(false);
     };
 
     return (
@@ -66,15 +88,72 @@ const AuthModal = () => {
                                 </p>
                             ) : (
                                 <p className="text-slate-500 dark:text-gray-400 text-sm">
-                                    Continue with Google to sign in or sign up
+                                    {emailLoginEnabled
+                                        ? 'Sign in with email or continue with Google'
+                                        : 'Continue with Google to sign in or sign up'}
                                 </p>
                             )}
                         </div>
 
                         {error && (
-                            <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-200 dark:border-red-800/30">
+                            <div
+                                id="auth-error"
+                                role="alert"
+                                className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-200 dark:border-red-800/30"
+                            >
                                 {error}
                             </div>
+                        )}
+
+                        {emailLoginEnabled && (
+                            <form
+                                onSubmit={handleEmailSubmit}
+                                className="mb-6 space-y-3"
+                                aria-label="Email sign in"
+                            >
+                                <div>
+                                    <label
+                                        htmlFor="auth-email"
+                                        className="block text-left text-xs font-medium text-slate-600 dark:text-gray-300 mb-1"
+                                    >
+                                        Email
+                                    </label>
+                                    <input
+                                        id="auth-email"
+                                        type="email"
+                                        autoComplete="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full rounded-lg border border-[#e2e8f0] dark:border-border-dark bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                        aria-invalid={Boolean(error)}
+                                        aria-describedby={error ? 'auth-error' : undefined}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        htmlFor="auth-password"
+                                        className="block text-left text-xs font-medium text-slate-600 dark:text-gray-300 mb-1"
+                                    >
+                                        Password
+                                    </label>
+                                    <input
+                                        id="auth-password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full rounded-lg border border-[#e2e8f0] dark:border-border-dark bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                        aria-invalid={Boolean(error)}
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full rounded-lg bg-primary text-white py-2.5 text-sm font-semibold hover:opacity-95 disabled:opacity-50 transition-opacity"
+                                >
+                                    Sign in with email
+                                </button>
+                            </form>
                         )}
 
                         <div className="flex flex-col items-center justify-center w-full relative min-h-[44px]">
@@ -83,6 +162,11 @@ const AuthModal = () => {
                                     <Loader2 size={24} className="animate-spin" />
                                 </div>
                             ) : null}
+                            {emailLoginEnabled && (
+                                <p className="text-xs text-slate-400 dark:text-gray-500 mb-3 w-full text-center">
+                                    or
+                                </p>
+                            )}
                             <div className="w-full flex justify-center">
                                 <GoogleLogin
                                     onSuccess={handleGoogleSuccess}

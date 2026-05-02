@@ -48,6 +48,20 @@ class QuestionCreate(BaseModel):
     tier_4_metadata: Optional[Tier4Metadata] = None
 
 
+# Whitelist keys under tier_0_classification.complexity_flags (search / trap filters).
+ALLOWED_COMPLEXITY_FLAG_KEYS = frozenset(
+    {
+        "edge_case_scenario",
+        "ambiguous_wording",
+        "multi_step_reasoning",
+        "multi_concept_integration",
+        "approximation_needed",
+        "requires_derivation",
+        "image_interpretation_complex",
+    }
+)
+
+
 class SearchFilters(BaseModel):
     """Filters for question search."""
     year: Optional[int] = None
@@ -58,6 +72,10 @@ class SearchFilters(BaseModel):
     difficulty_min: Optional[int] = Field(default=None, ge=1, le=10)
     difficulty_max: Optional[int] = Field(default=None, ge=1, le=10)
     concepts: Optional[list[str]] = Field(default=None, description="Filter by concept names")
+    complexity_flags_any: Optional[list[str]] = Field(
+        default=None,
+        description="Match questions where any listed tier_0 complexity_flags is true",
+    )
 
 
 # ============== Response Schemas ==============
@@ -142,8 +160,33 @@ class DashboardStats(BaseModel):
     current_streak: int
     syllabus_progress: float = 0.0
     topic_performance: dict[str, float] = {}
+    concept_performance: dict[str, float] = {}
     recent_activity: list[RecentActivityItem] = []
-    # Future fields can be added here
+    topic_avg_time_seconds: dict[str, float] = {}
+    attempt_accuracy_pct: float = 0.0
+    readiness_score: float = 0.0
+    syllabus_topic_catalog_total: int = 0
+
+
+class BookmarkUpsert(BaseModel):
+    note: Optional[str] = None
+    is_bookmarked: bool = True
+
+
+class BookmarkRead(BaseModel):
+    question_id: str
+    note: Optional[str] = None
+    is_bookmarked: bool = True
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MockPaperRequest(BaseModel):
+    question_count: int = Field(default=30, ge=1, le=100)
+    trap_bias: float = Field(default=0.2, ge=0.0, le=1.0)
+    seed: Optional[int] = None
 
 
 class AttemptRequest(BaseModel):

@@ -4,7 +4,7 @@ Stores the rich JSON data structure with PostgreSQL JSONB columns.
 """
 
 from sqlmodel import SQLModel, Field, Column
-from sqlalchemy import Text, JSON
+from sqlalchemy import Text, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from pgvector.sqlalchemy import Vector
 from typing import Optional, List
@@ -69,6 +69,20 @@ class Question(SQLModel, table=True):
                 "marks": 1.0,
             }
         }
+
+
+class UserQuestionBookmark(SQLModel, table=True):
+    """Saved question + optional note per user."""
+
+    __tablename__ = "user_question_bookmarks"
+    __table_args__ = (UniqueConstraint("user_id", "question_uuid", name="uq_user_question_bookmark"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(index=True)
+    question_uuid: uuid.UUID = Field(foreign_key="questions.id", index=True)
+    note: Optional[str] = Field(default=None, sa_column=Column(Text))
+    is_bookmarked: bool = Field(default=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class UserAttempt(SQLModel, table=True):

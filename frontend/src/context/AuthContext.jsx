@@ -1,4 +1,8 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+/**
+ * Auth + subscription. Freemium rules (hint caps, Pro-only UI) are documented in
+ * ../constants/freemium.js — keep product copy aligned with that file.
+ */
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { api } from '../utils/api';
 
 const AuthContext = createContext(null);
@@ -12,38 +16,7 @@ export const AuthProvider = ({ children }) => {
     const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
     const [authPromptMessage, setAuthPromptMessage] = useState('');
 
-    // Configure API URL from env or default
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-
-    useEffect(() => {
-        const verifyToken = async () => {
-            if (token) {
-                try {
-                    // Try to restore user data from localStorage
-                    const storedUser = localStorage.getItem('user');
-                    if (storedUser) {
-                        setUser(JSON.parse(storedUser));
-                        // Fetch subscription status
-                        await fetchSubscription();
-                    }
-                    // TODO: In production, validate token with /me endpoint
-                } catch (error) {
-                    console.error("Token verification failed", error);
-                    logout();
-                }
-            } else {
-                setUser(null);
-                setSubscription(null);
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            }
-            setIsLoading(false);
-        };
-
-        verifyToken();
-    }, [token]);
-
-    const fetchSubscription = async () => {
+    const fetchSubscription = useCallback(async () => {
         try {
             const data = await api.get('/subscriptions/me');
             setSubscription(data);
@@ -51,8 +24,70 @@ export const AuthProvider = ({ children }) => {
             console.error("Failed to fetch subscription:", error);
             setSubscription(null);
         }
-    };
+    }, []);
 
+    useEffect(() => {
+        const verifyToken = async () => {
+            if (!token) {
+                setUser(null);
+                setSubscription(null);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(true);
+            try {
+                // Always validate the JWT with /auth/me on load. Using only cached user + /subscriptions/me
+                // caused 401 on subscription to wipe localStorage (before api fix) and skipped expiry checks.
+                const me = await api.get('/auth/me')
+                const userData = {
+                    email: me.email,
+                    full_name: me.full_name || me.email.split('@')[0],
+                }
+                setUser(userData)
+                localStorage.setItem('user', JSON.stringify(userData))
+                await fetchSubscription()
+            } catch (error) {
+                console.error("Token verification failed", error)
+                setToken(null)
+                setUser(null)
+                setSubscription(null)
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+            } finally {
+                setIsLoading(false)
+            }
+        };
+
+        verifyToken();
+    }, [token, fetchSubscription]);
+
+
+    const loginWithEmailPassword = async (email, password) => {
+        try {
+            const data = await api.post('/auth/login', { email, password });
+            localStorage.setItem('token', data.access_token);
+            setToken(data.access_token);
+            const me = await api.get('/auth/me');
+            const userData = {
+                email: me.email,
+                full_name: me.full_name || me.email.split('@')[0],
+            };
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setAuthModalOpen(false);
+            await fetchSubscription();
+            return { success: true };
+        } catch (error) {
+            console.error('Email login error:', error);
+            return {
+                success: false,
+                error: error?.message || 'Login failed',
+            };
+        }
+    };
 
     const loginWithGoogle = async (credential) => {
         try {
@@ -124,6 +159,7 @@ export const AuthProvider = ({ children }) => {
             isPremium: subscription?.is_premium || false,
             isLoading,
             loginWithGoogle,
+            loginWithEmailPassword,
             logout,
             fetchSubscription,
             authModalOpen,

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 
-const GateOtherInstructionsScreen = ({ candidateName, candidateImage, onPrevious, onStart }) => {
+const GateOtherInstructionsScreen = ({ candidateName, candidateImage, onPrevious, onStart, onExit }) => {
     const [checked, setChecked] = useState(false);
+
+    const handleExit = () => {
+        if (typeof onExit === 'function') onExit();
+    };
 
     return (
         <div className="flex flex-col h-screen w-full bg-[#E5E5E5] font-sans selection:bg-blue-200">
@@ -52,14 +57,29 @@ const GateOtherInstructionsScreen = ({ candidateName, candidateImage, onPrevious
                             </span>
                         </label>
 
-                        <div className="flex justify-between items-center mt-2 border-t pt-4">
+                        <div className="flex flex-wrap justify-between items-center gap-3 mt-2 border-t pt-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {typeof onExit === 'function' && (
+                                    <button
+                                        type="button"
+                                        onClick={handleExit}
+                                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#1E74B0] border border-[#1E74B0]/50 rounded shadow-sm hover:bg-blue-50"
+                                        aria-label="Exit mock exam and return to Aerogate"
+                                    >
+                                        <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
+                                        Exit mock exam
+                                    </button>
+                                )}
+                                <button 
+                                    type="button"
+                                    onClick={onPrevious}
+                                    className="px-6 py-2 text-sm font-bold bg-white text-gray-800 border border-gray-400 rounded shadow-sm hover:bg-gray-100 flex items-center"
+                                >
+                                    &lt; Previous
+                                </button>
+                            </div>
                             <button 
-                                onClick={onPrevious}
-                                className="px-6 py-2 text-sm font-bold bg-white text-gray-800 border border-gray-400 rounded shadow-sm hover:bg-gray-100 flex items-center"
-                            >
-                                &lt; Previous
-                            </button>
-                            <button 
+                                type="button"
                                 onClick={onStart}
                                 disabled={!checked}
                                 className={`px-10 py-2.5 text-sm font-extrabold text-white border rounded shadow-md transition-colors 

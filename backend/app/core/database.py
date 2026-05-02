@@ -10,7 +10,7 @@ from typing import AsyncGenerator
 
 from app.core.config import settings
 # Import all models here to ensure they are registered with SQLModel metadata before create_all is called
-from app.domains.questions.models import Question, UserAttempt
+from app.domains.questions.models import Question, UserAttempt, UserQuestionBookmark
 from app.domains.auth.models import User
 from app.domains.subscriptions.models import UserSubscription
 from app.domains.discussions.models import Discussion

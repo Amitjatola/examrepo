@@ -1,55 +1,170 @@
-import React, { useState } from 'react';
-import { Tier0View } from './Tier0View';
-import { Tier1View } from './Tier1View';
-import { Tier2View } from './Tier2View';
-import { Tier3View } from './Tier3View';
-import { Tier4View } from './Tier4View';
-import { Activity, Brain, Lightbulb, Globe, Database, Lock } from 'lucide-react';
-import { Card } from './ui';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState, useEffect } from 'react'
+import {
+    BarChart3,
+    BookOpen,
+    ListOrdered,
+    Video,
+    Globe,
+    GitBranch,
+    Lock,
+    AlertTriangle,
+    Target,
+    Brain,
+    Layers,
+    Tags,
+} from 'lucide-react'
+import { Card } from './ui'
+import { useAuth } from '../../context/AuthContext'
+import { PremiumSectionPanel } from './PremiumSectionPanel'
 
-export const TierViews = ({ question, isPremium = false }) => {
-    const [activeTier, setActiveTier] = useState(1); // Default to Research (Tier 1)
-    const { user, subscription, openLogin } = useAuth();
+/** Tab order: Tier1 difficulty, then Tier2 student blocks, then remaining Tier1 tabs, Knowledge last */
+const SECTION_ORDER = [
+    'difficulty',
+    'mistakes',
+    'exam_strategy',
+    'textbook',
+    'steps',
+    'alternative_tags',
+    'video',
+    'realworld',
+    'mnemonics',
+    'flashcards',
+    'knowledge',
+]
 
-    // Check if we have data for each tier to potentially disable tabs
-    const hasData = (tier) => {
-        if (!question) return false;
-        switch (tier) {
-            case 0: return !!question.tier_0_classification;
-            case 1: return !!question.tier_1_core_research;
-            case 2: return !!question.tier_2_student_learning;
-            case 3: return !!question.tier_3_enhanced_learning;
-            case 4: return !!question.tier_4_metadata; // Changed from metadata_and_future to metadata to match schema
-            default: return false;
+/** @param {string} sectionId @param {any} q */
+export const sectionHasData = (sectionId, q) => {
+    const t1 = q?.tier_1_core_research
+    const t2 = q?.tier_2_student_learning
+    const t3 = q?.tier_3_enhanced_learning
+    const t4 = q?.tier_4_metadata_and_future
+
+    switch (sectionId) {
+        case 'difficulty': {
+            const da = t1?.difficulty_analysis
+            const breakdown = da?.complexity_breakdown
+            const hasBreakdownValues =
+                breakdown != null &&
+                typeof breakdown === 'object' &&
+                Object.values(breakdown).some((v) => v != null && Number(v) !== 0)
+            const hasT1 =
+                da != null &&
+                (da.expected_accuracy_percent != null || hasBreakdownValues || (da.difficulty_factors || []).length > 0)
+            return Boolean(hasT1)
         }
-    };
+        case 'mistakes':
+            return (t2?.common_mistakes || []).length > 0
+        case 'exam_strategy':
+            return (
+                t2?.exam_strategy != null &&
+                typeof t2.exam_strategy === 'object' &&
+                Object.keys(t2.exam_strategy || {}).length > 0
+            )
+        case 'textbook':
+            return (t1?.textbook_references || []).length > 0
+        case 'steps': {
+            const steps = t1?.explanation?.step_by_step
+            const fp = t1?.formulas_principles
+            const sbs = t1?.step_by_step_solution
+            const hasT1 =
+                (steps || []).length > 0 ||
+                (fp || []).length > 0 ||
+                Boolean(sbs && (sbs.approach_type || sbs.solution_path))
+            return Boolean(hasT1)
+        }
+        case 'alternative_tags': {
+            const alt = t3?.alternative_methods
+            return Array.isArray(alt) && alt.length > 0
+        }
+        case 'video':
+            return (t1?.video_references || []).length > 0
+        case 'realworld': {
+            const pr = t1?.real_world_applications?.practical_relevance
+            const hasT1 = typeof pr === 'string' && pr.trim().length > 0 && pr !== 'N/A'
+            const hasContexts = (t2?.real_world_context || []).length > 0
+            return hasT1 || hasContexts
+        }
+        case 'mnemonics':
+            return (t2?.mnemonics_memory_aids || []).length > 0
+        case 'flashcards':
+            return (t2?.flashcards || []).length > 0
+        case 'knowledge': {
+            const tree = t1?.prerequisites?.dependency_tree
+            const hasTree = tree != null && typeof tree === 'object' && Object.keys(tree).length > 0
+            const conn = t3?.connections_to_other_subjects
+            const hasConn = conn != null && typeof conn === 'object' && Object.keys(conn).length > 0
+            const hasKw = (t3?.search_keywords || []).length > 0
+            const hasDive = (t3?.deeper_dive_topics || []).length > 0
+            return Boolean(hasTree || hasConn || hasKw || hasDive || !!t4)
+        }
+        default:
+            return false
+    }
+}
 
-    const tabs = [
-        { id: 0, label: 'Classification', icon: Activity, color: 'text-blue-500' },
-        { id: 1, label: 'Core Research', icon: Brain, color: 'text-emerald-500' },
-        { id: 2, label: 'Student Zone', icon: Lightbulb, color: 'text-amber-500' },
-        { id: 3, label: 'Deep Dive', icon: Globe, color: 'text-purple-500' },
-        { id: 4, label: 'System Meta', icon: Database, color: 'text-slate-500' },
-    ];
+const pickDefaultSection = (q) => {
+    for (const id of SECTION_ORDER) {
+        if (sectionHasData(id, q)) return id
+    }
+    return 'difficulty'
+}
+
+const TABS = [
+    { id: 'difficulty', line1: 'Difficulty', line2: 'Deep Dive', icon: BarChart3, color: 'text-emerald-500' },
+    { id: 'mistakes', line1: 'Common Mistakes', line2: '& Traps', icon: AlertTriangle, color: 'text-emerald-500' },
+    { id: 'exam_strategy', line1: 'Exam', line2: 'Strategy', icon: Target, color: 'text-emerald-500' },
+    { id: 'textbook', line1: 'Textbook', line2: 'Reference', icon: BookOpen, color: 'text-emerald-500' },
+    { id: 'steps', line1: 'Step-by-Step', line2: 'Explanation', icon: ListOrdered, color: 'text-emerald-500' },
+    { id: 'alternative_tags', line1: 'Alternative tags', line2: 'Compare approaches', icon: Tags, color: 'text-emerald-500' },
+    { id: 'video', line1: 'Video', line2: 'Lectures', icon: Video, color: 'text-emerald-500' },
+    { id: 'realworld', line1: 'Real World', line2: 'Context', icon: Globe, color: 'text-emerald-500' },
+    { id: 'mnemonics', line1: 'Mnemonics', line2: '& Memory Aids', icon: Brain, color: 'text-emerald-500' },
+    { id: 'flashcards', line1: 'Flashcards', line2: 'Study', icon: Layers, color: 'text-emerald-500' },
+    { id: 'knowledge', line1: 'Knowledge', line2: 'Graph', icon: GitBranch, color: 'text-emerald-500' },
+]
+
+export const TierViews = ({ question }) => {
+    const [activeSection, setActiveSection] = useState('difficulty')
+    const { user, subscription, openLogin, isPremium, isLoading, fetchSubscription } = useAuth()
+
+    const hasTier1 = Boolean(question?.tier_1_core_research)
+
+    useEffect(() => {
+        if (!question) return
+        const next = pickDefaultSection(question)
+        setActiveSection(next)
+    }, [question?.id])
 
     if (!isPremium) {
-        // Determine message based on user and subscription status
-        let message = "Sign in to unlock deep insights, step-by-step derivations, and AI-powered learning aids.";
-        let buttonText = "Sign In to Continue";
-        let buttonAction = openLogin;
-        let showTrialInfo = false;
-        let trialDays = 0;
+        if (isLoading) {
+            return (
+                <Card className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 mt-8">
+                    <Lock className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4 animate-pulse" />
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Premium Analytics</h3>
+                    <p className="text-slate-600 dark:text-gray-400 mb-0">Loading subscription…</p>
+                </Card>
+            )
+        }
 
-        if (user && subscription) {
+        let message = "Sign in to unlock deep insights, step-by-step derivations, and AI-powered learning aids."
+        let buttonText = "Sign In to Continue"
+        let buttonAction = openLogin
+
+        if (user && !subscription) {
+            message = "Could not verify your subscription. Check your connection or API URL, then try again."
+            buttonText = "Retry"
+            buttonAction = () => {
+                fetchSubscription()
+            }
+        } else if (user && subscription) {
             if (subscription.subscription_type === 'trial' && subscription.status === 'expired') {
-                message = "Your 7-day free trial has expired. Upgrade to Premium to continue accessing advanced analytics.";
-                buttonText = "Upgrade to Premium";
-                buttonAction = () => console.log("Redirect to pricing"); // TODO: Implement pricing page
+                message = "Your 7-day free trial has expired. Upgrade to Premium to continue accessing advanced analytics."
+                buttonText = "Upgrade to Premium"
+                buttonAction = () => console.log("Redirect to pricing")
             } else if (subscription.subscription_type === 'free') {
-                message = "Unlock deep insights, step-by-step derivations, and AI-powered learning aids with Premium.";
-                buttonText = "Upgrade to Premium";
-                buttonAction = () => console.log("Redirect to pricing");
+                message = "Unlock deep insights, step-by-step derivations, and AI-powered learning aids with Premium."
+                buttonText = "Upgrade to Premium"
+                buttonAction = () => console.log("Redirect to pricing")
             }
         }
 
@@ -59,6 +174,7 @@ export const TierViews = ({ question, isPremium = false }) => {
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Premium Analytics</h3>
                 <p className="text-slate-600 dark:text-gray-400 mb-6">{message}</p>
                 <button
+                    type="button"
                     onClick={buttonAction}
                     className={`${!user
                         ? 'bg-primary hover:bg-blue-600'
@@ -68,44 +184,44 @@ export const TierViews = ({ question, isPremium = false }) => {
                     {buttonText}
                 </button>
             </Card>
-        );
+        )
     }
 
-    if (!hasData(1)) return null; // If no core research, probably no premium data at all
+    if (!hasTier1) return null
 
     return (
         <div className="mt-8">
-            <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-1">
-                {tabs.map((tab) => {
-                    const isActive = activeTier === tab.id;
-                    const available = hasData(tab.id);
-                    const Icon = tab.icon;
+            <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-200 dark:border-white/10 pb-1">
+                {TABS.map((tab) => {
+                    const isActive = activeSection === tab.id
+                    const available = sectionHasData(tab.id, question)
+                    const Icon = tab.icon
 
-                    if (!available) return null;
+                    if (!available) return null
 
                     return (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTier(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-3 rounded-t-lg transition-all border-b-2 ${isActive
-                                ? 'bg-white border-brand-500 text-brand-700 shadow-sm'
-                                : 'bg-transparent border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                            type="button"
+                            onClick={() => setActiveSection(tab.id)}
+                            className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-t-lg transition-all border-b-2 text-left ${isActive
+                                ? 'bg-white dark:bg-white/10 border-brand-500 text-brand-700 dark:text-white shadow-sm'
+                                : 'bg-transparent border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                 }`}
                         >
-                            <Icon className={`w-4 h-4 ${isActive ? tab.color : 'text-slate-400'}`} />
-                            <span className="font-medium text-sm">{tab.label}</span>
+                            <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? tab.color : 'text-slate-400 dark:text-slate-500'}`} />
+                            <span className="flex flex-col items-start leading-tight min-w-0">
+                                <span className="font-medium text-sm">{tab.line1}</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">{tab.line2}</span>
+                            </span>
                         </button>
-                    );
+                    )
                 })}
             </div>
 
             <div className="min-h-[400px]">
-                {activeTier === 0 && <Tier0View data={question.tier_0_classification} />}
-                {activeTier === 1 && <Tier1View data={question.tier_1_core_research} />}
-                {activeTier === 2 && <Tier2View data={question.tier_2_student_learning} />}
-                {activeTier === 3 && <Tier3View data={question.tier_3_enhanced_learning} />}
-                {activeTier === 4 && <Tier4View data={question} />}
+                <PremiumSectionPanel question={question} section={activeSection} />
             </div>
         </div>
-    );
-};
+    )
+}

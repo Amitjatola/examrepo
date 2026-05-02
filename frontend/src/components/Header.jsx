@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Sun, Moon, ChevronRight, Menu, ArrowLeft, User, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, breadcrumbs = [], isSidebarOpen = true }) => {
+const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, onGoPro, breadcrumbs = [], isSidebarOpen = true }) => {
     const isDark = theme === 'dark';
     const isDetail = variant === 'detail';
-    const { user, openLogin, logout } = useAuth();
+    const { user, openLogin, logout, isPremium } = useAuth();
     const [showUserMenu, setShowUserMenu] = useState(false);
     const menuRef = useRef(null);
 
@@ -21,7 +21,9 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
     }, []);
 
     return (
-        <header className={`border-b border-[#f0f2f4] dark:border-border-dark bg-white dark:bg-card-dark flex items-center px-6 justify-between shrink-0 z-10 transition-colors duration-300 ${isDetail ? 'py-3 shadow-sm' : 'h-20 px-8'}`}>
+        <header
+            className={`border-b border-[#f0f2f4] dark:border-border-dark bg-white dark:bg-card-dark flex items-center px-6 justify-between shrink-0 z-40 transition-colors duration-300 ${isDetail ? 'py-3 shadow-sm' : 'h-20 px-8'}`}
+        >
 
             {/* Sidebar Toggle Button */}
             <button
@@ -82,12 +84,17 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
                         <>
                             <div className="h-8 w-[1px] bg-[#f0f2f4] dark:bg-border-dark mx-2"></div>
 
-                            {!user?.isPremium && (
+                            {!isPremium && (
                                 <button
-                                    onClick={() => {/* Navigate to premium page if handled in parent, or add Navigation prop */}}
-                                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+                                    type="button"
+                                    data-testid="header-go-pro"
+                                    onClick={() => {
+                                        if (typeof onGoPro === 'function') onGoPro();
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+                                    aria-label="View Pro pricing and benefits"
                                 >
-                                    <Sparkles size={16} />
+                                    <Sparkles size={16} aria-hidden />
                                     Go Pro
                                 </button>
                             )}

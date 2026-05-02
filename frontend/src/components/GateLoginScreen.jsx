@@ -1,9 +1,27 @@
 import React from 'react';
-import { User, Lock } from 'lucide-react';
+import { User, Lock, ArrowLeft } from 'lucide-react';
 
-const GateLoginScreen = ({ candidateName, candidateImage, year, onNext }) => {
+const GateLoginScreen = ({ candidateName, candidateImage, year, onNext, onBack }) => {
+    const handleExit = () => {
+        if (typeof onBack === 'function') onBack();
+    };
+
     return (
         <div className="flex flex-col h-screen w-full bg-[#E5E5E5] font-sans selection:bg-blue-200">
+            {typeof onBack === 'function' && (
+                <div className="bg-[#f0f4f8] border-b border-[#cbd5e1] px-4 py-2 flex justify-end shrink-0">
+                    <button
+                        type="button"
+                        data-testid="exit-mock-exam"
+                        onClick={handleExit}
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-[#1E74B0] hover:text-[#165A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E74B0]/40 rounded px-2 py-1"
+                        aria-label="Exit mock exam and return to Aerogate"
+                    >
+                        <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
+                        Exit mock exam — back to Aerogate
+                    </button>
+                </div>
+            )}
             {/* Top White Banner */}
             <div className="bg-white px-6 py-2 flex items-center justify-between border-b">
                 <div className="flex items-center gap-4">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import LatexRenderer from './LatexRenderer';
 
 const QuestionCard = ({ qNo, difficulty, marks, text, tags, type, onClick, question }) => {
@@ -27,15 +27,10 @@ const QuestionCard = ({ qNo, difficulty, marks, text, tags, type, onClick, quest
             onClick={onClick}
             className="bg-white dark:bg-card-dark rounded-xl p-5 shadow-sm border border-[#f0f2f4] dark:border-border-dark hover:shadow-md hover:border-primary/30 dark:hover:border-primary/30 transition-all group cursor-pointer flex flex-col h-full min-w-0"
         >
-            <div className="flex justify-between items-start mb-3">
-                <div className="flex gap-2 flex-wrap">
-                    <span className="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-background-dark/50 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">Q. {qNo}</span>
-                    <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getDiffColor(difficulty)}`}>{difficulty}</span>
-                    <span className="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-background-dark/50 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">{marks} Marks</span>
-                </div>
-                <button className="text-gray-400 hover:text-primary transition-colors">
-                    <Bookmark size={20} />
-                </button>
+            <div className="flex gap-2 flex-wrap items-start mb-3">
+                <span className="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-background-dark/50 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">Q. {qNo}</span>
+                <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getDiffColor(difficulty)}`}>{difficulty}</span>
+                <span className="inline-flex items-center rounded-md bg-[#f0f2f4] dark:bg-background-dark/50 px-2 py-1 text-xs font-medium text-[#617589] dark:text-gray-400 ring-1 ring-inset ring-gray-500/10">{marks} Marks</span>
             </div>
 
             <div className="text-slate-900 dark:text-white font-medium leading-relaxed mb-4 flex-grow line-clamp-3">
@@ -43,11 +38,13 @@ const QuestionCard = ({ qNo, difficulty, marks, text, tags, type, onClick, quest
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-[#f0f2f4] dark:border-border-dark mt-auto">
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap min-w-0">
                     {tags && tags.map((tag, idx) => (
-                        <React.Fragment key={tag}>
-                            <span className="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide">{tag}</span>
-                            {idx < tags.length - 1 && <span className="text-gray-300 dark:text-gray-700">•</span>}
+                        <React.Fragment key={`${tag}-${idx}`}>
+                            <span className="text-xs font-medium text-[#617589] dark:text-gray-500 uppercase tracking-wide inline max-w-[14rem] truncate align-middle">
+                                <LatexRenderer text={String(tag)} />
+                            </span>
+                            {idx < tags.length - 1 && <span className="text-gray-300 dark:text-gray-700 shrink-0">•</span>}
                         </React.Fragment>
                     ))}
                 </div>

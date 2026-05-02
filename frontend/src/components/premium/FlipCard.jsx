@@ -25,15 +25,18 @@ export const FlipCard = ({ card }) => {
                 style={{ transformStyle: "preserve-3d" }}
             >
                 {/* Front */}
-                <div className="absolute w-full h-full bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between backface-hidden" style={{ backfaceVisibility: 'hidden' }}>
+                <div
+                    className="absolute w-full h-full bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-white/10 flex flex-col justify-between backface-hidden"
+                    style={{ backfaceVisibility: 'hidden' }}
+                >
                     <div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{card.card_type}</span>
-                        <div className="font-semibold text-slate-800 mt-3 text-lg leading-snug">
+                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{card.card_type}</span>
+                        <div className="font-semibold text-slate-800 dark:text-slate-100 mt-3 text-lg leading-snug">
                             <MathText>{card.front}</MathText>
                         </div>
                     </div>
-                    <div className="text-xs text-slate-400 flex justify-between items-center border-t border-slate-50 pt-3">
-                        <span className="capitalize badge-gray px-2 py-0.5 rounded bg-slate-100 text-slate-500">{card.difficulty}</span>
+                    <div className="text-xs text-slate-400 dark:text-slate-500 flex justify-between items-center border-t border-slate-50 dark:border-white/10 pt-3">
+                        <span className="capitalize badge-gray px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400">{card.difficulty}</span>
                         <span className="flex items-center gap-1 font-mono"><Clock className="w-3 h-3" /> {card.time_limit_seconds}s</span>
                     </div>
                 </div>

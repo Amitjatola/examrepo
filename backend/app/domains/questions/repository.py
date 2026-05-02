@@ -4,15 +4,15 @@ Handles CRUD and search queries.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_, and_, Text, text, cast, String
+from sqlalchemy import select, func, or_, and_, Text, text, cast, String, bindparam
 from sqlalchemy.dialects.postgresql import JSONB
 from pgvector.sqlalchemy import Vector
 from pgvector.sqlalchemy import Vector
-from typing import Optional, List, Set
+from typing import Optional, List, Set, Collection
 import uuid
 
 from app.domains.questions.models import Question
-from app.domains.questions.schemas import QuestionCreate, SearchFilters
+from app.domains.questions.schemas import QuestionCreate, SearchFilters, ALLOWED_COMPLEXITY_FLAG_KEYS
 from app.core.embedding import generate_embeddings
 
 
@@ -64,10 +64,13 @@ class QuestionRepository:
 
         search_content = " | ".join([p for p in parts if p and p.strip()])
         
-        # 2. Generate Embedding (BGE-Large)
+        # 2. Generate Embedding (BGE-Large); mock may return a plain list
         embedding_vec = generate_embeddings(search_content)
-        embedding = embedding_vec.tolist()
-        
+        if hasattr(embedding_vec, "tolist"):
+            embedding = embedding_vec.tolist()
+        else:
+            embedding = list(embedding_vec) if embedding_vec is not None else []
+
         return search_content, embedding
     
     async def get_by_id(self, question_id: uuid.UUID) -> Optional[Question]:
@@ -150,6 +153,19 @@ class QuestionRepository:
                         "tier_1_core_research::jsonb->'hierarchical_tags'->'topic'->>'name' = :topic_name"
                     ).bindparams(topic_name=filters.topic)
                 )
+            if filters.complexity_flags_any:
+                safe_flags = [
+                    f for f in filters.complexity_flags_any if f in ALLOWED_COMPLEXITY_FLAG_KEYS
+                ]
+                if safe_flags:
+                    or_parts = []
+                    for fk in safe_flags:
+                        or_parts.append(
+                            text(
+                                f"(tier_0_classification::jsonb->'complexity_flags'->>'{fk}') = 'true'"
+                            )
+                        )
+                    conditions.append(or_(*or_parts))
         
         # Apply all conditions
         if conditions:
@@ -300,3 +316,53 @@ class QuestionRepository:
                 tree[subject].append(topic)
                 
         return tree
+
+    async def get_questions_by_string_ids(self, question_ids: List[str]) -> List[Question]:
+        """Fetch full rows by public question_id strings, preserving input order."""
+        if not question_ids:
+            return []
+        stmt = select(Question).where(Question.question_id.in_(question_ids))
+        result = await self.session.execute(stmt)
+        rows = list(result.scalars().all())
+        by_qid = {q.question_id: q for q in rows}
+        return [by_qid[qid] for qid in question_ids if qid in by_qid]
+
+    async def fetch_random_question_ids_from_topics(
+        self, topics: Collection[str], limit: int
+    ) -> List[str]:
+        if limit <= 0 or not topics:
+            return []
+        topic_list = list(topics)
+        sql = text("""
+            SELECT question_id FROM questions
+            WHERE tier_1_core_research->'hierarchical_tags'->'topic'->>'name' IN :topics
+            ORDER BY RANDOM()
+            LIMIT :lim
+        """).bindparams(bindparam("topics", expanding=True))
+        result = await self.session.execute(sql, {"topics": topic_list, "lim": limit})
+        return [row[0] for row in result.all()]
+
+    async def fetch_random_trap_flag_question_ids(self, limit: int) -> List[str]:
+        """Questions where at least one tier_0 complexity_flags value is true."""
+        if limit <= 0:
+            return []
+        sql = text("""
+            SELECT question_id FROM questions
+            WHERE tier_0_classification IS NOT NULL
+              AND EXISTS (
+                SELECT 1
+                FROM jsonb_each(COALESCE(tier_0_classification->'complexity_flags', '{}'::jsonb)) e
+                WHERE e.value = 'true'::jsonb
+              )
+            ORDER BY RANDOM()
+            LIMIT :lim
+        """)
+        result = await self.session.execute(sql, {"lim": limit})
+        return [row[0] for row in result.all()]
+
+    async def fetch_random_question_ids(self, limit: int) -> List[str]:
+        if limit <= 0:
+            return []
+        sql = text("SELECT question_id FROM questions ORDER BY RANDOM() LIMIT :lim")
+        result = await self.session.execute(sql, {"lim": limit})
+        return [row[0] for row in result.all()]

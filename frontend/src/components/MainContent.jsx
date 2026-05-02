@@ -13,13 +13,14 @@ import AuthModal from './AuthModal';
 import Dashboard from './Dashboard';
 import PremiumPage from './PremiumPage';
 import SyllabusSelection from './SyllabusSelection';
+import SmartPlannerStub from './SmartPlannerStub';
+import { QuestionBookmarkControls } from './QuestionBookmarkControls';
 import { useTheme } from '../hooks/useTheme';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-
 function MainContent() {
     const { theme, toggleTheme } = useTheme();
-    const { openLogin, openRegister, user, logout } = useAuth();
+    const { openLogin, openRegister, user, logout, isPremium } = useAuth();
     const [isZenMode, setIsZenMode] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
 
     // Persist app state to localStorage for page refresh support
@@ -48,6 +49,10 @@ function MainContent() {
     const [selectedTopic, setSelectedTopic] = useState(savedState?.selectedTopic || null);
     const [selectedYear, setSelectedYear] = useState(savedState?.selectedYear || null);
     const [selectedQuestionId, setSelectedQuestionId] = useState(savedState?.selectedQuestionId || null);
+    const [playlistQuestionIds, setPlaylistQuestionIds] = useState(null);
+    const [playlistTitle, setPlaylistTitle] = useState('');
+    const [detailNavigatorIds, setDetailNavigatorIds] = useState(null);
+    const [detailContext, setDetailContext] = useState(null);
 
     const toggleZenMode = () => setIsZenMode(!isZenMode);
     const [results, setResults] = useState([]);
@@ -66,6 +71,7 @@ function MainContent() {
             selectedSubject,
             selectedTopic,
             selectedQuestionId,
+            selectedYear,
         };
         localStorage.setItem('aerogate_state', JSON.stringify(stateToSave));
 
@@ -76,7 +82,7 @@ function MainContent() {
             // Reset the flag
             isPopping.current = false;
         }
-    }, [view, activeTab, query, selectedSubject, selectedTopic, selectedQuestionId]);
+    }, [view, activeTab, query, selectedSubject, selectedTopic, selectedQuestionId, selectedYear]);
 
     // Handle back button (popstate)
     useEffect(() => {
@@ -91,6 +97,7 @@ function MainContent() {
                 if (s.selectedSubject !== undefined) setSelectedSubject(s.selectedSubject);
                 if (s.selectedTopic !== undefined) setSelectedTopic(s.selectedTopic);
                 if (s.selectedQuestionId !== undefined) setSelectedQuestionId(s.selectedQuestionId);
+                if (s.selectedYear !== undefined) setSelectedYear(s.selectedYear);
             }
         };
 
@@ -104,6 +111,7 @@ function MainContent() {
             selectedSubject,
             selectedTopic,
             selectedQuestionId,
+            selectedYear,
         };
         window.history.replaceState(initialState, '', '');
 
@@ -135,7 +143,7 @@ function MainContent() {
                 setLoading(true);
                 setError(null);
                 try {
-                    const data = await api.get('/search', { q: query });
+                    const data = await api.get('/search', { q: query, page_size: 50 });
                     setResults(data.questions);
                     setTotal(data.total);
                 } catch (err) {
@@ -164,6 +172,7 @@ function MainContent() {
 
     const performSearch = useCallback(async (searchQuery) => {
         setQuery(searchQuery); // Sync query state
+        setSelectedTopic(null);
 
         if (!searchQuery) {
             setResults([]);
@@ -178,7 +187,8 @@ function MainContent() {
         setError(null);
 
         try {
-            const data = await api.get('/search', { q: searchQuery });
+            const params = { q: searchQuery, page_size: 50 };
+            const data = await api.get('/search', params);
             setResults(data.questions);
             setTotal(data.total);
         } catch (err) {
@@ -231,17 +241,17 @@ function MainContent() {
         setView('syllabus-topics');
     };
 
-    const handleTopicClick = async (topic) => {
+    const runTopicSearch = async (topic, { activeTabOverride = 'concepts' } = {}) => {
+        setActiveTab(activeTabOverride);
         setSelectedTopic(topic);
-        setQuery(topic); // Optional: show topic name in search box
+        setQuery(topic);
 
         setView('results');
         setLoading(true);
         setError(null);
 
         try {
-            // Use exact topic filtering instead of text search
-            const data = await api.get('/search', { topic: topic, q: '' });
+            const data = await api.get('/search', { topic, q: '', page_size: 50 });
             setResults(data.questions);
             setTotal(data.total);
         } catch (err) {
@@ -251,8 +261,84 @@ function MainContent() {
         }
     };
 
+    const handleTopicClick = (topic) => runTopicSearch(topic, { activeTabOverride: 'concepts' });
+
+    const handlePracticeWeakTopic = (topic) => {
+        if (!user) {
+            window.dispatchEvent(new CustomEvent('open-auth-modal'));
+            return;
+        }
+        if (!isPremium) {
+            setActiveTab('premium');
+            setView('premium');
+            return;
+        }
+        runTopicSearch(topic, { activeTabOverride: 'home' });
+    };
+
+    const handleOpenRemediationPlaylist = async () => {
+        if (!user) {
+            window.dispatchEvent(new CustomEvent('open-auth-modal'));
+            return;
+        }
+        try {
+            const data = await api.get('/dashboard/remediation', { limit: 40 });
+            const ids = (data.items || []).map((i) => i.question_id).filter(Boolean);
+            if (!ids.length) {
+                window.alert('No incorrect attempts yet. Keep practicing, then come back to review mistakes.');
+                return;
+            }
+            setPlaylistQuestionIds(ids);
+            setPlaylistTitle('Fix mistakes');
+            setView('playlist-practice');
+        } catch (err) {
+            setError(err.message || 'Could not load remediation queue.');
+        }
+    };
+
+    const handleRunMockPaper = async () => {
+        if (!user) {
+            window.dispatchEvent(new CustomEvent('open-auth-modal'));
+            return;
+        }
+        if (!isPremium) {
+            setActiveTab('premium');
+            setView('premium');
+            return;
+        }
+        try {
+            const data = await api.post('/practice/mock-paper', {
+                question_count: 30,
+                trap_bias: 0.2,
+            });
+            const ids = data.question_ids || [];
+            if (!ids.length) {
+                setError('Could not build a mock paper — try again later.');
+                return;
+            }
+            setPlaylistQuestionIds(ids);
+            setPlaylistTitle('Adaptive mock');
+            setView('playlist-practice');
+        } catch (err) {
+            setError(err.message || 'Mock paper failed.');
+        }
+    };
+
     const handleBack = () => {
+        if (view === 'premium') {
+            setView('home');
+            setActiveTab('home');
+            return;
+        }
+        if (view === 'playlist-practice') {
+            setPlaylistQuestionIds(null);
+            setPlaylistTitle('');
+            setView('home');
+            return;
+        }
         if (view === 'question-detail') {
+            setDetailNavigatorIds(null);
+            setDetailContext(null);
             // From Detail -> List
             if (activeTab === 'year_select') setView('results');
             else if (activeTab === 'concepts') setView('results');
@@ -285,7 +371,18 @@ function MainContent() {
         }
 
         if (view === 'question-detail') {
-            crumbs.push({ label: `Question`, onClick: () => { } });
+            const dc = detailContext;
+            const y = dc?.year ?? selectedYear;
+            const sub = dc?.subject ?? selectedSubject;
+            const qn = dc?.question_number;
+            const segments = [];
+            if (y != null && y !== '') segments.push(String(y));
+            if (sub) segments.push(sub);
+            if (qn != null) segments.push(`Q${qn}`);
+            crumbs.push({
+                label: segments.length ? segments.join(' › ') : 'Question',
+                onClick: () => {},
+            });
         }
 
         return crumbs;
@@ -293,11 +390,44 @@ function MainContent() {
 
     // Helper to determine what Main content to render
     const renderMainContent = () => {
+        if (view === 'smart-planner') {
+            return <SmartPlannerStub onOpenDashboard={() => setView('home')} />;
+        }
+
+        if (view === 'playlist-practice') {
+            return (
+                <PaperAttemptView
+                    playlistQuestionIds={playlistQuestionIds}
+                    playlistTitle={playlistTitle}
+                    onBack={() => {
+                        setPlaylistQuestionIds(null);
+                        setPlaylistTitle('');
+                        setView('home');
+                    }}
+                    onPremium={() => {
+                        setActiveTab('premium');
+                        setView('premium');
+                    }}
+                    user={user}
+                    isPremium={isPremium}
+                />
+            );
+        }
+
         if (view === 'question-detail') {
-            return <QuestionDetail
-                questionId={selectedQuestionId}
-                onBack={handleBack}
-            />;
+            return (
+                <QuestionDetail
+                    questionId={selectedQuestionId}
+                    navigatorQuestionIds={detailNavigatorIds}
+                    onNavigatorQuestionSelect={(id) => setSelectedQuestionId(id)}
+                    bookmarkSlot={<QuestionBookmarkControls questionPublicId={selectedQuestionId} />}
+                    onBack={handleBack}
+                    onOpenPremium={() => {
+                        setActiveTab('premium');
+                        setView('premium');
+                    }}
+                />
+            );
         }
 
         if (view === 'year_select') {
@@ -374,7 +504,14 @@ function MainContent() {
         }
 
         if (view === 'premium') {
-            return <PremiumPage />;
+            return (
+                <PremiumPage
+                    onBack={() => {
+                        setView('home');
+                        setActiveTab('home');
+                    }}
+                />
+            );
         }
 
 
@@ -473,6 +610,15 @@ function MainContent() {
                         <Dashboard
                             onSearch={performSearch}
                             onNavigate={(tab) => handleTabChange(tab)}
+                            onPracticeWeakTopic={handlePracticeWeakTopic}
+                            onOpenRemediationPlaylist={handleOpenRemediationPlaylist}
+                            onRunMockPaper={handleRunMockPaper}
+                            onOpenQuestion={(qid) => {
+                                setDetailNavigatorIds(null);
+                                setDetailContext(null);
+                                setSelectedQuestionId(qid);
+                                setView('question-detail');
+                            }}
                         />
                     ) : (
                         <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center animate-in fade-in duration-500 pb-40">
@@ -556,6 +702,12 @@ function MainContent() {
                                     key={q.id}
                                     question={q}
                                     onClick={() => {
+                                        setDetailNavigatorIds(results.map((r) => r.question_id));
+                                        setDetailContext({
+                                            year: q.year,
+                                            subject: q.subject,
+                                            question_number: q.question_number,
+                                        });
                                         setSelectedQuestionId(q.question_id);
                                         setView('question-detail');
                                     }}
@@ -595,15 +747,30 @@ function MainContent() {
                 />
             ) : (
                 <div className={`min-h-screen bg-background-light dark:bg-background-dark flex transition-colors duration-300 font-sans`}>
-                    {!isZenMode && <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onLogoClick={() => setView('landing')} onClose={() => setIsZenMode(true)} />}
+                    {!isZenMode && (
+                        <Sidebar
+                            activeTab={activeTab}
+                            onTabChange={handleTabChange}
+                            onLogoClick={() => setView('landing')}
+                            onClose={() => setIsZenMode(true)}
+                            onSmartPlanner={() => {
+                                setActiveTab('home');
+                                setView('smart-planner');
+                            }}
+                        />
+                    )}
 
                     <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${!isZenMode && 'lg:ml-72'}`}>
                         <Header
                             toggleTheme={toggleTheme}
                             theme={theme}
-                            variant={['question-detail', 'results'].includes(view) ? 'detail' : 'default'}
+                            variant={['question-detail', 'results', 'playlist-practice'].includes(view) ? 'detail' : 'default'}
                             onBack={handleBack}
                             onToggleSidebar={toggleZenMode}
+                            onGoPro={() => {
+                                setActiveTab('premium');
+                                setView('premium');
+                            }}
                             isSidebarOpen={!isZenMode}
                             breadcrumbs={getBreadcrumbs()}
                             showSearch={view !== 'home'}

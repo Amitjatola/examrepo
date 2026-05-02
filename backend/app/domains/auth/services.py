@@ -10,6 +10,7 @@ from app.domains.auth.schemas import UserCreate
 from app.core.config import settings
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from loguru import logger
 import secrets
 
 # SECRET_KEY should ideally be in env vars
@@ -70,19 +71,28 @@ async def create_user(session: AsyncSession, user: UserCreate):
 
 async def verify_google_token(token: str):
     """Verifies a Google OAuth token and returns user info."""
-    if not settings.google_client_id:
+    raw_client_ids = (settings.google_client_id or "").strip()
+    if not raw_client_ids:
+        logger.error("GOOGLE_CLIENT_ID is not configured on backend runtime")
         return None
 
-    try:
-        # Verify the token against Google's API
-        idinfo = id_token.verify_oauth2_token(
-            token, google_requests.Request(), settings.google_client_id
-        )
+    client_ids = [client_id.strip() for client_id in raw_client_ids.split(",") if client_id.strip()]
+    request = google_requests.Request()
+    verification_errors: list[str] = []
 
-        return {
-            "email": idinfo.get("email"),
-            "full_name": idinfo.get("name"),
-            "email_verified": idinfo.get("email_verified"),
-        }
-    except ValueError as e:
-        return None
+    for client_id in client_ids:
+        try:
+            idinfo = id_token.verify_oauth2_token(token, request, client_id)
+            return {
+                "email": idinfo.get("email"),
+                "full_name": idinfo.get("name"),
+                "email_verified": idinfo.get("email_verified"),
+            }
+        except ValueError as err:
+            verification_errors.append(f"{client_id}: {err}")
+
+    logger.warning(
+        "Google token verification failed for configured client IDs. Errors: {}",
+        " | ".join(verification_errors),
+    )
+    return None

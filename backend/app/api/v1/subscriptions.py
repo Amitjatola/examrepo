@@ -21,11 +21,10 @@ async def get_my_subscription(
     
     # Check and update expiration status
     await service.check_and_expire_subscription(current_user.id)
-    
-    # Get subscription
+    await service.ensure_default_subscription(current_user.id)
+
     subscription = await service.get_subscription_response(current_user.id)
-    
     if not subscription:
-        raise HTTPException(status_code=404, detail="Subscription not found")
-    
+        raise HTTPException(status_code=500, detail="Subscription state could not be loaded")
+
     return subscription

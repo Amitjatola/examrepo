@@ -19,6 +19,7 @@ const GateCbtWorkflow = ({ year, user, onBack }) => {
                 candidateImage={candidateImage}
                 year={year}
                 onNext={() => setStep('instructions')}
+                onBack={onBack}
             />
         );
     }
@@ -29,6 +30,7 @@ const GateCbtWorkflow = ({ year, user, onBack }) => {
                 candidateName={candidateName}
                 candidateImage={candidateImage}
                 onNext={() => setStep('other_instructions')}
+                onExit={onBack}
             />
         );
     }
@@ -40,6 +42,7 @@ const GateCbtWorkflow = ({ year, user, onBack }) => {
                 candidateImage={candidateImage}
                 onPrevious={() => setStep('instructions')}
                 onStart={() => setStep('exam')}
+                onExit={onBack}
             />
         );
     }

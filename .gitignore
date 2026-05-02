@@ -27,6 +27,12 @@ ENV/
 .venv/
 .env/
 
+# Playwright (frontend e2e)
+frontend/playwright-report/
+frontend/e2e-results/
+frontend/e2e-reports/
+frontend/test-results/
+
 # Node.js
 node_modules/
 npm-debug.log*

@@ -1,8 +1,8 @@
 import React from 'react';
-import { LayoutDashboard, BookOpen, Lightbulb, History, GraduationCap, LogOut, LogIn, Tag, Info, X, Sparkles } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lightbulb, GraduationCap, LogOut, X, CalendarDays } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, onLogoClick, onClose }) => {
+const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, onLogoClick, onClose, onSmartPlanner }) => {
     const { user, openLogin, logout } = useAuth();
 
     // Menu items change based on login status
@@ -101,6 +101,19 @@ const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, on
                             );
                         })}
                     </nav>
+
+                    {user && onSmartPlanner && (
+                        <button
+                            type="button"
+                            onClick={onSmartPlanner}
+                            className="mt-4 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group text-left w-full cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-white/5"
+                        >
+                            <span className="text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100">
+                                <CalendarDays size={20} />
+                            </span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Smart Planner</span>
+                        </button>
+                    )}
                 </div>
 
                 {/* Bottom Section */}

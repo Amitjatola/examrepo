@@ -20,12 +20,20 @@ export const api = {
 
         const response = await fetch(url.toString(), { headers });
         if (!response.ok) {
-            if (response.status === 401) {
-                // Clear stale tokens — let the component/auth modal handle re-auth
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+            const error = await response.json().catch(() => ({}));
+            let errorMessage = `API Error: ${response.statusText}`;
+            if (error.detail) {
+                if (typeof error.detail === 'string') {
+                    errorMessage = error.detail;
+                } else if (Array.isArray(error.detail)) {
+                    errorMessage = error.detail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+                } else if (typeof error.detail === 'object') {
+                    errorMessage = error.detail.message || error.detail.msg || JSON.stringify(error.detail);
+                }
             }
-            throw new Error(`API Error: ${response.statusText}`);
+            const err = new Error(errorMessage)
+            err.status = response.status
+            throw err
         }
         return response.json();
     },
@@ -44,6 +52,40 @@ export const api = {
 
         const response = await fetch(url.toString(), {
             method: 'POST',
+            headers,
+            body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            let errorMessage = `API Error: ${response.statusText}`;
+            if (error.detail) {
+                if (typeof error.detail === 'string') {
+                    errorMessage = error.detail;
+                } else if (Array.isArray(error.detail)) {
+                    errorMessage = error.detail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+                } else if (typeof error.detail === 'object') {
+                    errorMessage = error.detail.message || error.detail.msg || JSON.stringify(error.detail);
+                }
+            }
+            throw new Error(errorMessage);
+        }
+        return response.json();
+    },
+
+    async put(endpoint, body = {}) {
+        console.log('[API DEBUG] PUT Request:', { baseURL: BASE_URL, endpoint, body });
+        const url = new URL(`${BASE_URL}${endpoint}`);
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        const token = localStorage.getItem('token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(url.toString(), {
+            method: 'PUT',
             headers,
             body: JSON.stringify(body),
         });

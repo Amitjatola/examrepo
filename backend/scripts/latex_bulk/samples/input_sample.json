@@ -1,0 +1,27 @@
+{
+  "questions": [
+    {
+      "question_id": "SAMPLE_Q1",
+      "year": 2024,
+      "question_number": 1,
+      "subject": "Sample",
+      "question_type": "MCQ",
+      "answer_key": "A",
+      "question_text": "Compute x ^ 2 when x=3 and note 50% is half.",
+      "question_text_latex": "\\frac12 + \\alpha \\cdot \\sqrt x + 2 \\times 3",
+      "options": {
+        "A": "\\frac ab for constants",
+        "B": "\\frac{3}4"
+      },
+      "tier_1_core_research": {
+        "explanation": {
+          "step_by_step": [
+            "First \\frac12 then \\\\alpha ",
+            "Use x ^ {2} in $\\sum_{i=1}^n i$"
+          ],
+          "formulas_used": ["% unescaped comment risk 100% done"]
+        }
+      }
+    }
+  ]
+}

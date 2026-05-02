@@ -1,6 +1,10 @@
 import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 
-const GateInstructionsScreen = ({ candidateName, candidateImage, onNext }) => {
+const GateInstructionsScreen = ({ candidateName, candidateImage, onNext, onExit }) => {
+    const handleExit = () => {
+        if (typeof onExit === 'function') onExit();
+    };
     return (
         <div className="flex flex-col h-screen w-full bg-[#E5E5E5] font-sans selection:bg-blue-200">
             {/* Main Area */}
@@ -87,10 +91,24 @@ const GateInstructionsScreen = ({ candidateName, candidateImage, onNext }) => {
                         </div>
                     </div>
                     {/* Footer Nav */}
-                    <div className="bg-[#EFEFEF] border-t border-gray-300 p-3 flex justify-end shrink-0 shadow-sm">
+                    <div className="bg-[#EFEFEF] border-t border-gray-300 p-3 flex justify-between items-center shrink-0 shadow-sm gap-3">
+                        {typeof onExit === 'function' ? (
+                            <button
+                                type="button"
+                                onClick={handleExit}
+                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#1E74B0] border border-[#1E74B0]/40 rounded shadow-sm hover:bg-white bg-[#EFEFEF]"
+                                aria-label="Exit mock exam and return to Aerogate"
+                            >
+                                <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
+                                Exit mock exam
+                            </button>
+                        ) : (
+                            <span />
+                        )}
                         <button 
+                            type="button"
                             onClick={onNext}
-                            className="px-6 py-2 text-sm font-bold bg-[#1E74B0] text-white border border-[#165A8A] rounded shadow-sm hover:bg-[#165A8A] flex items-center"
+                            className="px-6 py-2 text-sm font-bold bg-[#1E74B0] text-white border border-[#165A8A] rounded shadow-sm hover:bg-[#165A8A] flex items-center ml-auto"
                         >
                             Next &gt;
                         </button>

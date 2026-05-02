@@ -8,7 +8,15 @@
         "build": "vite build",
         "lint": "eslint .",
         "preview": "vite preview",
-        "start": "serve dist -s -l ${PORT:-3000}"
+        "start": "serve dist -s -l ${PORT:-3000}",
+        "test:e2e": "playwright test --project=chromium",
+        "test:e2e:all-browsers": "playwright test",
+        "test:e2e:headed": "playwright test --headed",
+        "test:e2e:ui": "playwright test --ui",
+        "test:e2e:report": "playwright show-report",
+        "test:e2e:bugs": "node scripts/generate-e2e-bug-report.mjs",
+        "test:e2e:firefox": "playwright test --project=firefox",
+        "test:e2e:full": "playwright test && node scripts/generate-e2e-bug-report.mjs"
     },
     "dependencies": {
         "@react-oauth/google": "^0.13.4",
@@ -27,6 +35,7 @@
         "tailwind-merge": "^2.5.5"
     },
     "devDependencies": {
+        "@playwright/test": "^1.59.1",
         "@vitejs/plugin-react": "^4.3.4",
         "autoprefixer": "^10.4.23",
         "postcss": "^8.5.6",

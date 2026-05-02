@@ -9,9 +9,10 @@ const LatexRenderer = ({ text, block = false, inline = false }) => {
     // Helper to render math string using katex
     const renderMath = (math, isDisplayMode) => {
         try {
+            const isDev = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
             return katex.renderToString(math, {
                 displayMode: isDisplayMode,
-                throwOnError: false,
+                throwOnError: Boolean(isDev),
                 output: 'html',
                 strict: false,
                 trust: true

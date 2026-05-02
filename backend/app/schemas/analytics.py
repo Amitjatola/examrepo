@@ -25,12 +25,21 @@ class Tier0Classification(BaseModel):
     classifier_model: str
 
 # --- Tier 1: Core Research ---
+class DistractorNote(BaseModel):
+    """Why a given option is wrong (optional pipeline field)."""
+
+    option_key: Optional[str] = None
+    why_wrong: Optional[str] = None
+    severity: Optional[str] = None
+
+
 class AnswerValidation(BaseModel):
     correct_answer: Optional[str] = None
     is_correct: Optional[bool] = None
     confidence: Optional[float] = None
     confidence_type: Optional[str] = None
     reasoning: Optional[str] = None
+    distractor_analysis: Optional[List[DistractorNote]] = None
 
 class Explanation(BaseModel):
     question_nature: Optional[str] = None

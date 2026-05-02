@@ -11,7 +11,7 @@ from .models import SubscriptionType, SubscriptionStatus
 class SubscriptionResponse(BaseModel):
     """Subscription response schema."""
     id: UUID
-    user_id: UUID
+    user_id: int
     subscription_type: SubscriptionType
     status: SubscriptionStatus
     is_premium: bool
@@ -30,6 +30,6 @@ class SubscriptionResponse(BaseModel):
 
 class SubscriptionCreate(BaseModel):
     """Schema for creating subscriptions (admin/webhook use)."""
-    user_id: UUID
+    user_id: int
     subscription_type: SubscriptionType
     premium_days: Optional[int] = None  # For premium subscriptions

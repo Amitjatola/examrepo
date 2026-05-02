@@ -5,6 +5,10 @@ import os
 from pathlib import Path
 from typing import List
 
+# Optional pipeline fields (Pydantic: app.schemas.analytics.AnswerValidation):
+#   tier_1_core_research.answer_validation.distractor_analysis — list of
+#   { "option_key": "B", "why_wrong": "...", "severity": "medium" } for “why not B?” UI.
+
 # Add backend directory to path to allow imports
 sys.path.append(str(Path(__file__).parent.parent.parent / "backend"))
 

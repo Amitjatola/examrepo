@@ -4,8 +4,10 @@ Orchestrates between API and repository layers.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func, desc
 from typing import Optional
 import uuid
+import random
 
 from app.domains.questions.repository import QuestionRepository
 from app.domains.questions.schemas import (
@@ -16,6 +18,7 @@ from app.domains.questions.schemas import (
     SearchResult,
     FilterOptions,
     DashboardStats,
+    MockPaperRequest,
 )
 from app.domains.questions.models import Question, UserAttempt
 
@@ -194,33 +197,95 @@ class QuestionService:
         # Select Attempts + Question Data
         perf_stmt = select(UserAttempt, Question).join(Question, UserAttempt.question_id == Question.id).where(UserAttempt.user_id == user_id)
         perf_result = await self.repo.session.execute(perf_stmt)
-        
-        topic_stats = {} # {topic: {'correct': 0, 'total': 0}}
-        
-        for attempt, question in perf_result.all():
+        perf_rows = perf_result.all()
+
+        topic_stats = {}  # {topic: {'correct': 0, 'total': 0}}
+        topic_time_agg: dict[str, dict[str, float]] = {}  # topic -> sum/count
+        concept_stats = {}  # {concept: {'correct': 0, 'total': 0}}
+
+        total_attempt_rows = len(perf_rows)
+        correct_attempt_rows = sum(1 for attempt, _q in perf_rows if attempt.is_correct)
+
+        for attempt, question in perf_rows:
             # Safely extract topic
             topic = "General"
+            concepts = []
             if question.tier_1_core_research:
                 tags = question.tier_1_core_research.get("hierarchical_tags", {})
                 if tags.get("topic"):
                     topic = tags["topic"].get("name") or "General"
-            
+                raw_concepts = tags.get("concepts") or []
+                if isinstance(raw_concepts, list):
+                    for c in raw_concepts:
+                        if isinstance(c, dict) and c.get("name"):
+                            concepts.append(str(c["name"]).strip())
+                        elif isinstance(c, str) and c.strip():
+                            concepts.append(c.strip())
+
             if topic not in topic_stats:
-                topic_stats[topic] = {'correct': 0, 'total': 0}
-            
-            topic_stats[topic]['total'] += 1
+                topic_stats[topic] = {"correct": 0, "total": 0}
+
+            topic_stats[topic]["total"] += 1
             if attempt.is_correct:
-                topic_stats[topic]['correct'] += 1
-        
+                topic_stats[topic]["correct"] += 1
+
+            time_sec = float(attempt.time_taken_seconds or 0)
+            if topic not in topic_time_agg:
+                topic_time_agg[topic] = {"sum": 0.0, "count": 0.0}
+            topic_time_agg[topic]["sum"] += time_sec
+            topic_time_agg[topic]["count"] += 1.0
+
+            # Attribute attempt to each tagged concept (same pattern as topic rollup)
+            if not concepts:
+                concepts = ["General"]
+            for cn in concepts:
+                if cn not in concept_stats:
+                    concept_stats[cn] = {"correct": 0, "total": 0}
+                concept_stats[cn]["total"] += 1
+                if attempt.is_correct:
+                    concept_stats[cn]["correct"] += 1
+
         # Calculate percentages
         topic_performance = {}
         for topic, counts in topic_stats.items():
-            if counts['total'] > 0:
-                topic_performance[topic] = round((counts['correct'] / counts['total']) * 100, 1)
+            if counts["total"] > 0:
+                topic_performance[topic] = round((counts["correct"] / counts["total"]) * 100, 1)
+
+        topic_avg_time_seconds = {
+            name: round(vals["sum"] / vals["count"], 1)
+            for name, vals in topic_time_agg.items()
+            if vals["count"] > 0
+        }
+
+        concept_performance = {}
+        for cname, counts in concept_stats.items():
+            if counts["total"] > 0:
+                concept_performance[cname] = round((counts["correct"] / counts["total"]) * 100, 1)
+        if len(concept_performance) > 50:
+            concept_performance = dict(
+                sorted(concept_performance.items(), key=lambda x: (x[1], x[0]))[:50]
+            )
 
         percentage = 0.0
         if total_questions > 0:
             percentage = round((attempted_count / total_questions) * 100, 1)
+
+        attempt_accuracy_pct = (
+            round((correct_attempt_rows / total_attempt_rows) * 100, 1) if total_attempt_rows > 0 else 0.0
+        )
+
+        syllabus_tree = await self.get_syllabus_tree()
+        syllabus_topic_catalog_total = sum(len(v) for v in syllabus_tree.values() if isinstance(v, list))
+        if syllabus_topic_catalog_total <= 0:
+            syllabus_topic_catalog_total = max(len(topic_stats.keys()), 1)
+
+        topics_touched = len(topic_stats.keys())
+        syllabus_progress = round(min(100.0, (topics_touched / syllabus_topic_catalog_total) * 100), 1)
+
+        readiness_score = round(
+            (attempt_accuracy_pct / 100.0) * (syllabus_progress / 100.0) * 100,
+            1,
+        )
             
         # Get Recent Activity
         recent_stmt = (
@@ -251,9 +316,14 @@ class QuestionService:
             hours_studied=hours_studied,
             time_studied_seconds=int(total_seconds),
             current_streak=streak,
-            syllabus_progress=0.0,  # Placeholder for future implementation
+            syllabus_progress=syllabus_progress,
             topic_performance=topic_performance,
-            recent_activity=recent_activity_items
+            concept_performance=concept_performance,
+            recent_activity=recent_activity_items,
+            topic_avg_time_seconds=topic_avg_time_seconds,
+            attempt_accuracy_pct=attempt_accuracy_pct,
+            readiness_score=readiness_score,
+            syllabus_topic_catalog_total=syllabus_topic_catalog_total,
         )
 
     async def record_attempt(self, user_id: int, question_id: str, is_correct: bool, time_taken: int) -> UserAttempt:
@@ -279,5 +349,81 @@ class QuestionService:
         await self.repo.session.commit()
         await self.repo.session.refresh(attempt)
         return attempt
+
+    async def get_remediation_question_ids(self, user_id: int, limit: int = 25) -> list[dict]:
+        """Distinct questions the user got wrong, most recently first."""
+        subq = (
+            select(
+                UserAttempt.question_id.label("q_uuid"),
+                func.max(UserAttempt.attempted_at).label("last_at"),
+            )
+            .where(UserAttempt.user_id == user_id)
+            .where(UserAttempt.is_correct.is_(False))
+            .group_by(UserAttempt.question_id)
+            .subquery()
+        )
+        stmt = (
+            select(Question.question_id, subq.c.last_at)
+            .join(subq, Question.id == subq.c.q_uuid)
+            .order_by(desc(subq.c.last_at))
+            .limit(min(limit, 100))
+        )
+        result = await self.repo.session.execute(stmt)
+        return [{"question_id": row[0], "last_wrong_at": row[1]} for row in result.all()]
+
+    async def get_questions_by_string_ids(self, question_ids: list[str]) -> list[QuestionResponse]:
+        rows = await self.repo.get_questions_by_string_ids(question_ids)
+        return [QuestionResponse.model_validate(q) for q in rows]
+
+    async def build_mock_paper(self, user_id: int, body: MockPaperRequest) -> list[str]:
+        """Adaptive mock: weak topics + optional trap-heavy mix + random fill."""
+        if body.seed is not None:
+            random.seed(body.seed)
+        stats = await self.get_user_dashboard_stats(user_id)
+        tp = stats.topic_performance or {}
+        weak_topics = [t for t, acc in sorted(tp.items(), key=lambda x: x[1]) if acc < 80][:12]
+        qc = max(1, min(body.question_count, 100))
+        trap_bias = max(0.0, min(body.trap_bias, 1.0))
+
+        if weak_topics:
+            n_weak = min(int(qc * 0.55), qc)
+        else:
+            n_weak = 0
+        n_trap = min(int(qc * trap_bias), qc - n_weak)
+        n_fill = qc - n_weak - n_trap
+
+        chosen: list[str] = []
+        seen: set[str] = set()
+
+        def absorb(candidates: list[str]) -> None:
+            for qid in candidates:
+                if qid in seen:
+                    continue
+                chosen.append(qid)
+                seen.add(qid)
+                if len(chosen) >= qc:
+                    break
+
+        if n_weak > 0:
+            pool = await self.repo.fetch_random_question_ids_from_topics(
+                weak_topics, min(n_weak + 30, 500)
+            )
+            random.shuffle(pool)
+            absorb(pool)
+
+        if len(chosen) < qc and n_trap > 0:
+            pool = await self.repo.fetch_random_trap_flag_question_ids(min(n_trap + 30, 500))
+            random.shuffle(pool)
+            absorb(pool)
+
+        attempts = 0
+        while len(chosen) < qc and attempts < 15:
+            attempts += 1
+            need = qc - len(chosen) + 20
+            pool = await self.repo.fetch_random_question_ids(min(need, 500))
+            random.shuffle(pool)
+            absorb(pool)
+
+        return chosen[:qc]
 
 

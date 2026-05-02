@@ -2,12 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import QuestionCard from './QuestionCard'; // We might reuse or adapt this, but the design is specific here
-import { ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock, AlertCircle, Sparkles, Flag, Bookmark, MessageSquare, Lightbulb } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock, AlertCircle, Sparkles, Bookmark, MessageSquare, Lightbulb } from 'lucide-react';
 import LatexRenderer from './LatexRenderer';
 import DiscussionSection from './DiscussionSection';
+import HintSteps from './HintSteps';
+import QuestionNavRail from './QuestionNavRail';
+import { TierViews } from './premium/TierViews';
 
-// A specialized Question View for the Year-based attempt flow
-const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
+// Year-based paper, or playlist mode (remediation / mock) via playlistQuestionIds
+const PaperAttemptView = ({
+    year,
+    playlistQuestionIds,
+    playlistTitle,
+    onBack,
+    onPremium,
+    user,
+    isPremium,
+}) => {
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -41,25 +52,37 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
         return [h, m, s].map(v => v < 10 ? "0" + v : v).join(":");
     };
 
-    // Fetch questions for the year
     useEffect(() => {
         const fetchQuestions = async () => {
             setLoading(true);
             try {
-                // Fetch full paper (page_size 100 fixed previously ensures full year)
-                const data = await api.get('/questions', { year: year, page_size: 100 });
-                // Sort by question_number to ensure Q1 -> Q65 order
-                const sorted = data.sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
-                setQuestions(sorted);
+                if (playlistQuestionIds?.length) {
+                    const data = await api.get('/questions/by-ids', {
+                        ids: playlistQuestionIds.join(','),
+                    });
+                    const order = new Map(playlistQuestionIds.map((id, i) => [id, i]));
+                    const sorted = [...data].sort(
+                        (a, b) => (order.get(a.question_id) ?? 0) - (order.get(b.question_id) ?? 0)
+                    );
+                    setQuestions(sorted);
+                } else if (year) {
+                    const data = await api.get('/questions', { year, page_size: 100 });
+                    const sorted = data.sort(
+                        (a, b) => (a.question_number || 0) - (b.question_number || 0)
+                    );
+                    setQuestions(sorted);
+                } else {
+                    setQuestions([]);
+                }
             } catch (err) {
-                console.error("Failed to fetch paper:", err);
+                console.error('Failed to fetch questions:', err);
             } finally {
                 setLoading(false);
             }
         };
 
-        if (year) fetchQuestions();
-    }, [year]);
+        fetchQuestions();
+    }, [year, playlistQuestionIds]);
 
     const startTimeRef = React.useRef(Date.now());
 
@@ -75,14 +98,6 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
     const currentQuestion = questions[currentIndex];
     const totalQuestions = questions.length;
     const progress = totalQuestions > 0 ? Math.round(((currentIndex + 1) / totalQuestions) * 100) : 0;
-
-    console.log('[DEBUG] PaperAttemptView State:', {
-        isStarted,
-        totalQuestions,
-        currentIndex,
-        currentQuestion,
-        questionsSample: questions.slice(0, 1)
-    });
 
     const handleNext = () => {
         if (currentIndex < totalQuestions - 1) {
@@ -163,6 +178,9 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
         }
     };
 
+    const isPlaylist = Array.isArray(playlistQuestionIds) && playlistQuestionIds.length > 0;
+    const sessionLabel = playlistTitle || (year != null ? `GATE ${year}` : 'Practice');
+
     if (loading && !isStarted) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center bg-background-light dark:bg-background-dark h-full">
@@ -170,7 +188,9 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                     <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-lg shadow-primary/20"></div>
                     <div className="flex flex-col items-center gap-2">
                         <p className="text-xl font-bold text-slate-900 dark:text-white animate-pulse tracking-tight">Initializing Session</p>
-                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium tracking-wide font-mono">Preparing GATE {year} Material...</p>
+                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium tracking-wide font-mono">
+                            Preparing {sessionLabel}…
+                        </p>
                     </div>
                 </div>
             </div>
@@ -203,10 +223,34 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                             </div>
 
                             <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter leading-tight">
-                                <span className="text-primary">GATE</span> Aerospace <span className="opacity-40">{year}</span>
+                                {isPlaylist ? (
+                                    <span className="text-primary">{playlistTitle || 'Review set'}</span>
+                                ) : (
+                                    <>
+                                        <span className="text-primary">GATE</span> Aerospace{' '}
+                                        <span className="opacity-40">{year}</span>
+                                    </>
+                                )}
                             </h1>
                             <p className="text-slate-500 dark:text-gray-400 text-xs mb-5 max-w-xs mx-auto leading-relaxed font-medium">
-                                Ready to challenge yourself? This official exam contains <span className="text-slate-900 dark:text-white font-bold">65 questions</span> to be completed in <span className="text-slate-900 dark:text-white font-bold">180 minutes</span>.
+                                {isPlaylist ? (
+                                    <>
+                                        Self-paced review of{' '}
+                                        <span className="text-slate-900 dark:text-white font-bold">
+                                            {questions.length} question{questions.length !== 1 ? 's' : ''}
+                                        </span>
+                                        . Take your time — timer is for focus only.
+                                    </>
+                                ) : (
+                                    <>
+                                        Ready to challenge yourself? This official exam contains{' '}
+                                        <span className="text-slate-900 dark:text-white font-bold">
+                                            {questions.length || 65} questions
+                                        </span>{' '}
+                                        to be completed in{' '}
+                                        <span className="text-slate-900 dark:text-white font-bold">180 minutes</span>.
+                                    </>
+                                )}
                             </p>
 
                             <div className="grid grid-cols-2 gap-3 mb-5 text-left">
@@ -214,15 +258,21 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                                     <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity text-primary">
                                         <CheckCircle size={24} />
                                     </div>
-                                    <div className="text-xl font-black text-slate-900 dark:text-white mb-0.5 leading-none relative z-10">65</div>
+                                    <div className="text-xl font-black text-slate-900 dark:text-white mb-0.5 leading-none relative z-10">
+                                        {questions.length || '—'}
+                                    </div>
                                     <div className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-black relative z-10">Questions</div>
                                 </div>
                                 <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5 group hover:border-primary/30 hover:bg-white/10 transition-all duration-300 relative overflow-hidden">
                                     <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity text-primary">
                                         <Clock size={24} />
                                     </div>
-                                    <div className="text-xl font-black text-slate-900 dark:text-white mb-0.5 leading-none relative z-10">180</div>
-                                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-black relative z-10">Minutes</div>
+                                    <div className="text-xl font-black text-slate-900 dark:text-white mb-0.5 leading-none relative z-10">
+                                        {isPlaylist ? '∞' : '180'}
+                                    </div>
+                                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-black relative z-10">
+                                        {isPlaylist ? 'Self-paced' : 'Minutes'}
+                                    </div>
                                 </div>
                             </div>
 
@@ -260,7 +310,11 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                     <XCircle size={48} className="text-red-500" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">No Questions Loaded</h3>
-                <p className="text-slate-500 dark:text-gray-400 max-w-xs mb-8">We couldn't find any questions for the year {year} in our database.</p>
+                <p className="text-slate-500 dark:text-gray-400 max-w-xs mb-8">
+                    {isPlaylist
+                        ? 'No questions could be loaded for this playlist.'
+                        : `We couldn't find any questions for the year ${year} in our database.`}
+                </p>
                 <button
                     onClick={onBack}
                     className="flex items-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-2xl font-bold shadow-lg transition-transform hover:scale-105 active:scale-95"
@@ -301,7 +355,7 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                         <span className="bg-slate-100 dark:bg-white/5 p-1.5 rounded-lg mr-2 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                             <ChevronLeft size={16} />
                         </span>
-                        Paper {year}
+                        {sessionLabel}
                     </button>
                     <ChevronRight size={14} className="mx-3 text-slate-300 dark:text-white/10" />
                     <span className="text-slate-900 dark:text-white font-semibold">Question {currentQuestion.question_number}</span>
@@ -327,10 +381,7 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                     </div>
                     <div className="h-8 w-[1px] bg-slate-200 dark:bg-white/5 mx-1 hidden sm:block"></div>
                     <div className="flex items-center gap-1.5">
-                        <button className="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all rounded-xl">
-                            <Flag size={18} />
-                        </button>
-                        <button className="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all rounded-xl">
+                        <button type="button" className="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all rounded-xl" aria-label="Bookmark">
                             <Bookmark size={18} />
                         </button>
                     </div>
@@ -338,7 +389,17 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
             </div>
 
             {/* Scrollable Content Container */}
-            <div className="flex-1 overflow-y-auto scroll-smooth">
+            <div className="flex-1 flex flex-row min-h-0 overflow-hidden">
+                <QuestionNavRail
+                    questionIds={(isPlaylist ? playlistQuestionIds : questions.map((q) => q.question_id)).filter(Boolean)}
+                    activeQuestionId={currentQuestion?.question_id}
+                    onSelectQuestionId={(id) => {
+                        const ix = questions.findIndex((q) => q.question_id === id);
+                        if (ix >= 0) setCurrentIndex(ix);
+                    }}
+                    title={isPlaylist ? 'Set' : year ? `Y${year}` : 'Paper'}
+                />
+                <div className="flex-1 overflow-y-auto scroll-smooth min-w-0">
                 <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-4 flex flex-col pb-10">
 
                     {/* Question Card (Reflecting QuestionDetail Style) */}
@@ -402,6 +463,18 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                             )}
                         </div>
                     </div>
+
+                    {steps.length > 0 && (
+                        <div className="px-5 pb-3 max-w-4xl mx-auto w-full">
+                            <HintSteps
+                                key={currentQuestion.question_id}
+                                steps={steps}
+                                isPremium={isPremium}
+                                questionKey={currentQuestion.question_id}
+                                onUpgrade={onPremium}
+                            />
+                        </div>
+                    )}
 
                     {/* Options */}
                     {currentQuestion.options && (
@@ -541,6 +614,10 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                         </div>
                     </div>
 
+                    <div className="px-5 max-w-4xl mx-auto w-full">
+                        <TierViews question={currentQuestion} />
+                    </div>
+
                     {/* Discussion Section */}
                     {showDiscuss && (
                         <div className="mb-10 animate-fade-in">
@@ -639,6 +716,7 @@ const PaperAttemptView = ({ year, onBack, onPremium, user, isPremium }) => {
                             )}
                         </div>
                     )}
+                </div>
                 </div>
             </div>
 

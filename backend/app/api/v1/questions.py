@@ -2,7 +2,7 @@
 Question API endpoints for CRUD operations.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 import json
@@ -11,6 +11,8 @@ import uuid
 from app.core.database import get_session
 from app.domains.questions.service import QuestionService
 from app.domains.questions.schemas import QuestionResponse, SearchFilters, AttemptRequest
+
+MAX_BY_IDS = 100
 from app.domains.auth.deps import get_current_user
 from app.domains.auth.models import User
 
@@ -56,6 +58,22 @@ async def get_syllabus(
     """
     service = QuestionService(session)
     return await service.get_syllabus_tree()
+
+
+@router.get("/by-ids", response_model=list[QuestionResponse])
+async def get_questions_by_ids(
+    ids: str = Query(..., description="Comma-separated question_id strings, max 100"),
+    session: AsyncSession = Depends(get_session),
+):
+    """Batch fetch full questions by public question_id (e.g. GATE_AE_2008_Q01)."""
+    raw = [x.strip() for x in ids.split(",") if x.strip()]
+    if len(raw) > MAX_BY_IDS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"At most {MAX_BY_IDS} ids per request",
+        )
+    service = QuestionService(session)
+    return await service.get_questions_by_string_ids(raw)
 
 
 @router.get("/{question_id}", response_model=QuestionResponse)

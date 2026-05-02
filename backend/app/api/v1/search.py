@@ -3,19 +3,21 @@ Search API endpoint for concept-based question search.
 This is the main entry point for the homepage search functionality.
 """
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from app.core.database import get_session
+from app.domains.auth.deps import get_current_user_optional
+from app.domains.auth.models import User
 from app.domains.questions.service import QuestionService
 from app.domains.questions.schemas import SearchResult, FilterOptions, SearchFilters
+from app.domains.subscriptions.service import SubscriptionService
 
 
 router = APIRouter(prefix="/search", tags=["search"])
 
 
-@router.get("", response_model=SearchResult)
 @router.get("", response_model=SearchResult)
 async def search_questions(
     q: Optional[str] = Query(None, description="Search query - concept, topic, or keyword"),
@@ -28,6 +30,11 @@ async def search_questions(
     question_type: Optional[str] = Query(None, description="MCQ or NAT"),
     difficulty_min: Optional[int] = Query(None, ge=1, le=10, description="Minimum difficulty"),
     difficulty_max: Optional[int] = Query(None, ge=1, le=10, description="Maximum difficulty"),
+    complexity_flags: Optional[str] = Query(
+        None,
+        description="Comma-separated tier_0 complexity_flags keys (OR match); e.g. edge_case_scenario,ambiguous_wording",
+    ),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     session: AsyncSession = Depends(get_session),
 ):
     """
@@ -51,6 +58,25 @@ async def search_questions(
         except ValueError:
             pass
     
+    cf_list = None
+    if complexity_flags:
+        cf_list = [x.strip() for x in complexity_flags.split(",") if x.strip()]
+
+    # Trap / complexity filters are Pro-only (enforced server-side).
+    if cf_list:
+        if current_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Sign in to use trap (complexity) filters.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        sub_svc = SubscriptionService(session)
+        if not await sub_svc.user_has_active_premium(current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Trap filters are a Pro feature. Upgrade to continue.",
+            )
+
     filters = SearchFilters(
         year=year,
         years=years_list,
@@ -59,12 +85,11 @@ async def search_questions(
         question_type=question_type,
         difficulty_min=difficulty_min,
         difficulty_max=difficulty_max,
+        complexity_flags_any=cf_list or None,
     )
     
-    # Ensure at least one filter or query is present
-    if not q and not (year or years or subject or topic or question_type):
-        # Fallback to empty result if nothing provided to prevent full DB dump if that was the intention
-        # Or maybe we allow listing all questions? Current repo implementation lists all if !query.
+    # Ensure at least one filter or query is present (complexity_flags counts as a filter).
+    if not q and not (year or years or subject or topic or question_type or cf_list):
         pass
     
     result = await service.search_questions(q or "", filters, page, page_size)
