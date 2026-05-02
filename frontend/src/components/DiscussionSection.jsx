@@ -1,300 +1,344 @@
-import React, { useState, useEffect } from 'react';
-import { api } from '../utils/api';
-import LatexRenderer from './LatexRenderer';
-import { MessageSquare, ThumbsUp, ThumbsDown, Trash2, Reply, Send, Loader2, LogIn } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React, { useCallback, useEffect, useState } from 'react'
+import {
+    MessageSquare,
+    ThumbsUp,
+    ThumbsDown,
+    Trash2,
+    Image as ImageIcon,
+    Loader2,
+} from 'lucide-react'
+import { api } from '../utils/api'
+import { useAuth } from '../context/AuthContext'
 
+const formatRelativeTime = (iso) => {
+    if (!iso) return ''
+    const then = new Date(iso).getTime()
+    const sec = Math.floor((Date.now() - then) / 1000)
+    if (sec < 60) return 'just now'
+    const min = Math.floor(sec / 60)
+    if (min < 60) return `${min}m ago`
+    const hr = Math.floor(min / 60)
+    if (hr < 24) return `${hr}h ago`
+    const day = Math.floor(hr / 24)
+    if (day < 7) return `${day}d ago`
+    return new Date(iso).toLocaleDateString()
+}
+
+const avatarLetter = (comment, fallbackEmail) => {
+    const name = comment?.user_name || ''
+    const email = comment?.user_email || ''
+    const ch = (name.trim()[0] || email.trim()[0] || fallbackEmail?.[0] || '?').toUpperCase()
+    return ch
+}
+
+const displayAuthor = (comment) => {
+    if (comment?.user_name?.trim()) return comment.user_name.trim()
+    if (comment?.user_email) return comment.user_email.split('@')[0]
+    return 'User'
+}
+
+/**
+ * @param {{ questionId?: string }} props — internal question UUID from API (`question.id`)
+ */
 const DiscussionSection = ({ questionId }) => {
-    const [discussions, setDiscussions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [newComment, setNewComment] = useState("");
-    const [replyTo, setReplyTo] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
+    const { user, openLogin } = useAuth()
+    const [comments, setComments] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [posting, setPosting] = useState(false)
+    const [draft, setDraft] = useState('')
+    const [error, setError] = useState(null)
+    const [voteBusyId, setVoteBusyId] = useState(null)
+    const [showGuidelines, setShowGuidelines] = useState(false)
 
-    const { user, requireAuth } = useAuth();
+    const loadComments = useCallback(async () => {
+        if (!questionId) return
+        setLoading(true)
+        setError(null)
+        try {
+            const list = await api.getDiscussions(questionId)
+            setComments(Array.isArray(list) ? list : [])
+        } catch (e) {
+            setError(e?.message || 'Could not load discussion')
+            setComments([])
+        } finally {
+            setLoading(false)
+        }
+    }, [questionId])
 
     useEffect(() => {
-        fetchDiscussions();
-    }, [questionId]);
+        loadComments()
+    }, [loadComments])
 
-    const fetchDiscussions = async () => {
+    const handlePostComment = async () => {
+        const text = draft.trim()
+        if (!text || !questionId || !user) return
+        setPosting(true)
+        setError(null)
         try {
-            setLoading(true);
-            const data = await api.getDiscussions(questionId);
-            setDiscussions(data);
-            setError(null);
-        } catch (err) {
-            console.error("Failed to fetch discussions:", err);
-            setError("Failed to load discussions. Please try again.");
+            const created = await api.postDiscussion(questionId, text, null)
+            setDraft('')
+            setComments((prev) => [created, ...prev])
+        } catch (e) {
+            setError(e?.message || 'Could not post comment')
         } finally {
-            setLoading(false);
+            setPosting(false)
         }
-    };
-
-    const handlePost = async (parentId = null) => {
-        if (!newComment.trim()) return;
-
-        // Gate: require login to post
-        if (!requireAuth("Sign in to join the discussion")) return;
-
-        try {
-            setSubmitting(true);
-            const freshComment = await api.postDiscussion(questionId, newComment, parentId);
-
-            if (!parentId) {
-                setDiscussions([freshComment, ...discussions]);
-            } else {
-                await fetchDiscussions();
-            }
-
-            setNewComment("");
-            setReplyTo(null);
-        } catch (err) {
-            console.error("Failed to post comment:", err);
-            alert("Failed to post comment.");
-        } finally {
-            setSubmitting(false);
-        }
-    };
+    }
 
     const handleVote = async (discussionId, voteType) => {
-        // Gate: require login to vote
-        if (!requireAuth("Sign in to vote on discussions")) return;
-
-        try {
-            const updatedDiscussion = await api.voteDiscussion(discussionId, voteType);
-
-            setDiscussions(prev => prev.map(d =>
-                d.id === discussionId ? updatedDiscussion : d
-            ));
-        } catch (err) {
-            console.error("Failed to vote:", err);
+        if (!user) {
+            openLogin?.()
+            return
         }
-    };
+        setVoteBusyId(discussionId)
+        setError(null)
+        try {
+            const updated = await api.voteDiscussion(discussionId, voteType)
+            setComments((prev) =>
+                prev.map((c) => (String(c.id) === String(updated.id) ? updated : c)),
+            )
+        } catch (e) {
+            setError(e?.message || 'Vote failed')
+        } finally {
+            setVoteBusyId(null)
+        }
+    }
 
     const handleDelete = async (discussionId) => {
-        if (!window.confirm("Are you sure you want to delete this comment?")) return;
-
+        if (!user) return
+        setError(null)
         try {
-            await api.deleteDiscussion(discussionId);
-            setDiscussions(prev => prev.filter(d => d.id !== discussionId));
-        } catch (err) {
-            console.error("Failed to delete:", err);
-            alert("Failed to delete comment.");
+            await api.deleteDiscussion(discussionId)
+            setComments((prev) => prev.filter((c) => String(c.id) !== String(discussionId)))
+        } catch (e) {
+            setError(e?.message || 'Could not delete comment')
         }
-    };
+    }
 
-    const buildTree = (comments) => {
-        const map = {};
-        const roots = [];
+    const handleToggleGuidelines = () => {
+        setShowGuidelines((v) => !v)
+    }
 
-        comments.forEach(c => {
-            map[c.id] = { ...c, children: [] };
-        });
+    const handleDraftKeyDown = (e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault()
+            handlePostComment()
+        }
+    }
 
-        comments.forEach(c => {
-            if (c.parent_id && map[c.parent_id]) {
-                map[c.parent_id].children.push(map[c.id]);
-            } else {
-                roots.push(map[c.id]);
-            }
-        });
+    if (!questionId) return null
 
-        return roots.sort((a, b) => b.upvotes - a.upvotes || new Date(b.created_at) - new Date(a.created_at));
-    };
-
-    const commentTree = buildTree(discussions);
-
-    const CommentItem = ({ comment, depth = 0 }) => {
-        const [isReplying, setIsReplying] = useState(false);
-        const [replyText, setReplyText] = useState("");
-        const [replySubmitting, setReplySubmitting] = useState(false);
-
-        const onReply = async () => {
-            if (!replyText.trim()) return;
-
-            // Gate: require login to reply
-            if (!requireAuth("Sign in to reply to discussions")) return;
-
-            try {
-                setReplySubmitting(true);
-                await api.postDiscussion(questionId, replyText, comment.id);
-                await fetchDiscussions();
-                setIsReplying(false);
-                setReplyText("");
-            } catch (err) {
-                alert("Failed to reply");
-            } finally {
-                setReplySubmitting(false);
-            }
-        };
-
-        const handleReplyClick = () => {
-            // Gate: require login to open reply box
-            if (!requireAuth("Sign in to reply to discussions")) return;
-            setIsReplying(!isReplying);
-        };
-
-        // Only show delete button if user owns this comment
-        const canDelete = user && String(user.id) === String(comment.user_id);
-
-        return (
-            <div className={`flex flex-col gap-2 ${depth > 0 ? "ml-4 pl-4 border-l-2 border-slate-100 dark:border-white/5" : "bg-white dark:bg-card-dark p-4 rounded-xl border border-slate-100 dark:border-white/5"}`}>
-                {/* Meta */}
-                <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[10px] text-white font-bold">
-                            U
-                        </div>
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">User {comment.user_id}</span>
-                        <span className="text-[10px] text-slate-400 dark:text-gray-500">{new Date(comment.created_at).toLocaleDateString()}</span>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="text-sm text-slate-800 dark:text-slate-200 mt-1 mb-2">
-                    <LatexRenderer text={comment.content} />
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-gray-400">
-                    <button
-                        onClick={() => handleVote(comment.id, 'upvote')}
-                        className="flex items-center gap-1 hover:text-green-500 transition-colors"
-                    >
-                        <ThumbsUp size={14} />
-                        <span>{comment.upvotes}</span>
-                    </button>
-                    <button
-                        onClick={() => handleVote(comment.id, 'downvote')}
-                        className="flex items-center gap-1 hover:text-red-500 transition-colors"
-                    >
-                        <ThumbsDown size={14} />
-                        <span>{comment.downvotes}</span>
-                    </button>
-                    <button
-                        onClick={handleReplyClick}
-                        className="flex items-center gap-1 hover:text-primary transition-colors"
-                    >
-                        <Reply size={14} />
-                        Reply
-                    </button>
-                    {/* Only show delete for own comments */}
-                    {canDelete && (
-                        <button
-                            onClick={() => handleDelete(comment.id)}
-                            className="flex items-center gap-1 hover:text-red-500 ml-auto transition-colors"
-                        >
-                            <Trash2 size={14} />
-                        </button>
-                    )}
-                </div>
-
-                {/* Reply Input — only visible when user is logged in and replying */}
-                {isReplying && (
-                    <div className="mt-3 flex gap-2">
-                        <textarea
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                            placeholder="Write a reply..."
-                            rows={2}
-                        />
-                        <button
-                            onClick={onReply}
-                            disabled={replySubmitting}
-                            className="bg-primary text-white p-2 rounded-lg h-fit hover:bg-blue-600 transition-colors disabled:opacity-50"
-                        >
-                            {replySubmitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                        </button>
-                    </div>
-                )}
-
-                {/* Nested Replies */}
-                {comment.children && comment.children.length > 0 && (
-                    <div className="mt-2 flex flex-col gap-3">
-                        {comment.children.map(child => (
-                            <CommentItem key={child.id} comment={child} depth={depth + 1} />
-                        ))}
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    if (loading) return (
-        <div className="flex justify-center p-8">
-            <Loader2 className="animate-spin text-slate-400" />
-        </div>
-    );
-
-    if (error) return (
-        <div className="text-center p-8 text-red-500 text-sm">
-            {error}
-        </div>
-    );
+    const countLabel =
+        comments.length === 1 ? '1 Comment' : `${comments.length} Comments`
 
     return (
-        <div className="flex flex-col h-full bg-slate-50/50 dark:bg-black/20 rounded-2xl border border-slate-100 dark:border-white/5 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-white dark:bg-card-dark flex justify-between alignItems-center">
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <MessageSquare size={18} className="text-primary" />
-                    Discussion
-                    <span className="bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full">{discussions.length}</span>
-                </h3>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {commentTree.length === 0 ? (
-                    <div className="text-center py-10 text-slate-400 dark:text-gray-500 text-sm">
-                        No discussions yet. Be the first to start a thread!
-                    </div>
-                ) : (
-                    commentTree.map(comment => (
-                        <CommentItem key={comment.id} comment={comment} />
-                    ))
-                )}
-            </div>
-
-            {/* Comment Input Area — different for guests vs logged-in users */}
-            <div className="p-4 bg-white dark:bg-card-dark border-t border-slate-100 dark:border-white/5">
-                {user ? (
-                    /* Logged-in: show the real comment textarea */
-                    <div className="relative">
-                        <textarea
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
-                            placeholder="Add to the discussion (Markdown/LaTeX supported)..."
-                            rows={2}
-                        />
-                        <button
-                            onClick={() => handlePost()}
-                            disabled={submitting || !newComment.trim()}
-                            className="absolute right-2 bottom-2 p-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
-                        >
-                            {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                        </button>
-                    </div>
-                ) : (
-                    /* Guest: show a styled sign-in prompt */
-                    <button
-                        onClick={() => requireAuth("Create a free account to join the discussion")}
-                        className="w-full flex items-center justify-center gap-3 py-4 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-xl text-slate-500 dark:text-slate-400 hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary transition-all cursor-pointer group"
+        <section
+            className="mt-8 rounded-xl border border-[#e5e7eb] dark:border-border-dark bg-white dark:bg-card-dark shadow-sm overflow-hidden"
+            aria-labelledby="discussion-heading"
+        >
+            <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[#f0f2f4] dark:border-border-dark">
+                <div className="flex flex-wrap items-center gap-3 min-w-0">
+                    <MessageSquare className="w-5 h-5 text-slate-500 dark:text-gray-400 shrink-0" aria-hidden />
+                    <h3
+                        id="discussion-heading"
+                        className="text-base font-bold text-slate-900 dark:text-white"
                     >
-                        <LogIn size={18} className="group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-medium">Sign in to join the discussion</span>
-                    </button>
-                )}
-                {user && (
-                    <p className="text-[10px] text-slate-400 mt-2 ml-1">
-                        Supports Markdown and LaTeX. Keep discussions respectful and relevant.
+                        Discussion
+                    </h3>
+                    <span className="inline-flex items-center rounded-full bg-[#f0f2f4] dark:bg-background-dark/60 px-2.5 py-0.5 text-xs font-semibold text-[#617589] dark:text-gray-400">
+                        {countLabel}
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    onClick={handleToggleGuidelines}
+                    className="text-sm font-semibold text-primary hover:text-blue-600 dark:hover:text-blue-400 shrink-0 cursor-pointer"
+                    aria-expanded={showGuidelines}
+                    aria-controls="discussion-guidelines-panel"
+                >
+                    Guidelines
+                </button>
+            </div>
+
+            {showGuidelines && (
+                <div
+                    id="discussion-guidelines-panel"
+                    className="px-5 py-3 bg-slate-50 dark:bg-white/5 border-b border-[#f0f2f4] dark:border-border-dark text-sm text-slate-600 dark:text-gray-300 space-y-2"
+                    role="region"
+                    aria-label="Discussion guidelines"
+                >
+                    <p className="font-semibold text-slate-800 dark:text-white text-xs uppercase tracking-wide">
+                        Quick guidelines
                     </p>
+                    <ul className="list-disc pl-5 space-y-1">
+                        <li>Stay respectful and on-topic for this question.</li>
+                        <li>No spam, hate, or exam-cheating solicitations.</li>
+                        <li>Image attachments are not supported yet.</li>
+                    </ul>
+                </div>
+            )}
+
+            {error && (
+                <div className="mx-5 mt-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 px-4 py-2 text-sm text-red-700 dark:text-red-300">
+                    {error}
+                </div>
+            )}
+
+            {user ? (
+                <div className="p-5 flex gap-4 border-b border-[#f0f2f4] dark:border-border-dark">
+                    <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white text-sm font-bold"
+                        aria-hidden
+                    >
+                        {avatarLetter(
+                            { user_name: user.full_name, user_email: user.email },
+                            user.email,
+                        )}
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-3">
+                        <label htmlFor="discussion-draft" className="sr-only">
+                            Add to the discussion
+                        </label>
+                        <textarea
+                            id="discussion-draft"
+                            value={draft}
+                            onChange={(e) => setDraft(e.target.value)}
+                            onKeyDown={handleDraftKeyDown}
+                            placeholder="Add to the discussion..."
+                            rows={4}
+                            className="w-full rounded-lg border border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-[#1a1d2e] px-4 py-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none resize-y min-h-[100px]"
+                            disabled={posting}
+                            aria-label="Add to the discussion"
+                        />
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <button
+                                type="button"
+                                disabled
+                                title="Coming soon"
+                                aria-disabled="true"
+                                className="inline-flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-gray-500 cursor-not-allowed"
+                            >
+                                <ImageIcon size={16} aria-hidden />
+                                Attach Image
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handlePostComment}
+                                disabled={posting || !draft.trim()}
+                                className="inline-flex items-center gap-2 rounded-lg bg-primary hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2.5 shadow-sm transition-colors cursor-pointer"
+                            >
+                                {posting ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={16} aria-hidden />
+                                        Posting…
+                                    </>
+                                ) : (
+                                    'Post Comment'
+                                )}
+                            </button>
+                        </div>
+                        <p className="text-[11px] text-slate-400 dark:text-gray-500">
+                            Tip: ⌘Enter / Ctrl+Enter to post
+                        </p>
+                    </div>
+                </div>
+            ) : (
+                <div className="p-6 text-center border-b border-[#f0f2f4] dark:border-border-dark bg-slate-50/80 dark:bg-white/5">
+                    <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">
+                        Sign in to join the discussion.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => openLogin?.()}
+                        className="rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-semibold px-6 py-2.5 shadow-sm transition-colors cursor-pointer"
+                    >
+                        Sign in
+                    </button>
+                </div>
+            )}
+
+            <div className="p-5">
+                {loading ? (
+                    <div className="flex justify-center py-10 text-slate-500 dark:text-gray-400">
+                        <Loader2 className="animate-spin w-8 h-8" aria-label="Loading comments" />
+                    </div>
+                ) : comments.length === 0 ? (
+                    <p className="text-center text-sm text-slate-500 dark:text-gray-400 py-8">
+                        No comments yet. Be the first to discuss!
+                    </p>
+                ) : (
+                    <ul className="space-y-6">
+                        {comments.map((c) => {
+                            const own =
+                                user?.email &&
+                                c.user_email &&
+                                user.email.toLowerCase() === String(c.user_email).toLowerCase()
+                            const busy = voteBusyId === String(c.id)
+                            return (
+                                <li
+                                    key={c.id}
+                                    className="flex gap-4 pb-6 border-b border-[#f0f2f4] dark:border-border-dark last:border-0 last:pb-0"
+                                >
+                                    <div
+                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-[#2f396a] text-slate-700 dark:text-white text-sm font-bold"
+                                        aria-hidden
+                                    >
+                                        {avatarLetter(c, user?.email)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
+                                            <span className="font-semibold text-slate-900 dark:text-white text-sm">
+                                                {displayAuthor(c)}
+                                            </span>
+                                            <span className="text-xs text-slate-400 dark:text-gray-500">
+                                                {formatRelativeTime(c.created_at)}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-slate-700 dark:text-gray-200 whitespace-pre-wrap break-words mb-3">
+                                            {c.content}
+                                        </p>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleVote(c.id, 'upvote')}
+                                                disabled={busy}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-border-dark px-2 py-1 text-xs font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-white/10 disabled:opacity-50 cursor-pointer"
+                                                aria-label={`Upvote comment`}
+                                            >
+                                                <ThumbsUp size={14} aria-hidden />
+                                                {c.upvotes ?? 0}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleVote(c.id, 'downvote')}
+                                                disabled={busy}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-border-dark px-2 py-1 text-xs font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-white/10 disabled:opacity-50 cursor-pointer"
+                                                aria-label={`Downvote comment`}
+                                            >
+                                                <ThumbsDown size={14} aria-hidden />
+                                                {c.downvotes ?? 0}
+                                            </button>
+                                            {own && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(c.id)}
+                                                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
+                                                    aria-label="Delete your comment"
+                                                >
+                                                    <Trash2 size={14} aria-hidden />
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </li>
+                            )
+                        })}
+                    </ul>
                 )}
             </div>
-        </div>
-    );
-};
+        </section>
+    )
+}
 
-export default DiscussionSection;
+export default DiscussionSection

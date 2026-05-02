@@ -1,0 +1,6 @@
+# Same rules as repo-root .samignore; some SAM versions resolve ignores next to CodeUri.
+venv/**
+tests/**
+scripts/**
+backups/**
+logs/**

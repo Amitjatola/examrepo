@@ -1,0 +1,20 @@
+# Lambda zip must stay under ~250 MB unzipped (AWS limit). Paths are relative to CodeUri (backend/).
+# Use ** globs — plain `scripts/` did not exclude dirs with SAM 1.151 + Python builder.
+venv/**
+.venv/**
+tests/**
+scripts/**
+backups/**
+logs/**
+**/__pycache__/**
+**/.pytest_cache/**
+**/.mypy_cache/**
+**/*.egg-info/**
+*.db
+syllabus_output.json
+latex_katex_failures.log
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-wheel-metadata/**

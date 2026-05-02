@@ -21,8 +21,8 @@ class DiscussionResponse(DiscussionBase):
     downvotes: int
     created_at: datetime
     updated_at: datetime
-    # We will handle nested replies in the frontend or service layer if needed
-    # user details will be fetched separately or joined
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
 
     class Config:
         from_attributes = True

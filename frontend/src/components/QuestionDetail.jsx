@@ -12,6 +12,7 @@ import { cn } from './premium/ui';
 import HintSteps from './HintSteps';
 import QuestionNavRail from './QuestionNavRail';
 import FormulaSheetPrint from './FormulaSheetPrint';
+import DiscussionSection from './DiscussionSection';
 
 const QuestionDetail = ({
     questionId,
@@ -436,6 +437,8 @@ const QuestionDetail = ({
                 )}
 
                 <TierViews question={question} />
+
+                <DiscussionSection questionId={question?.id} />
 
                 {/* Guest Limit Modal */}
                 {showAuthModal && (

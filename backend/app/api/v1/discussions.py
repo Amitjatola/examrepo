@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 import uuid
@@ -37,10 +37,10 @@ async def vote_discussion(
     session: AsyncSession = Depends(get_session)
 ):
     service = DiscussionService(session)
-    discussion = await service.vote_discussion(discussion_id, vote_in.vote_type, current_user.id)
-    if not discussion:
+    discussion_out = await service.vote_discussion(discussion_id, vote_in.vote_type, current_user.id)
+    if not discussion_out:
         raise HTTPException(status_code=404, detail="Discussion not found")
-    return discussion
+    return discussion_out
 
 @router.delete("/discussions/{discussion_id}")
 async def delete_discussion(

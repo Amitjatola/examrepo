@@ -12,6 +12,8 @@ Globals:
 Resources:
   AerogateApiFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       PackageType: Zip
       CodeUri: backend/
