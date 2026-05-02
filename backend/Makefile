@@ -7,4 +7,9 @@ build-AerogateApiFunction:
 	@echo "Building AerogateApiFunction into $(ARTIFACTS_DIR)"
 	mkdir -p "$(ARTIFACTS_DIR)/app"
 	rsync -a --delete app/ "$(ARTIFACTS_DIR)/app/"
-	python3 -m pip install -r requirements.txt -t "$(ARTIFACTS_DIR)" --disable-pip-version-check --no-cache-dir
+	python3 -m pip install -r requirements.txt -t "$(ARTIFACTS_DIR)" \
+		--disable-pip-version-check --no-cache-dir \
+		--platform manylinux2014_aarch64 \
+		--only-binary=:all: \
+		--implementation cp \
+		--python-version 3.13
