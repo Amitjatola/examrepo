@@ -4,7 +4,6 @@ import {
     ThumbsUp,
     ThumbsDown,
     Trash2,
-    Image as ImageIcon,
     Loader2,
 } from 'lucide-react'
 import { api } from '../utils/api'
@@ -173,7 +172,6 @@ const DiscussionSection = ({ questionId }) => {
                     <ul className="list-disc pl-5 space-y-1">
                         <li>Stay respectful and on-topic for this question.</li>
                         <li>No spam, hate, or exam-cheating solicitations.</li>
-                        <li>Image attachments are not supported yet.</li>
                     </ul>
                 </div>
             )}
@@ -210,17 +208,7 @@ const DiscussionSection = ({ questionId }) => {
                             disabled={posting}
                             aria-label="Add to the discussion"
                         />
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <button
-                                type="button"
-                                disabled
-                                title="Coming soon"
-                                aria-disabled="true"
-                                className="inline-flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-gray-500 cursor-not-allowed"
-                            >
-                                <ImageIcon size={16} aria-hidden />
-                                Attach Image
-                            </button>
+                        <div className="flex flex-wrap items-center justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={handlePostComment}
