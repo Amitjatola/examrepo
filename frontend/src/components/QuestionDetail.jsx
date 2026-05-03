@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Signal,
     CheckCircle, Eye, ChevronLeft, History, Sparkles, Printer,
+    CalendarClock, RefreshCw,
 } from 'lucide-react';
 import { api } from '../utils/api';
 import LatexRenderer from './LatexRenderer';
@@ -34,6 +35,9 @@ const QuestionDetail = ({
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [hasUsedDailySolution, setHasUsedDailySolution] = useState(false);
     const [showFormulaPrint, setShowFormulaPrint] = useState(false);
+    const [revisionInfo, setRevisionInfo] = useState(null);
+    const [revLoading, setRevLoading] = useState(false);
+    const [revBusy, setRevBusy] = useState(false);
 
     const startTimeRef = React.useRef(Date.now());
     const { user, isPremium } = useAuth();
@@ -81,6 +85,48 @@ const QuestionDetail = ({
         };
         fetchQuestion();
     }, [questionId]);
+
+    useEffect(() => {
+        const loadRevision = async () => {
+            if (!user || !question?.question_id) {
+                setRevisionInfo(null);
+                return;
+            }
+            setRevLoading(true);
+            try {
+                const r = await api.getRevisionState(question.question_id);
+                setRevisionInfo(r);
+            } catch (err) {
+                if (err?.status === 404) {
+                    setRevisionInfo(null);
+                } else {
+                    console.error('Revision state load failed:', err);
+                    setRevisionInfo(null);
+                }
+            } finally {
+                setRevLoading(false);
+            }
+        };
+        loadRevision();
+    }, [user, question?.question_id]);
+
+    const handleToggleRevision = async () => {
+        if (!user || !question?.question_id) return;
+        setRevBusy(true);
+        try {
+            if (revisionInfo) {
+                await api.removeFromRevision(question.question_id);
+                setRevisionInfo(null);
+            } else {
+                const r = await api.addToRevision(question.question_id, 'medium');
+                setRevisionInfo(r);
+            }
+        } catch (err) {
+            console.error('Revision toggle failed:', err);
+        } finally {
+            setRevBusy(false);
+        }
+    };
 
     // Reset timer when question changes
     useEffect(() => {
@@ -366,9 +412,50 @@ const QuestionDetail = ({
                                 </button>
                             </div>
                         </div>
-                        {user && bookmarkSlot ? (
-                            <div className="border-t border-[#e5e7eb] dark:border-border-dark pt-[0.7125rem] w-full min-w-0">
-                                {bookmarkSlot}
+                        {user ? (
+                            <div className="border-t border-[#e5e7eb] dark:border-border-dark pt-[0.7125rem] w-full min-w-0 space-y-3">
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <div className="flex items-start gap-2 min-w-0">
+                                        <CalendarClock size={18} className="text-primary shrink-0 mt-0.5" aria-hidden />
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wide">
+                                                Spaced revision
+                                            </p>
+                                            {revLoading ? (
+                                                <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Loading…</p>
+                                            ) : revisionInfo ? (
+                                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-0.5">
+                                                    Next review:{' '}
+                                                    {revisionInfo.next_revision_at
+                                                        ? new Date(revisionInfo.next_revision_at).toLocaleString()
+                                                        : '—'}
+                                                    {typeof revisionInfo.interval_days === 'number' ? (
+                                                        <span className="text-slate-400 dark:text-slate-500">
+                                                            {' '}
+                                                            · interval {revisionInfo.interval_days}d · ease{' '}
+                                                            {revisionInfo.ease_factor}
+                                                        </span>
+                                                    ) : null}
+                                                </p>
+                                            ) : (
+                                                <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                                                    Add this question to your SM-2 revision queue.
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleToggleRevision}
+                                        disabled={revBusy || revLoading}
+                                        className="inline-flex items-center gap-2 rounded-lg border border-[#e5e7eb] dark:border-border-dark bg-white dark:bg-card-dark px-3 py-2 text-xs font-semibold text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-white/10 disabled:opacity-50 cursor-pointer shrink-0"
+                                        aria-label={revisionInfo ? 'Remove from revision queue' : 'Schedule revision'}
+                                    >
+                                        <RefreshCw size={14} className={revBusy ? 'animate-spin' : ''} aria-hidden />
+                                        {revisionInfo ? 'Remove from revision' : 'Schedule revision'}
+                                    </button>
+                                </div>
+                                {bookmarkSlot ? <div className="min-w-0">{bookmarkSlot}</div> : null}
                             </div>
                         ) : null}
                     </div>

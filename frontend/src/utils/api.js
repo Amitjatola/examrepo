@@ -68,7 +68,9 @@ export const api = {
                     errorMessage = error.detail.message || error.detail.msg || JSON.stringify(error.detail);
                 }
             }
-            throw new Error(errorMessage);
+            const err = new Error(errorMessage)
+            err.status = response.status
+            throw err
         }
         return response.json();
     },
@@ -115,7 +117,22 @@ export const api = {
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
         const response = await fetch(url.toString(), { method: 'DELETE', headers });
-        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            let errorMessage = `API Error: ${response.statusText}`;
+            if (error.detail) {
+                if (typeof error.detail === 'string') {
+                    errorMessage = error.detail;
+                } else if (Array.isArray(error.detail)) {
+                    errorMessage = error.detail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+                } else if (typeof error.detail === 'object') {
+                    errorMessage = error.detail.message || error.detail.msg || JSON.stringify(error.detail);
+                }
+            }
+            const err = new Error(errorMessage);
+            err.status = response.status;
+            throw err;
+        }
         return response.json();
     },
 
@@ -139,5 +156,36 @@ export const api = {
 
     deleteDiscussion(discussionId) {
         return this.delete(`/discussions/${discussionId}`);
-    }
+    },
+
+    addToRevision(questionId, difficulty = 'medium') {
+        return this.post('/revisions/add', { question_id: questionId, difficulty });
+    },
+
+    removeFromRevision(questionId) {
+        const enc = encodeURIComponent(questionId);
+        return this.delete(`/revisions/${enc}`);
+    },
+
+    getRevisionQueue(params = {}) {
+        return this.get('/revisions/queue/today', params);
+    },
+
+    answerRevision(questionId, quality) {
+        const enc = encodeURIComponent(questionId);
+        return this.post(`/revisions/${enc}/answer`, { quality });
+    },
+
+    getRevisionStats() {
+        return this.get('/revisions/stats');
+    },
+
+    getRevisionState(questionId) {
+        const enc = encodeURIComponent(questionId);
+        return this.get(`/revisions/${enc}`);
+    },
+
+    getRevisionHistory(days = 30) {
+        return this.get('/revisions/history', { days });
+    },
 };

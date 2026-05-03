@@ -14,6 +14,8 @@ import Dashboard from './Dashboard';
 import PremiumPage from './PremiumPage';
 import SyllabusSelection from './SyllabusSelection';
 import SmartPlannerStub from './SmartPlannerStub';
+import RevisionQueue from './RevisionQueue';
+import RevisionSession from './RevisionSession';
 import { QuestionBookmarkControls } from './QuestionBookmarkControls';
 import { useTheme } from '../hooks/useTheme';
 import { api } from '../utils/api';
@@ -53,6 +55,7 @@ function MainContent() {
     const [playlistTitle, setPlaylistTitle] = useState('');
     const [detailNavigatorIds, setDetailNavigatorIds] = useState(null);
     const [detailContext, setDetailContext] = useState(null);
+    const [revisionSessionIds, setRevisionSessionIds] = useState(null);
 
     const toggleZenMode = () => setIsZenMode(!isZenMode);
     const [results, setResults] = useState([]);
@@ -220,6 +223,8 @@ function MainContent() {
 
         if (tabId === 'home') {
             setView('home');
+        } else if (tabId === 'revisions') {
+            setView('revision-queue');
         } else if (tabId === 'year_select') {
             setView('year_select');
         } else if (tabId === 'concepts') {
@@ -325,6 +330,16 @@ function MainContent() {
     };
 
     const handleBack = () => {
+        if (view === 'revision-session') {
+            setRevisionSessionIds(null);
+            setView('revision-queue');
+            return;
+        }
+        if (view === 'revision-queue') {
+            setView('home');
+            setActiveTab('home');
+            return;
+        }
         if (view === 'premium') {
             setView('home');
             setActiveTab('home');
@@ -390,6 +405,33 @@ function MainContent() {
 
     // Helper to determine what Main content to render
     const renderMainContent = () => {
+        if (view === 'revision-session') {
+            return (
+                <RevisionSession
+                    questionIds={revisionSessionIds}
+                    onBack={() => {
+                        setRevisionSessionIds(null);
+                        setView('revision-queue');
+                    }}
+                />
+            );
+        }
+
+        if (view === 'revision-queue') {
+            return (
+                <RevisionQueue
+                    onBack={() => {
+                        setView('home');
+                        setActiveTab('home');
+                    }}
+                    onStartSession={(ids) => {
+                        setRevisionSessionIds(ids);
+                        setView('revision-session');
+                    }}
+                />
+            );
+        }
+
         if (view === 'smart-planner') {
             return <SmartPlannerStub onOpenDashboard={() => setView('home')} />;
         }
@@ -613,6 +655,10 @@ function MainContent() {
                             onPracticeWeakTopic={handlePracticeWeakTopic}
                             onOpenRemediationPlaylist={handleOpenRemediationPlaylist}
                             onRunMockPaper={handleRunMockPaper}
+                            onOpenRevisionQueue={() => {
+                                setActiveTab('revisions');
+                                setView('revision-queue');
+                            }}
                             onOpenQuestion={(qid) => {
                                 setDetailNavigatorIds(null);
                                 setDetailContext(null);
@@ -764,7 +810,7 @@ function MainContent() {
                         <Header
                             toggleTheme={toggleTheme}
                             theme={theme}
-                            variant={['question-detail', 'results', 'playlist-practice'].includes(view) ? 'detail' : 'default'}
+                            variant={['question-detail', 'results', 'playlist-practice', 'revision-queue', 'revision-session'].includes(view) ? 'detail' : 'default'}
                             onBack={handleBack}
                             onToggleSidebar={toggleZenMode}
                             onGoPro={() => {

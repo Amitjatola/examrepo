@@ -14,6 +14,7 @@ from app.domains.questions.models import Question, UserAttempt, UserQuestionBook
 from app.domains.auth.models import User
 from app.domains.subscriptions.models import UserSubscription
 from app.domains.discussions.models import Discussion
+from app.domains.revisions.models import UserQuestionRevision
 
 
 from sqlalchemy.pool import NullPool

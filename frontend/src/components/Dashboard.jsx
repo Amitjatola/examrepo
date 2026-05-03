@@ -8,6 +8,7 @@ const Dashboard = ({
     onPracticeWeakTopic,
     onOpenRemediationPlaylist,
     onRunMockPaper,
+    onOpenRevisionQueue,
     onOpenQuestion,
 }) => {
     const { user, isPremium } = useAuth();
@@ -72,6 +73,8 @@ const Dashboard = ({
 
     const [remediationItems, setRemediationItems] = useState([]);
     const [savedBookmarks, setSavedBookmarks] = useState([]);
+    const [revStats, setRevStats] = useState(null);
+    const [revStatsLoading, setRevStatsLoading] = useState(true);
     const [timeTargetSeconds, setTimeTargetSeconds] = useState(() => {
         const raw = Number(localStorage.getItem('ag_time_target_seconds'));
         return Number.isFinite(raw) && raw > 0 ? raw : 150;
@@ -90,6 +93,29 @@ const Dashboard = ({
     useEffect(() => {
         localStorage.setItem('ag_time_target_seconds', String(timeTargetSeconds));
     }, [timeTargetSeconds]);
+
+    useEffect(() => {
+        if (!user) {
+            setRevStats(null);
+            setRevStatsLoading(false);
+            return undefined;
+        }
+        let cancelled = false;
+        (async () => {
+            setRevStatsLoading(true);
+            try {
+                const s = await api.getRevisionStats();
+                if (!cancelled) setRevStats(s);
+            } catch {
+                if (!cancelled) setRevStats(null);
+            } finally {
+                if (!cancelled) setRevStatsLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
 
     useEffect(() => {
         if (!user) {
@@ -285,6 +311,36 @@ const Dashboard = ({
                             <p className="text-slate-900 dark:text-white text-2xl font-bold mt-1">{stats.currentStreak} Days</p>
                         </div>
                     </div>
+
+                    {user ? (
+                        <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-primary/10 dark:to-purple-900/20 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-sm">
+                            <div className="space-y-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <RefreshCw size={20} className="text-primary shrink-0" aria-hidden />
+                                    <h3 className="text-slate-900 dark:text-white font-bold text-lg">Today’s revisions</h3>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-gray-400">
+                                    {revStatsLoading
+                                        ? 'Loading revision stats…'
+                                        : `${revStats?.due_today ?? 0} due now · streak ${revStats?.current_streak ?? 0}d · tracked ${revStats?.total_tracked ?? 0}`}
+                                </p>
+                                {revStats?.mastery ? (
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                        New {revStats.mastery.new} · Learning {revStats.mastery.learning} · Mature{' '}
+                                        {revStats.mastery.mature}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => onOpenRevisionQueue?.()}
+                                className="shrink-0 inline-flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-blue-600 text-white font-bold px-6 py-3 shadow-lg shadow-primary/25 cursor-pointer"
+                            >
+                                <Flame size={18} aria-hidden />
+                                Start revision
+                            </button>
+                        </div>
+                    ) : null}
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-3">
