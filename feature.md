@@ -18,7 +18,7 @@ The frontend is a **single-page app** driven by `MainContent` **view** state (no
 | **Search results** | `view === 'results'` | After search / filters |
 | **Question detail** (“deep dive” question page) | `view === 'question-detail'` → `QuestionDetail` | Click a question from results or lists |
 | **Practice by year** | `year_select` → `years` | Sidebar **Practice by Year** |
-| **Browse by syllabus** | `syllabus-subjects` → `syllabus-topics` | Sidebar **Browse by Syllabus** |
+| **Practice by concepts** | `syllabus-subjects` → `syllabus-topics` | Sidebar **Practice by Concepts** |
 | **Playlist / paper practice** | `playlist-practice` (+ `PaperAttemptView`) | Remediation playlist, mock paper flow |
 | **Premium / Pro** | `view === 'premium'` → `PremiumPage` | Pro upsell, tier content |
 | **Global chrome** | `Header`, `Sidebar` | All main views except full-screen flows |

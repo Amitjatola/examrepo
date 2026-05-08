@@ -66,7 +66,7 @@ async def test_get_user_dashboard_stats_aggregates_attempts(session):
     await session.commit()
 
     svc = QuestionService(session)
-    stats = await svc.get_user_dashboard_stats(user.id)
+    stats = await svc.get_user_dashboard_stats(user.id, target_band="good")
 
     assert stats.attempt_accuracy_pct == 50.0
     assert stats.topic_avg_time_seconds.get("StatsTopic") == 60.0
@@ -77,6 +77,12 @@ async def test_get_user_dashboard_stats_aggregates_attempts(session):
     assert stats.syllabus_topic_catalog_total >= 1
     assert 0.0 <= stats.syllabus_progress <= 100.0
     assert 0.0 <= stats.readiness_score <= 100.0
+    assert isinstance(stats.readiness_lite_pct, float)
+    assert isinstance(stats.target_readiness_pct, float)
+    assert isinstance(stats.cutoff_gap_pct, float)
+    assert isinstance(stats.days_to_target_estimate, int)
+    assert isinstance(stats.attempts_last_7_days, int)
+    assert stats.attempts_last_7_days >= 2
 
 
 @pytest.mark.asyncio
@@ -99,8 +105,36 @@ async def test_dashboard_stats_api_returns_extended_fields(async_client, session
         "syllabus_topic_catalog_total",
         "syllabus_progress",
         "questions_attempted",
+        "readiness_lite_pct",
+        "target_readiness_pct",
+        "cutoff_gap_pct",
+        "days_to_target_estimate",
+        "attempts_last_7_days",
     ):
         assert key in data
+
+
+@pytest.mark.asyncio
+async def test_dashboard_stats_api_accepts_target_band(async_client, session):
+    user = await create_user(
+        session,
+        UserCreate(email=_unique_email("band"), password="password123", full_name="Band User"),
+    )
+    token = create_access_token({"sub": user.email})
+    r1 = await async_client.get(
+        "/api/v1/dashboard/stats",
+        params={"target_band": "qualifying"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    r2 = await async_client.get(
+        "/api/v1/dashboard/stats",
+        params={"target_band": "ranker"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r1.status_code == 200
+    assert r2.status_code == 200
+    assert r1.json()["target_readiness_pct"] == 55.0
+    assert r2.json()["target_readiness_pct"] == 85.0
 
 
 @pytest.mark.asyncio

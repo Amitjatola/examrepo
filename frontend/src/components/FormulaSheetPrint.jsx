@@ -1,5 +1,6 @@
 import React from 'react'
 import LatexRenderer from './LatexRenderer'
+import { extractFormulaBlocksFromTier1 } from '../utils/formulaBlocks'
 
 /**
  * Printable formula sheet for one question — opens browser print dialog via window.print().
@@ -8,21 +9,7 @@ const FormulaSheetPrint = ({ open, onClose, question }) => {
     if (!open || !question) return null
 
     const tier1 = question.tier_1_core_research || {}
-    const raw = tier1.formulas_principles
-    const formulas = Array.isArray(raw) ? raw : raw ? [raw] : []
-
-    const blocks = formulas
-        .map((item, idx) => {
-            if (item == null) return null
-            if (typeof item === 'string') {
-                return { key: `s-${idx}`, title: `Formula ${idx + 1}`, body: item }
-            }
-            const title = item.name || item.title || `Principle ${idx + 1}`
-            const body = item.formula || item.description || item.text || ''
-            if (!body && !title) return null
-            return { key: `o-${idx}`, title, body }
-        })
-        .filter(Boolean)
+    const blocks = extractFormulaBlocksFromTier1(tier1)
 
     const handlePrint = () => {
         window.print()
@@ -73,7 +60,7 @@ const FormulaSheetPrint = ({ open, onClose, question }) => {
                                 <section key={f.key} className="border border-slate-100 dark:border-white/10 rounded-xl p-4">
                                     <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">{f.title}</h3>
                                     <div className="text-slate-800 dark:text-slate-200 text-base leading-relaxed">
-                                        <LatexRenderer text={typeof f.body === 'string' ? f.body : JSON.stringify(f.body)} />
+                                        <LatexRenderer text={f.body} />
                                     </div>
                                 </section>
                             ))}

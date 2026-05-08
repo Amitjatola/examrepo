@@ -138,7 +138,7 @@ export const TierViews = ({ question }) => {
     if (!isPremium) {
         if (isLoading) {
             return (
-                <Card className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 mt-8">
+                <Card className="p-8 text-center bg-slate-50 dark:bg-slate-900/50">
                     <Lock className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4 animate-pulse" />
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Premium Analytics</h3>
                     <p className="text-slate-600 dark:text-gray-400 mb-0">Loading subscription…</p>
@@ -169,7 +169,7 @@ export const TierViews = ({ question }) => {
         }
 
         return (
-            <Card className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 mt-8">
+            <Card className="p-8 text-center bg-slate-50 dark:bg-slate-900/50">
                 <Lock className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Premium Analytics</h3>
                 <p className="text-slate-600 dark:text-gray-400 mb-6">{message}</p>
@@ -190,8 +190,8 @@ export const TierViews = ({ question }) => {
     if (!hasTier1) return null
 
     return (
-        <div className="mt-8">
-            <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-200 dark:border-white/10 pb-1">
+        <div>
+            <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-200 dark:border-white/10 pb-1">
                 {TABS.map((tab) => {
                     const isActive = activeSection === tab.id
                     const available = sectionHasData(tab.id, question)
@@ -219,9 +219,7 @@ export const TierViews = ({ question }) => {
                 })}
             </div>
 
-            <div className="min-h-[400px]">
-                <PremiumSectionPanel question={question} section={activeSection} />
-            </div>
+            <PremiumSectionPanel question={question} section={activeSection} />
         </div>
     )
 }

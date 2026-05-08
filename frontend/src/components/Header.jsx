@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Sun, Moon, ChevronRight, Menu, ArrowLeft, User, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const normalizeBreadcrumbLabel = (label) => {
+    if (typeof label !== 'string') return label;
+    return label.replace(/\\([#$%&_{}])/g, '$1');
+};
+
 const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', onBack, onToggleSidebar, onGoPro, breadcrumbs = [], isSidebarOpen = true }) => {
     const isDark = theme === 'dark';
     const isDetail = variant === 'detail';
@@ -46,7 +51,7 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
                                         onClick={crumb.onClick}
                                         className={`text-sm font-medium transition-colors cursor-pointer ${index === breadcrumbs.length - 1 ? 'text-slate-900 dark:text-white font-semibold cursor-default' : 'text-[#617589] dark:text-gray-400 hover:text-primary'}`}
                                     >
-                                        {crumb.label}
+                                        {normalizeBreadcrumbLabel(crumb.label)}
                                     </button>
                                     {index < breadcrumbs.length - 1 && <ChevronRight size={16} className="text-[#617589]" />}
                                 </React.Fragment>

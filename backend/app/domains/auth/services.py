@@ -5,7 +5,7 @@ from jose import JWTError, jwt
 import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.domains.auth.models import User
+from app.domains.auth.models import User, generate_leaderboard_alias
 from app.domains.auth.schemas import UserCreate
 from app.core.config import settings
 from google.oauth2 import id_token
@@ -43,7 +43,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -58,11 +58,21 @@ async def create_user(session: AsyncSession, user: UserCreate):
     from app.domains.subscriptions.service import SubscriptionService
     
     hashed_password = get_password_hash(user.password)
-    db_user = User(email=user.email, hashed_password=hashed_password, full_name=user.full_name)
+    db_user = User(
+        email=user.email,
+        hashed_password=hashed_password,
+        full_name=user.full_name,
+        leaderboard_visibility="anonymous",
+    )
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)
-    
+    if not db_user.leaderboard_alias and db_user.id is not None:
+        db_user.leaderboard_alias = generate_leaderboard_alias(db_user.id)
+        session.add(db_user)
+        await session.commit()
+        await session.refresh(db_user)
+
     # Auto-create 7-day trial subscription for new users
     subscription_service = SubscriptionService(session)
     await subscription_service.create_trial_subscription(db_user.id, trial_days=7)

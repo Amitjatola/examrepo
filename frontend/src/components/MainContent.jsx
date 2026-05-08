@@ -11,15 +11,23 @@ import YearSelection from './YearSelection';
 import LandingPage from './LandingPage';
 import AuthModal from './AuthModal';
 import Dashboard from './Dashboard';
+import CheatSheetPage from './CheatSheetPage';
 import PremiumPage from './PremiumPage';
 import SyllabusSelection from './SyllabusSelection';
 import SmartPlannerStub from './SmartPlannerStub';
 import RevisionQueue from './RevisionQueue';
 import RevisionSession from './RevisionSession';
+import Leaderboard from './Leaderboard';
 import { QuestionBookmarkControls } from './QuestionBookmarkControls';
 import { useTheme } from '../hooks/useTheme';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+
+const normalizeDisplayText = (value) => {
+    if (typeof value !== 'string') return value;
+    return value.replace(/\\([#$%&_{}])/g, '$1');
+};
+
 function MainContent() {
     const { theme, toggleTheme } = useTheme();
     const { openLogin, openRegister, user, logout, isPremium } = useAuth();
@@ -27,15 +35,22 @@ function MainContent() {
 
     // Persist app state to localStorage for page refresh support
     const getInitialState = () => {
+        let parsed = null;
         try {
             const saved = localStorage.getItem('aerogate_state');
             if (saved) {
-                return JSON.parse(saved);
+                parsed = JSON.parse(saved);
             }
         } catch (e) {
             console.error('Failed to parse saved state:', e);
         }
-        return null;
+        if (typeof window !== 'undefined') {
+            const path = window.location.pathname.replace(/\/$/, '') || '/';
+            if (path === '/cheatsheet') {
+                return { ...(parsed || {}), view: 'cheatsheet', activeTab: 'cheatsheet' };
+            }
+        }
+        return parsed;
     };
 
     const savedState = getInitialState();
@@ -51,11 +66,12 @@ function MainContent() {
     const [selectedTopic, setSelectedTopic] = useState(savedState?.selectedTopic || null);
     const [selectedYear, setSelectedYear] = useState(savedState?.selectedYear || null);
     const [selectedQuestionId, setSelectedQuestionId] = useState(savedState?.selectedQuestionId || null);
-    const [playlistQuestionIds, setPlaylistQuestionIds] = useState(null);
-    const [playlistTitle, setPlaylistTitle] = useState('');
-    const [detailNavigatorIds, setDetailNavigatorIds] = useState(null);
-    const [detailContext, setDetailContext] = useState(null);
-    const [revisionSessionIds, setRevisionSessionIds] = useState(null);
+    const [playlistQuestionIds, setPlaylistQuestionIds] = useState(savedState?.playlistQuestionIds || null);
+    const [playlistTitle, setPlaylistTitle] = useState(savedState?.playlistTitle || '');
+    const [detailNavigatorIds, setDetailNavigatorIds] = useState(savedState?.detailNavigatorIds || null);
+    const [detailContext, setDetailContext] = useState(savedState?.detailContext || null);
+    const [revisionSessionIds, setRevisionSessionIds] = useState(savedState?.revisionSessionIds || null);
+    const [gapDrillOriginId, setGapDrillOriginId] = useState(savedState?.gapDrillOriginId || null);
 
     const toggleZenMode = () => setIsZenMode(!isZenMode);
     const [results, setResults] = useState([]);
@@ -75,17 +91,38 @@ function MainContent() {
             selectedTopic,
             selectedQuestionId,
             selectedYear,
+            playlistQuestionIds,
+            playlistTitle,
+            detailNavigatorIds,
+            detailContext,
+            revisionSessionIds,
+            gapDrillOriginId,
         };
         localStorage.setItem('aerogate_state', JSON.stringify(stateToSave));
 
         // Push to history stack if not popping
         if (!isPopping.current) {
-            window.history.pushState(stateToSave, '', '');
+            const urlPath = view === 'cheatsheet' ? '/cheatsheet' : '/';
+            window.history.pushState(stateToSave, '', urlPath);
         } else {
             // Reset the flag
             isPopping.current = false;
         }
-    }, [view, activeTab, query, selectedSubject, selectedTopic, selectedQuestionId, selectedYear]);
+    }, [
+        view,
+        activeTab,
+        query,
+        selectedSubject,
+        selectedTopic,
+        selectedQuestionId,
+        selectedYear,
+        playlistQuestionIds,
+        playlistTitle,
+        detailNavigatorIds,
+        detailContext,
+        revisionSessionIds,
+        gapDrillOriginId,
+    ]);
 
     // Handle back button (popstate)
     useEffect(() => {
@@ -101,6 +138,19 @@ function MainContent() {
                 if (s.selectedTopic !== undefined) setSelectedTopic(s.selectedTopic);
                 if (s.selectedQuestionId !== undefined) setSelectedQuestionId(s.selectedQuestionId);
                 if (s.selectedYear !== undefined) setSelectedYear(s.selectedYear);
+                if (s.playlistQuestionIds !== undefined) setPlaylistQuestionIds(s.playlistQuestionIds);
+                if (s.playlistTitle !== undefined) setPlaylistTitle(s.playlistTitle);
+                if (s.detailNavigatorIds !== undefined) setDetailNavigatorIds(s.detailNavigatorIds);
+                if (s.detailContext !== undefined) setDetailContext(s.detailContext);
+                if (s.revisionSessionIds !== undefined) setRevisionSessionIds(s.revisionSessionIds);
+                if (s.gapDrillOriginId !== undefined) setGapDrillOriginId(s.gapDrillOriginId);
+                return;
+            }
+            const path = window.location.pathname.replace(/\/$/, '') || '/';
+            if (path === '/cheatsheet') {
+                isPopping.current = true;
+                setView('cheatsheet');
+                setActiveTab('cheatsheet');
             }
         };
 
@@ -115,8 +165,15 @@ function MainContent() {
             selectedTopic,
             selectedQuestionId,
             selectedYear,
+            playlistQuestionIds,
+            playlistTitle,
+            detailNavigatorIds,
+            detailContext,
+            revisionSessionIds,
+            gapDrillOriginId,
         };
-        window.history.replaceState(initialState, '', '');
+        const initialPath = view === 'cheatsheet' ? '/cheatsheet' : '/';
+        window.history.replaceState(initialState, '', initialPath);
 
         return () => window.removeEventListener('popstate', handlePopState);
         // We only want to set up the listener once
@@ -225,6 +282,8 @@ function MainContent() {
             setView('home');
         } else if (tabId === 'revisions') {
             setView('revision-queue');
+        } else if (tabId === 'leaderboard') {
+            setView('leaderboard');
         } else if (tabId === 'year_select') {
             setView('year_select');
         } else if (tabId === 'concepts') {
@@ -233,6 +292,8 @@ function MainContent() {
             setSelectedTopic(null);
         } else if (tabId === 'premium') {
             setView('premium');
+        } else if (tabId === 'cheatsheet') {
+            setView('cheatsheet');
         }
     };
 
@@ -293,6 +354,7 @@ function MainContent() {
                 window.alert('No incorrect attempts yet. Keep practicing, then come back to review mistakes.');
                 return;
             }
+            setGapDrillOriginId(null);
             setPlaylistQuestionIds(ids);
             setPlaylistTitle('Fix mistakes');
             setView('playlist-practice');
@@ -321,6 +383,7 @@ function MainContent() {
                 setError('Could not build a mock paper — try again later.');
                 return;
             }
+            setGapDrillOriginId(null);
             setPlaylistQuestionIds(ids);
             setPlaylistTitle('Adaptive mock');
             setView('playlist-practice');
@@ -329,7 +392,26 @@ function MainContent() {
         }
     };
 
+    const handleStartGapDrill = ({ questionIds, labels, originalQuestionId }) => {
+        if (!questionIds?.length) return;
+        setGapDrillOriginId(originalQuestionId || null);
+        setPlaylistQuestionIds(questionIds);
+        const labelPart = (labels || []).slice(0, 2).join(', ');
+        setPlaylistTitle(labelPart ? `Gap drill: ${labelPart}` : 'Gap drill');
+        setView('playlist-practice');
+    };
+
     const handleBack = () => {
+        if (view === 'leaderboard') {
+            setView('home');
+            setActiveTab('home');
+            return;
+        }
+        if (view === 'cheatsheet') {
+            setView('home');
+            setActiveTab('home');
+            return;
+        }
         if (view === 'revision-session') {
             setRevisionSessionIds(null);
             setView('revision-queue');
@@ -348,7 +430,13 @@ function MainContent() {
         if (view === 'playlist-practice') {
             setPlaylistQuestionIds(null);
             setPlaylistTitle('');
-            setView('home');
+            if (gapDrillOriginId) {
+                setSelectedQuestionId(gapDrillOriginId);
+                setGapDrillOriginId(null);
+                setView('question-detail');
+            } else {
+                setView('home');
+            }
             return;
         }
         if (view === 'question-detail') {
@@ -376,7 +464,7 @@ function MainContent() {
                 crumbs.push({ label: query, onClick: () => { /* Already here */ } });
             }
         } else if (activeTab === 'concepts') {
-            crumbs.push({ label: 'Syllabus', onClick: () => setView('syllabus-subjects') });
+            crumbs.push({ label: 'Practice by Concepts', onClick: () => setView('syllabus-subjects') });
             if (selectedSubject) {
                 crumbs.push({ label: selectedSubject, onClick: () => setView('syllabus-topics') });
             }
@@ -405,6 +493,30 @@ function MainContent() {
 
     // Helper to determine what Main content to render
     const renderMainContent = () => {
+        if (view === 'cheatsheet') {
+            return (
+                <CheatSheetPage
+                    user={user}
+                    openLogin={openLogin}
+                    onBack={() => {
+                        setView('home');
+                        setActiveTab('home');
+                    }}
+                />
+            );
+        }
+
+        if (view === 'leaderboard') {
+            return (
+                <Leaderboard
+                    onBack={() => {
+                        setView('home');
+                        setActiveTab('home');
+                    }}
+                />
+            );
+        }
+
         if (view === 'revision-session') {
             return (
                 <RevisionSession
@@ -444,7 +556,13 @@ function MainContent() {
                     onBack={() => {
                         setPlaylistQuestionIds(null);
                         setPlaylistTitle('');
-                        setView('home');
+                        if (gapDrillOriginId) {
+                            setSelectedQuestionId(gapDrillOriginId);
+                            setGapDrillOriginId(null);
+                            setView('question-detail');
+                        } else {
+                            setView('home');
+                        }
                     }}
                     onPremium={() => {
                         setActiveTab('premium');
@@ -468,6 +586,7 @@ function MainContent() {
                         setActiveTab('premium');
                         setView('premium');
                     }}
+                    onStartGapDrill={handleStartGapDrill}
                 />
             );
         }
@@ -502,10 +621,10 @@ function MainContent() {
                                 className="self-start flex items-center gap-2 text-slate-500 dark:text-gray-400 hover:text-primary transition-colors font-medium"
                             >
                                 <span>←</span>
-                                <span>Back to Subjects</span>
+                                <span>Back to Concepts</span>
                             </button>
                             <div>
-                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-display">{selectedSubject}</h1>
+                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-display">{normalizeDisplayText(selectedSubject)}</h1>
                                 <p className="text-slate-500 dark:text-gray-400 text-lg mt-1">
                                     Select a topic to practice {syllabusTree[selectedSubject]?.length || 0} available topics.
                                 </p>
@@ -530,7 +649,7 @@ function MainContent() {
 
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors line-clamp-2">
-                                                {topic}
+                                                {normalizeDisplayText(topic)}
                                             </h3>
                                             <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 group-hover:text-primary/70 transition-colors">
                                                 Practice questions →
@@ -664,6 +783,10 @@ function MainContent() {
                                 setDetailContext(null);
                                 setSelectedQuestionId(qid);
                                 setView('question-detail');
+                            }}
+                            onOpenCheatSheet={() => {
+                                setActiveTab('cheatsheet');
+                                setView('cheatsheet');
                             }}
                         />
                     ) : (
@@ -810,7 +933,7 @@ function MainContent() {
                         <Header
                             toggleTheme={toggleTheme}
                             theme={theme}
-                            variant={['question-detail', 'results', 'playlist-practice', 'revision-queue', 'revision-session'].includes(view) ? 'detail' : 'default'}
+                            variant={['question-detail', 'results', 'playlist-practice', 'revision-queue', 'revision-session', 'leaderboard', 'cheatsheet'].includes(view) ? 'detail' : 'default'}
                             onBack={handleBack}
                             onToggleSidebar={toggleZenMode}
                             onGoPro={() => {
@@ -819,7 +942,7 @@ function MainContent() {
                             }}
                             isSidebarOpen={!isZenMode}
                             breadcrumbs={getBreadcrumbs()}
-                            showSearch={view !== 'home'}
+                            showSearch={view !== 'home' && view !== 'leaderboard' && view !== 'cheatsheet'}
                         />
 
                         <main className={`flex-1 overflow-hidden relative ${view === 'results' ? 'results-mode' : ''} ${view !== 'home' ? 'p-4 sm:p-6 lg:p-8' : ''}`}>

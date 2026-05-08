@@ -15,9 +15,12 @@ export const FlipCard = ({ card }) => {
     };
 
     return (
-        <div className="h-48 w-full cursor-pointer perspective-1000" onClick={handleFlip}>
+        <div
+            className="h-72 sm:h-80 w-full min-w-0 min-h-0 cursor-pointer perspective-1000"
+            onClick={handleFlip}
+        >
             <motion.div
-                className="relative w-full h-full"
+                className="relative w-full h-full min-h-0 max-h-full"
                 initial={false}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
                 transition={{ duration: 0.6, animationDirection: "normal" }}
@@ -26,28 +29,38 @@ export const FlipCard = ({ card }) => {
             >
                 {/* Front */}
                 <div
-                    className="absolute w-full h-full bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-white/10 flex flex-col justify-between backface-hidden"
+                    className="absolute inset-0 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 dark:border-white/10 flex flex-col overflow-hidden backface-hidden min-h-0"
                     style={{ backfaceVisibility: 'hidden' }}
                 >
-                    <div>
-                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{card.card_type}</span>
-                        <div className="font-semibold text-slate-800 dark:text-slate-100 mt-3 text-lg leading-snug">
-                            <MathText>{card.front}</MathText>
+                    <div className="flex min-h-0 flex-1 flex-col gap-2">
+                        <span className="shrink-0 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            {card.card_type}
+                        </span>
+                        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]">
+                            <div className="min-w-0 max-w-full whitespace-normal break-words text-base font-semibold leading-snug text-slate-800 [overflow-wrap:anywhere] sm:text-lg dark:text-slate-100 [&_.katex]:max-w-full [&_.katex]:text-inherit [&_.katex-display]:max-w-full [&_.katex-display]:overflow-x-auto">
+                                <MathText>{card.front}</MathText>
+                            </div>
                         </div>
                     </div>
-                    <div className="text-xs text-slate-400 dark:text-slate-500 flex justify-between items-center border-t border-slate-50 dark:border-white/10 pt-3">
-                        <span className="capitalize badge-gray px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400">{card.difficulty}</span>
-                        <span className="flex items-center gap-1 font-mono"><Clock className="w-3 h-3" /> {card.time_limit_seconds}s</span>
+                    <div className="text-xs text-slate-400 dark:text-slate-500 flex justify-between items-center gap-2 border-t border-slate-50 dark:border-white/10 pt-3 mt-3 shrink-0">
+                        <span className="capitalize badge-gray px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 truncate max-w-[50%]">
+                            {card.difficulty}
+                        </span>
+                        <span className="flex items-center gap-1 font-mono shrink-0">
+                            <Clock className="w-3 h-3 shrink-0" /> {card.time_limit_seconds}s
+                        </span>
                     </div>
                 </div>
 
                 {/* Back */}
                 <div
-                    className="absolute w-full h-full bg-slate-800 p-6 rounded-xl shadow-md flex flex-col justify-center text-center backface-hidden"
+                    className="absolute inset-0 flex min-h-0 flex-col overflow-hidden rounded-xl bg-slate-800 p-4 sm:p-5 shadow-md backface-hidden"
                     style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
-                    <div className="text-white text-base font-medium leading-relaxed">
-                        <MathText inline>{card.back}</MathText>
+                    <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]">
+                        <div className="min-w-0 max-w-full whitespace-normal break-words text-left text-sm font-medium leading-relaxed text-white [overflow-wrap:anywhere] sm:text-base [&_.katex]:max-w-full [&_.katex]:text-inherit [&_.katex-display]:max-w-full [&_.katex-display]:overflow-x-auto">
+                            <MathText inline>{card.back}</MathText>
+                        </div>
                     </div>
                 </div>
             </motion.div>

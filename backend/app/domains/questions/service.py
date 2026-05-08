@@ -3,6 +3,7 @@ Question service for business logic.
 Orchestrates between API and repository layers.
 """
 
+from datetime import date, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 from typing import Optional
@@ -19,8 +20,10 @@ from app.domains.questions.schemas import (
     FilterOptions,
     DashboardStats,
     MockPaperRequest,
+    GapDrillResponse,
 )
 from app.domains.questions.models import Question, UserAttempt
+from app.domains.questions.readiness_lite import compute_readiness_lite
 
 
 class QuestionService:
@@ -142,15 +145,14 @@ class QuestionService:
         """Get the full syllabus tree."""
         return await self.repo.get_syllabus_tree()
 
-    async def get_user_dashboard_stats(self, user_id: int) -> DashboardStats:
+    async def get_user_dashboard_stats(self, user_id: int, target_band: str = "good") -> DashboardStats:
         """Calculate dashboard statistics for a user."""
         # This belongs in a repo, but for now we put it here or access a new repo
         # To avoid circular imports or complexity, we'll do a direct query for now
         # Ideally we should have a UserAttemptRepository
         
         from sqlalchemy import select, func
-        from app.domains.questions.models import UserAttempt, Question
-        
+
         # Count total questions
         total_questions = await self.repo.count_all()
         
@@ -175,7 +177,6 @@ class QuestionService:
         dates = sorted([r[0] for r in date_result.all()], reverse=True)
         
         if dates:
-            from datetime import date, timedelta
             today = date.today()
             yesterday = today - timedelta(days=1)
             
@@ -286,7 +287,23 @@ class QuestionService:
             (attempt_accuracy_pct / 100.0) * (syllabus_progress / 100.0) * 100,
             1,
         )
-            
+
+        cutoff_7d = datetime.utcnow() - timedelta(days=7)
+        attempts_7d_stmt = (
+            select(func.count())
+            .select_from(UserAttempt)
+            .where(UserAttempt.user_id == user_id, UserAttempt.attempted_at >= cutoff_7d)
+        )
+        attempts_7d_result = await self.repo.session.execute(attempts_7d_stmt)
+        attempts_last_7_days = int(attempts_7d_result.scalar() or 0)
+
+        lite = compute_readiness_lite(
+            attempt_accuracy_pct,
+            syllabus_progress,
+            target_band,
+            attempts_last_7_days,
+        )
+
         # Get Recent Activity
         recent_stmt = (
             select(UserAttempt, Question)
@@ -324,6 +341,11 @@ class QuestionService:
             attempt_accuracy_pct=attempt_accuracy_pct,
             readiness_score=readiness_score,
             syllabus_topic_catalog_total=syllabus_topic_catalog_total,
+            readiness_lite_pct=lite["readiness_lite_pct"],
+            target_readiness_pct=lite["target_readiness_pct"],
+            cutoff_gap_pct=lite["cutoff_gap_pct"],
+            days_to_target_estimate=lite["days_to_target_estimate"],
+            attempts_last_7_days=attempts_last_7_days,
         )
 
     async def record_attempt(self, user_id: int, question_id: str, is_correct: bool, time_taken: int) -> UserAttempt:
@@ -346,6 +368,33 @@ class QuestionService:
             time_taken_seconds=time_taken
         )
         self.repo.session.add(attempt)
+
+        from app.domains.mistakes.models import UserMistakeAnnotation
+        ann_stmt = select(UserMistakeAnnotation).where(
+            UserMistakeAnnotation.user_id == user_id,
+            UserMistakeAnnotation.question_uuid == q_uuid,
+        )
+        ann = (await self.repo.session.execute(ann_stmt)).scalar_one_or_none()
+        now = datetime.utcnow()
+        if ann is None:
+            ann = UserMistakeAnnotation(
+                user_id=user_id,
+                question_uuid=q_uuid,
+                wrong_count=0 if is_correct else 1,
+                correct_count=1 if is_correct else 0,
+                last_wrong_at=None if is_correct else now,
+                last_correct_at=now if is_correct else None,
+            )
+            self.repo.session.add(ann)
+        else:
+            if is_correct:
+                ann.correct_count = ann.correct_count + 1
+                ann.last_correct_at = now
+            else:
+                ann.wrong_count = ann.wrong_count + 1
+                ann.last_wrong_at = now
+            self.repo.session.add(ann)
+
         await self.repo.session.commit()
         await self.repo.session.refresh(attempt)
         return attempt
@@ -425,5 +474,73 @@ class QuestionService:
             absorb(pool)
 
         return chosen[:qc]
+
+    @staticmethod
+    def _collect_prerequisite_labels(tier1: Optional[dict]) -> list[str]:
+        """Extract essential + helpful prerequisite strings; dedupe; cap 6."""
+        if not tier1 or not isinstance(tier1, dict):
+            return []
+        prereq = tier1.get("prerequisites")
+        if not prereq or not isinstance(prereq, dict):
+            return []
+        essential = prereq.get("essential") or []
+        helpful = prereq.get("helpful") or []
+        raw: list[str] = []
+        for arr in (essential, helpful):
+            if not isinstance(arr, list):
+                continue
+            for x in arr:
+                if x is None:
+                    continue
+                s = str(x).strip()
+                if s:
+                    raw.append(s)
+        seen: set[str] = set()
+        out: list[str] = []
+        for label in raw:
+            key = label.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(label)
+            if len(out) >= 6:
+                break
+        return out
+
+    async def gap_drill(self, question_id_str: str) -> Optional[GapDrillResponse]:
+        """
+        Build a warmup question list from tier_1 prerequisites via search (hybrid) per label.
+        Excludes the source question; caps: 6 labels, 3 hits per label, 12 total IDs.
+        """
+        question = await self.repo.get_by_question_id(question_id_str)
+        if not question:
+            return None
+        tier1 = question.tier_1_core_research
+        labels = self._collect_prerequisite_labels(tier1 if isinstance(tier1, dict) else None)
+        if not labels:
+            return None
+
+        collected: list[str] = []
+        seen_ids: set[str] = set()
+
+        for label in labels:
+            rows, _total = await self.repo.search(label, None, page=1, page_size=3)
+            for row in rows:
+                qid = row.question_id
+                if qid == question_id_str or qid in seen_ids:
+                    continue
+                collected.append(qid)
+                seen_ids.add(qid)
+                if len(collected) >= 12:
+                    break
+            if len(collected) >= 12:
+                break
+
+        return GapDrillResponse(
+            original_question_id=question_id_str,
+            prerequisite_labels=labels,
+            question_ids=collected,
+            total_found=len(collected),
+        )
 
 

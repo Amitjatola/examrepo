@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, Eye, Loader2 } from 'lucide-react'
 import { api } from '../utils/api'
 import LatexRenderer from './LatexRenderer'
+import { selectQuestionStemText } from '../utils/questionStem'
 
 const RevisionSession = ({ questionIds, onBack }) => {
     const [index, setIndex] = useState(0)
@@ -140,7 +141,7 @@ const RevisionSession = ({ questionIds, onBack }) => {
                         </div>
                         <div className="px-5 py-4 text-slate-900 dark:text-gray-200 text-base leading-relaxed">
                             <LatexRenderer
-                                text={question.question_text_latex || question.question_text || '—'}
+                                text={selectQuestionStemText(question)}
                             />
                         </div>
                         {question.options && typeof question.options === 'object' && !Array.isArray(question.options) ? (

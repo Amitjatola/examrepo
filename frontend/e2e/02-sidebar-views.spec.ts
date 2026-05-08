@@ -1,5 +1,5 @@
 /**
- * feature.md — Website map: Dashboard, Practice by Year, Browse by Syllabus, Smart Planner.
+ * feature.md — Website map: Dashboard, Practice by Year, Practice by Concepts, Smart Planner.
  * Code: MainContent `view` + Sidebar `activeTab`.
  */
 import { test, expect } from '@playwright/test'
@@ -20,12 +20,12 @@ test.describe('Sidebar navigation (guest vs auth)', () => {
     await expect(page.getByRole('heading', { name: /Practice by Year/i })).toBeVisible();
   });
 
-  test('Browse by Syllabus (or Concepts) opens syllabus selection', async ({ page }) => {
-    const btn = page.getByRole('button', { name: /Browse by Syllabus|Browse Concepts/i });
+  test('Practice by Concepts opens concept/syllabus selection', async ({ page }) => {
+    const btn = page.getByRole('button', { name: /Practice by Concepts/i });
     await btn.first().click();
-    await expect(
-      page.getByText(/Syllabus|Select a subject|subjects/i).first(),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: /Practice by Concepts/i })).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('Smart Planner entry exists when logged in only', async ({ page }) => {

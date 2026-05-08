@@ -116,14 +116,17 @@ export const MnemonicsSection = ({ mnemonics }) => {
                                     <span className="text-xs text-slate-400 dark:text-slate-500">Effectiveness: {m.effectiveness}</span>
                                 )}
                             </div>
-                            <p className="font-mono font-bold text-lg text-amber-900 dark:text-amber-100 mb-1">{head}</p>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 italic">
+                            <p className="mb-1 text-lg font-bold font-mono text-amber-900 dark:text-amber-100">
+                                <MathText>{head}</MathText>
+                            </p>
+                            <p className="text-sm italic text-slate-700 dark:text-slate-300">
                                 <MathText>{tail || raw}</MathText>
                             </p>
                             {m.concept != null && (
-                                <div className="mt-3 pt-2 border-t border-amber-50 dark:border-amber-900/30">
+                                <div className="mt-3 border-t border-amber-50 pt-2 dark:border-amber-900/30">
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        <span className="font-bold text-amber-800 dark:text-amber-300">Concept:</span> {m.concept}
+                                        <span className="font-bold text-amber-800 dark:text-amber-300">Concept:</span>{' '}
+                                        <MathText inline>{m.concept}</MathText>
                                     </p>
                                 </div>
                             )}

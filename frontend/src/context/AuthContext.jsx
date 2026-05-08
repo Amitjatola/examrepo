@@ -64,6 +64,31 @@ export const AuthProvider = ({ children }) => {
         verifyToken();
     }, [token, fetchSubscription]);
 
+    // Other tabs / external clears: keep React token in sync with localStorage (api.get always reads localStorage).
+    useEffect(() => {
+        const onStorage = (e) => {
+            if (e.key !== 'token') return
+            const next = localStorage.getItem('token')
+            setToken(next)
+            if (!next) {
+                setUser(null)
+                setSubscription(null)
+                localStorage.removeItem('user')
+            }
+        }
+        window.addEventListener('storage', onStorage)
+        return () => window.removeEventListener('storage', onStorage)
+    }, [])
+
+    useEffect(() => {
+        const onFocus = () => {
+            const ls = localStorage.getItem('token')
+            if (ls !== token) setToken(ls)
+        }
+        window.addEventListener('focus', onFocus)
+        return () => window.removeEventListener('focus', onFocus)
+    }, [token])
+
 
     const loginWithEmailPassword = async (email, password) => {
         try {
@@ -119,13 +144,13 @@ export const AuthProvider = ({ children }) => {
 
 
 
-    const logout = () => {
+    const logout = useCallback(() => {
         setToken(null);
         setUser(null);
         setSubscription(null);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-    };
+    }, []);
 
     const openLogin = () => {
         setAuthMode('login');

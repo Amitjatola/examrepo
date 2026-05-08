@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, BookOpen, Lightbulb, GraduationCap, LogOut, X, CalendarDays, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lightbulb, GraduationCap, LogOut, X, CalendarDays, RefreshCw, Trophy, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, onLogoClick, onClose, onSmartPlanner }) => {
@@ -11,15 +11,17 @@ const Sidebar = ({ activeTab, onTabChange, onOpen = () => { }, isOpen = true, on
             // Logged in: Show all features
             return [
                 { id: 'home', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+                { id: 'cheatsheet', label: 'Cheat sheet', icon: <FileText size={20} /> },
                 { id: 'revisions', label: 'Revisions', icon: <RefreshCw size={20} /> },
+                { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy size={20} /> },
                 { id: 'year_select', label: 'Practice by Year', icon: <BookOpen size={20} /> },
-                { id: 'concepts', label: 'Browse by Syllabus', icon: <Lightbulb size={20} /> },
+                { id: 'concepts', label: 'Practice by Concepts', icon: <Lightbulb size={20} /> },
             ];
         } else {
             // Not logged in: Show limited browse options
             return [
                 { id: 'year_select', label: 'Practice by Year', icon: <BookOpen size={20} /> },
-                { id: 'concepts', label: 'Browse Concepts', icon: <Lightbulb size={20} /> },
+                { id: 'concepts', label: 'Practice by Concepts', icon: <Lightbulb size={20} /> },
             ];
         }
     };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../utils/api';
 import LatexRenderer from './LatexRenderer';
+import { selectQuestionStemText } from '../utils/questionStem';
 import { ChevronRight, ChevronLeft, Info, HelpCircle } from 'lucide-react';
 import GateCalculator from './GateCalculator';
 
@@ -320,12 +321,7 @@ const CbtExamView = ({ year, onBack, user }) => {
                     {/* Question Content (Scrollable) */}
                     <div className="flex-1 overflow-y-auto p-6 relative bg-white">
                         <div className="prose max-w-none text-gray-800 font-medium mb-8 pb-4">
-                            <LatexRenderer text={currentQuestion.question_text} />
-                            {currentQuestion.question_text_latex && (
-                                <div className="mt-4">
-                                    <LatexRenderer text={`$$${currentQuestion.question_text_latex}$$`} block={true} />
-                                </div>
-                            )}
+                            <LatexRenderer text={selectQuestionStemText(currentQuestion)} block={true} />
                         </div>
 
                         {/* Options */}

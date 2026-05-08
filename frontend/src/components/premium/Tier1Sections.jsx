@@ -28,13 +28,13 @@ export const Tier1DifficultySection = ({ data: t1 }) => {
             </div>
             <div>
                 <h4 className="text-sm font-bold text-slate-800 mb-2">Difficulty Factors</h4>
-                <div className="flex flex-wrap gap-2">
+                <ul className="list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
                     {(t1.difficulty_analysis?.difficulty_factors || []).map((factor, i) => (
-                        <span key={i} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-sm border border-slate-200">
-                            {factor}
-                        </span>
+                        <li key={i} className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]">
+                            <MathText inline>{factor}</MathText>
+                        </li>
                     ))}
-                </div>
+                </ul>
             </div>
         </Card>
     )
@@ -73,54 +73,101 @@ export const Tier1TextbookSection = ({ data: t1 }) => {
 
 export const Tier1StepByStepSection = ({ data: t1 }) => {
     if (!t1) return null
+    const rawSteps = Array.isArray(t1.explanation?.step_by_step)
+        ? t1.explanation.step_by_step
+        : []
+    const normalizedPrimarySteps = rawSteps
+        .map((step) => (step == null ? '' : String(step).trim()))
+        .filter(Boolean)
+
+    const parsedPathSteps = (t1.step_by_step_solution?.solution_path || '')
+        .split(/\s*(?:->|→)\s*/g)
+        .map((step) => step.trim())
+        .filter(Boolean)
+
+    const insightSteps = Array.isArray(t1.step_by_step_solution?.key_insights)
+        ? t1.step_by_step_solution.key_insights
+            .map((step) => (step == null ? '' : String(step).trim()))
+            .filter(Boolean)
+        : []
+
+    const mergedFallbackSteps = [...parsedPathSteps, ...insightSteps]
+    const expectedStepCount = Number(t1.step_by_step_solution?.total_steps) || 0
+
+    const renderedSteps = [...normalizedPrimarySteps]
+    const hasStep = new Set(renderedSteps.map((step) => step.toLowerCase()))
+
+    if (renderedSteps.length < expectedStepCount) {
+        for (const step of mergedFallbackSteps) {
+            const stepKey = step.toLowerCase()
+            if (hasStep.has(stepKey)) continue
+            renderedSteps.push(step)
+            hasStep.add(stepKey)
+            if (renderedSteps.length >= expectedStepCount) break
+        }
+    }
+
+    if (renderedSteps.length === 0) {
+        renderedSteps.push(...mergedFallbackSteps)
+    }
+
     return (
         <Card className="p-6">
             <SectionHeader title="Step-by-Step Explanation" icon={<Lightbulb className="w-5 h-5 text-amber-500" />} />
 
-            <div className="mb-6 p-3 bg-amber-50 border border-amber-100 rounded-lg flex flex-col sm:flex-row justify-between items-center text-sm gap-2">
-                <div className="flex items-center gap-2">
-                    <Waypoints className="w-4 h-4 text-amber-600" />
-                    <span className="font-bold text-amber-800">Approach:</span>
-                    <span className="text-amber-900">{t1.step_by_step_solution?.approach_type || 'N/A'}</span>
+            <div className="mb-6 p-3 bg-amber-50 dark:bg-amber-950/35 border border-amber-100 dark:border-amber-900/50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm gap-3">
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
+                    <Waypoints className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="font-bold text-amber-800 dark:text-amber-200">Approach:</span>
+                    <span className="text-amber-900 dark:text-amber-50">{t1.step_by_step_solution?.approach_type || 'N/A'}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="font-bold text-amber-800">Path:</span>
-                    <span className="text-amber-900 font-mono text-xs">{t1.step_by_step_solution?.solution_path || 'N/A'}</span>
+                <div className="flex flex-wrap items-start gap-2 min-w-0 w-full sm:w-auto sm:max-w-[58%]">
+                    <span className="font-bold text-amber-800 dark:text-amber-200 shrink-0">Path:</span>
+                    <span className="text-amber-900 dark:text-amber-50 text-xs min-w-0 break-words leading-snug [&_.katex]:text-inherit">
+                        <MathText inline>{t1.step_by_step_solution?.solution_path || 'N/A'}</MathText>
+                    </span>
                 </div>
             </div>
 
             <div className="space-y-4">
-                {(t1.explanation?.step_by_step || []).map((step, idx) => (
+                {renderedSteps.map((step, idx) => (
                     <div key={idx} className="flex gap-4">
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs mt-0.5">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-slate-700 text-blue-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs mt-0.5 border border-blue-200/80 dark:border-slate-600">
                             {idx + 1}
                         </div>
-                        <div className="text-slate-700 leading-relaxed text-sm">
+                        <div className="text-slate-700 dark:text-slate-100 leading-relaxed text-sm min-w-0 break-words [&_.katex]:text-inherit dark:[&_.katex]:text-slate-100">
                             <MathText>{step}</MathText>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div className="mt-6 pt-6 border-t border-slate-100">
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Mathematical Principles:</p>
                 <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-500 font-medium">
+                    <table className="min-w-full text-sm text-left table-fixed w-full">
+                        <colgroup>
+                            <col className="w-[22%]" />
+                            <col className="w-[38%]" />
+                            <col className="w-[40%]" />
+                        </colgroup>
+                        <thead className="bg-slate-50 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 font-medium">
                             <tr>
-                                <th className="px-3 py-2">Name</th>
-                                <th className="px-3 py-2">Formula</th>
-                                <th className="px-3 py-2">Relevance</th>
+                                <th className="px-3 py-2 align-top">Name</th>
+                                <th className="px-3 py-2 align-top">Formula</th>
+                                <th className="px-3 py-2 align-top">Relevance</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                             {(t1.formulas_principles || []).map((fp, i) => (
                                 <tr key={i}>
-                                    <td className="px-3 py-2 font-medium text-slate-900 dark:text-gray-200">{fp.name}</td>
-                                    <td className="px-3 py-2 font-mono text-blue-600 bg-blue-50/50">
+                                    <td className="px-3 py-2 font-medium text-slate-900 dark:text-gray-200 align-top min-w-0 break-words">{fp.name}</td>
+                                    <td className="px-3 py-2 font-mono text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800/70 border-l border-slate-200/80 dark:border-slate-600/50 [&_.katex]:text-inherit align-top min-w-0 break-words overflow-x-auto">
                                         <MathText inline>{(fp.formula || "").toString().startsWith('$') ? fp.formula : '$' + fp.formula + '$'}</MathText>
                                     </td>
-                                    <td className="px-3 py-2 text-xs text-slate-500 italic max-w-[150px] truncate" title={fp.relevance}>{fp.relevance}</td>
+                                    <td className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 italic align-top min-w-0 whitespace-normal break-words leading-relaxed [&_.katex]:text-inherit dark:[&_.katex]:text-slate-400">
+                                        {fp.relevance ? <MathText inline>{fp.relevance}</MathText> : null}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

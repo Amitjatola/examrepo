@@ -2,6 +2,13 @@
 Aerogate API - GATE Aerospace Question Bank Backend
 """
 
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Superuser seeding uses os.getenv; Pydantic Settings does not put arbitrary .env keys on os.environ.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
@@ -11,6 +18,30 @@ from loguru import logger
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.v1 import router as api_v1_router
+
+
+async def _backfill_leaderboard_aliases():
+    """Assign stable leaderboard_alias to existing users missing it (idempotent)."""
+    try:
+        from sqlalchemy import select, or_
+        from app.core.database import async_session_maker
+        from app.domains.auth.models import User, generate_leaderboard_alias
+
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(User).where(or_(User.leaderboard_alias.is_(None), User.leaderboard_alias == ""))
+            )
+            stale = result.scalars().all()
+            for u in stale:
+                if u.id is None:
+                    continue
+                u.leaderboard_alias = generate_leaderboard_alias(u.id)
+                session.add(u)
+            if stale:
+                await session.commit()
+                logger.info(f"Backfilled leaderboard_alias for {len(stale)} user(s)")
+    except Exception as e:
+        logger.warning(f"Leaderboard alias backfill skipped: {e}")
 
 
 async def _seed_superuser():
@@ -61,6 +92,8 @@ async def lifespan(app: FastAPI):
 
     # Seed superuser if env vars are set and user doesn't exist yet
     await _seed_superuser()
+
+    await _backfill_leaderboard_aliases()
 
     yield
     

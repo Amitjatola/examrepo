@@ -166,6 +166,12 @@ class DashboardStats(BaseModel):
     attempt_accuracy_pct: float = 0.0
     readiness_score: float = 0.0
     syllabus_topic_catalog_total: int = 0
+    # Readiness lite: additive blend + planner band gap / pace heuristic (see readiness_lite.py)
+    readiness_lite_pct: float = 0.0
+    target_readiness_pct: float = 70.0
+    cutoff_gap_pct: float = 0.0
+    days_to_target_estimate: int = 0
+    attempts_last_7_days: int = 0
 
 
 class BookmarkUpsert(BaseModel):
@@ -193,5 +199,17 @@ class AttemptRequest(BaseModel):
     """Request schema for recording an attempt."""
     is_correct: bool
     time_taken_seconds: int = 0
+
+
+class GapDrillRequest(BaseModel):
+    """Resolve prerequisite labels to warmup question IDs for a gap drill playlist."""
+    question_id: str = Field(..., description="Public question id e.g. GATE_AE_2008_Q01")
+
+
+class GapDrillResponse(BaseModel):
+    original_question_id: str
+    prerequisite_labels: list[str]
+    question_ids: list[str]
+    total_found: int
 
 

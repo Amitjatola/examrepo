@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { api } from '../utils/api';
 import LatexRenderer from './LatexRenderer';
+import { selectQuestionStemText } from '../utils/questionStem';
 import { useAuth } from '../context/AuthContext';
 import { TierViews } from './premium/TierViews';
 import { cn } from './premium/ui';
@@ -14,6 +15,13 @@ import HintSteps from './HintSteps';
 import QuestionNavRail from './QuestionNavRail';
 import FormulaSheetPrint from './FormulaSheetPrint';
 import DiscussionSection from './DiscussionSection';
+import GapDetectorCard from './GapDetectorCard';
+
+const normalizeStepForDedupe = (step) => String(step || '')
+    .replace(/\s+/g, ' ')
+    .replace(/^step\s*\d+\s*:\s*/i, '')
+    .trim()
+    .toLowerCase()
 
 const QuestionDetail = ({
     questionId,
@@ -22,6 +30,7 @@ const QuestionDetail = ({
     navigatorQuestionIds,
     onNavigatorQuestionSelect,
     bookmarkSlot,
+    onStartGapDrill,
 }) => {
     const [question, setQuestion] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -38,6 +47,7 @@ const QuestionDetail = ({
     const [revisionInfo, setRevisionInfo] = useState(null);
     const [revLoading, setRevLoading] = useState(false);
     const [revBusy, setRevBusy] = useState(false);
+    const [emphasizeGapDrill, setEmphasizeGapDrill] = useState(false);
 
     const startTimeRef = React.useRef(Date.now());
     const { user, isPremium } = useAuth();
@@ -77,6 +87,7 @@ const QuestionDetail = ({
                 setShowSolution(false);
                 setIsChecked(false);
                 setHasUsedDailySolution(false);
+                setEmphasizeGapDrill(false);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -153,7 +164,11 @@ const QuestionDetail = ({
     // Steps are in tier_1_core_research.explanation.step_by_step
     const explanation = tier1?.explanation || question?.explanation || {};
     const steps = (Array.isArray(explanation?.step_by_step) ? explanation.step_by_step : [])
-        .filter(s => s && typeof s === 'string' && s.trim() !== "");
+        .filter((s) => s && typeof s === 'string' && s.trim() !== '' && s.trim().toLowerCase() !== 'none')
+        .filter((step, index, arr) => {
+            const current = normalizeStepForDedupe(step)
+            return arr.findIndex((x) => normalizeStepForDedupe(x) === current) === index
+        });
     // Reasoning is in tier_1_core_research.answer_validation.reasoning
     const validation = tier1?.answer_validation || {};
     const reasoning = validation?.reasoning || "";
@@ -184,6 +199,9 @@ const QuestionDetail = ({
                 is_correct: isCorrect,
                 time_taken_seconds: timeTaken
             });
+            if (user && isPremium && !isCorrect) {
+                setEmphasizeGapDrill(true);
+            }
         } catch (err) {
             console.error("Failed to record attempt:", err);
         }
@@ -222,6 +240,13 @@ const QuestionDetail = ({
         }
     };
 
+    const handleClearResponse = () => {
+        setSelectedOption(null)
+        setIsChecked(false)
+        setShowSolution(false)
+        setEmphasizeGapDrill(false)
+    }
+
     return (
         <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center bg-background-light dark:bg-background-dark h-full">
             <div className="flex flex-row gap-3 md:gap-4 max-w-[1400px] w-full mx-auto">
@@ -231,7 +256,7 @@ const QuestionDetail = ({
                     onSelectQuestionId={onNavigatorQuestionSelect}
                     title="Paper"
                 />
-                <div className="flex-1 min-w-0 flex flex-col gap-6 pb-20 max-w-[49.28rem] mx-auto w-full">
+                <div className="flex-1 min-w-0 flex flex-col gap-4 pb-16 max-w-[49.28rem] mx-auto w-full">
                 {/* Column max-w: +10% vs 44.8rem; card sections use ~95% vertical padding vs prior */}
                 <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-[#e5e7eb] dark:border-border-dark overflow-hidden">
                     {/* Card Header / Meta */}
@@ -261,7 +286,7 @@ const QuestionDetail = ({
                     {/* Question Body */}
                     <div className="px-5 md:px-6 py-[1.1875rem]">
                         <div className="text-slate-900 dark:text-gray-200 text-base leading-relaxed font-normal">
-                            <LatexRenderer text={question?.question_text_latex || question?.question_text || "No question text available."} />
+                            <LatexRenderer text={selectQuestionStemText(question)} />
                         </div>
                     </div>
 
@@ -389,6 +414,14 @@ const QuestionDetail = ({
                                 >
                                     <Eye size={16} />
                                     {showSolution ? 'Hide Solution' : 'Show Solution'}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleClearResponse}
+                                    className="bg-white dark:bg-card-dark border border-[#e5e7eb] dark:border-border-dark hover:bg-gray-50 dark:hover:bg-white/5 text-slate-900 dark:text-white px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                                >
+                                    Clear Response
                                 </button>
                             </div>
                             <div className="flex items-center gap-1.5 flex-wrap shrink-0">
@@ -522,6 +555,14 @@ const QuestionDetail = ({
                         )}
                     </div>
                 )}
+
+                <GapDetectorCard
+                    questionId={question?.question_id}
+                    isPremium={isPremium}
+                    emphasizeAfterWrong={emphasizeGapDrill}
+                    onStartDrill={(payload) => onStartGapDrill?.(payload)}
+                    onUpgrade={() => onOpenPremium?.()}
+                />
 
                 <TierViews question={question} />
 

@@ -4,10 +4,17 @@ import { api } from '../utils/api';
 import QuestionCard from './QuestionCard'; // We might reuse or adapt this, but the design is specific here
 import { ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock, AlertCircle, Sparkles, Bookmark, MessageSquare, Lightbulb } from 'lucide-react';
 import LatexRenderer from './LatexRenderer';
+import { selectQuestionStemText } from '../utils/questionStem';
 import DiscussionSection from './DiscussionSection';
 import HintSteps from './HintSteps';
 import QuestionNavRail from './QuestionNavRail';
 import { TierViews } from './premium/TierViews';
+
+const normalizeStepForDedupe = (step) => String(step || '')
+    .replace(/\s+/g, ' ')
+    .replace(/^step\s*\d+\s*:\s*/i, '')
+    .trim()
+    .toLowerCase()
 
 // Year-based paper, or playlist mode (remediation / mock) via playlistQuestionIds
 const PaperAttemptView = ({
@@ -178,6 +185,13 @@ const PaperAttemptView = ({
         }
     };
 
+    const handleClearResponse = () => {
+        setSelectedOption(null)
+        setIsCorrect(null)
+        setShowSolution(false)
+        setShowDiscuss(false)
+    }
+
     const isPlaylist = Array.isArray(playlistQuestionIds) && playlistQuestionIds.length > 0;
     const sessionLabel = playlistTitle || (year != null ? `GATE ${year}` : 'Practice');
 
@@ -330,7 +344,12 @@ const PaperAttemptView = ({
     const tier1 = currentQuestion.tier_1_core_research || {};
     // Steps are in tier_1_core_research.explanation.step_by_step
     const explanationData = tier1.explanation || currentQuestion.explanation || {};
-    const steps = (explanationData.step_by_step || []).filter(s => s && s.trim() !== "");
+    const steps = (Array.isArray(explanationData.step_by_step) ? explanationData.step_by_step : [])
+        .filter((s) => s && typeof s === 'string' && s.trim() !== '' && s.trim().toLowerCase() !== 'none')
+        .filter((step, index, arr) => {
+            const current = normalizeStepForDedupe(step)
+            return arr.findIndex((x) => normalizeStepForDedupe(x) === current) === index
+        });
     const validation = tier1.answer_validation || {};
     const reasoning = validation.reasoning || "";
 
@@ -453,14 +472,9 @@ const PaperAttemptView = ({
                     {/* Question Body */}
                     <div className="px-5 py-5">
                         <div className="text-slate-900 dark:text-gray-100 text-base leading-relaxed font-medium prose dark:prose-invert max-w-none">
-                            <LatexRenderer text={currentQuestion.question_text} />
-                            {currentQuestion.question_text_latex && (
-                                <div className="mt-4 p-4 bg-slate-50/50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5 flex justify-center items-center overflow-x-auto shadow-inner">
-                                    <div className="text-primary dark:text-blue-400">
-                                        <LatexRenderer text={`$$${currentQuestion.question_text_latex}$$`} block={true} />
-                                    </div>
-                                </div>
-                            )}
+                            <div className="mt-0 p-4 bg-slate-50/50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5 w-full overflow-x-auto text-left shadow-inner">
+                                <LatexRenderer text={selectQuestionStemText(currentQuestion)} block={true} />
+                            </div>
                         </div>
                     </div>
 
@@ -596,6 +610,13 @@ const PaperAttemptView = ({
                                         : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
                             >
                                 {showSolution ? "Hide Solution" : "Show Solution"}
+                            </button>
+
+                            <button
+                                onClick={handleClearResponse}
+                                className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 border-2 transform active:scale-95 bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20"
+                            >
+                                Clear Response
                             </button>
 
                             <button

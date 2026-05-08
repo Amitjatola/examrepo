@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_session
@@ -10,14 +12,18 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 @router.get("/stats", response_model=DashboardStats)
 async def get_dashboard_stats(
+    target_band: Literal["qualifying", "good", "ranker"] = Query(
+        "good",
+        description="Planner target band for readiness gap and days-to-target",
+    ),
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     """
     Get dashboard statistics for the current user.
     """
     service = QuestionService(session)
-    stats = await service.get_user_dashboard_stats(current_user.id)
+    stats = await service.get_user_dashboard_stats(current_user.id, target_band=target_band)
     return stats
 
 

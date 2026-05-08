@@ -132,7 +132,7 @@ const DiscussionSection = ({ questionId }) => {
 
     return (
         <section
-            className="mt-8 rounded-xl border border-[#e5e7eb] dark:border-border-dark bg-white dark:bg-card-dark shadow-sm overflow-hidden"
+            className="rounded-xl border border-[#e5e7eb] dark:border-border-dark bg-white dark:bg-card-dark shadow-sm overflow-hidden"
             aria-labelledby="discussion-heading"
         >
             <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[#f0f2f4] dark:border-border-dark">

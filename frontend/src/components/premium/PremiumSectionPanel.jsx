@@ -29,7 +29,7 @@ export const PremiumSectionPanel = ({ question, section }) => {
     const t3 = question?.tier_3_enhanced_learning
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4">
             {section === 'difficulty' && (t1 ? <Tier1DifficultySection data={t1} /> : null)}
 
             {section === 'mistakes' && <CommonMistakesSection mistakes={t2?.common_mistakes} />}
@@ -47,7 +47,7 @@ export const PremiumSectionPanel = ({ question, section }) => {
             {section === 'video' && t1 ? <Tier1VideoSection data={t1} /> : null}
 
             {section === 'realworld' && (
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {t1?.real_world_applications?.practical_relevance &&
                     String(t1.real_world_applications.practical_relevance).trim() !== '' &&
                     t1.real_world_applications.practical_relevance !== 'N/A' ? (
@@ -62,7 +62,7 @@ export const PremiumSectionPanel = ({ question, section }) => {
             {section === 'flashcards' && <FlashcardsSection flashcards={t2?.flashcards || []} />}
 
             {section === 'knowledge' && (
-                <div className="space-y-8">
+                <div className="space-y-4">
                     {t1 ? <Tier1KnowledgeGraphSection data={t1} /> : null}
                     <Tier3KnowledgeFragments data={t3} />
                     {question?.tier_4_metadata_and_future ? <Tier4View data={question} /> : null}

@@ -20,6 +20,12 @@ or use Google with the *same* email — both resolve to the same user row and Pr
 import asyncio
 import os
 import sys
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load backend/.env so DATABASE_URL + AEROGATE_SUPERUSER_* work without exporting in shell
+load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
 
 # Allow running as `python scripts/ensure_superuser.py` from backend/
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

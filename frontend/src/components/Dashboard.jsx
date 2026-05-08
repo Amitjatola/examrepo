@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, BookOpen, Clock, Flame, History, ChevronRight, TrendingUp, Target, ListChecks, Wand2, RefreshCw, Gauge, Timer } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Search, Sparkles, BookOpen, Clock, Flame, History, ChevronRight, TrendingUp, Target, ListChecks, Wand2, RefreshCw, Gauge, Timer, AlertTriangle, CheckCircle2, ArrowUpRight, Loader2, Tag, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
+import { buildWeeklyFocusPlan, hasWeeklyFocusSignals } from '../utils/weeklyFocusPlan';
+import WeeklyFocusPlanCard from './WeeklyFocusPlanCard';
 const Dashboard = ({
     onSearch,
     onNavigate,
@@ -10,6 +12,7 @@ const Dashboard = ({
     onRunMockPaper,
     onOpenRevisionQueue,
     onOpenQuestion,
+    onOpenCheatSheet,
 }) => {
     const { user, isPremium } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
@@ -69,12 +72,23 @@ const Dashboard = ({
         readinessScore: 0,
         syllabusTopicCatalogTotal: 0,
         recentActivity: [],
+        readinessLitePct: 0,
+        targetReadinessPct: 70,
+        cutoffGapPct: 0,
+        daysToTargetEstimate: 0,
+        attemptsLast7Days: 0,
     });
 
     const [remediationItems, setRemediationItems] = useState([]);
     const [savedBookmarks, setSavedBookmarks] = useState([]);
     const [revStats, setRevStats] = useState(null);
     const [revStatsLoading, setRevStatsLoading] = useState(true);
+
+    const [museum, setMuseum] = useState(null);
+    const [museumLoading, setMuseumLoading] = useState(true);
+    const [museumFilter, setMuseumFilter] = useState({ error_type: null, sort_by: 'repeat_count', only_unresolved: false });
+    const [repeatOffenders, setRepeatOffenders] = useState([]);
+    const [museumBusy, setMuseumBusy] = useState({});
     const [timeTargetSeconds, setTimeTargetSeconds] = useState(() => {
         const raw = Number(localStorage.getItem('ag_time_target_seconds'));
         return Number.isFinite(raw) && raw > 0 ? raw : 150;
@@ -117,10 +131,32 @@ const Dashboard = ({
         };
     }, [user]);
 
+    const loadMuseum = useCallback(async (filters = museumFilter) => {
+        if (!user) return;
+        setMuseumLoading(true);
+        try {
+            const params = { limit: 15, sort_by: filters.sort_by };
+            if (filters.error_type) params.error_type = filters.error_type;
+            if (filters.only_unresolved) params.only_unresolved = true;
+            const [data, offenders] = await Promise.all([
+                api.getMistakeMuseum(params),
+                api.getRepeatOffenders(),
+            ]);
+            setMuseum(data);
+            setRepeatOffenders(offenders || []);
+        } catch {
+            setMuseum(null);
+            setRepeatOffenders([]);
+        } finally {
+            setMuseumLoading(false);
+        }
+    }, [user, museumFilter]);
+
     useEffect(() => {
         if (!user) {
             setRemediationItems([]);
             setSavedBookmarks([]);
+            setMuseum(null);
             return undefined;
         }
         let cancelled = false;
@@ -140,15 +176,54 @@ const Dashboard = ({
                 }
             }
         })();
+        loadMuseum();
         return () => {
             cancelled = true;
         };
     }, [user]);
 
     useEffect(() => {
+        loadMuseum(museumFilter);
+    }, [museumFilter]);
+
+    const handleTagError = async (qid, errorType) => {
+        setMuseumBusy((p) => ({ ...p, [qid]: true }));
+        try {
+            await api.patchMistakeAnnotation(qid, { error_type: errorType });
+            await loadMuseum();
+        } catch { /* silent */ }
+        setMuseumBusy((p) => ({ ...p, [qid]: false }));
+    };
+
+    const handleToggleResolved = async (qid, current) => {
+        setMuseumBusy((p) => ({ ...p, [qid]: true }));
+        try {
+            await api.patchMistakeAnnotation(qid, { is_resolved: !current });
+            await loadMuseum();
+        } catch { /* silent */ }
+        setMuseumBusy((p) => ({ ...p, [qid]: false }));
+    };
+
+    const handleAddToRevision = async (qid) => {
+        setMuseumBusy((p) => ({ ...p, [qid]: true }));
+        try {
+            await api.addMistakeToRevision(qid);
+            await loadMuseum();
+        } catch { /* silent */ }
+        setMuseumBusy((p) => ({ ...p, [qid]: false }));
+    };
+
+    const handleBulkAddRepeatOffenders = async () => {
+        for (const ro of repeatOffenders) {
+            try { await api.addMistakeToRevision(ro.question_id_str) } catch { /* skip */ }
+        }
+        await loadMuseum();
+    };
+
+    useEffect(() => {
         const fetchStats = async () => {
             try {
-                const data = await api.get('/dashboard/stats');
+                const data = await api.get('/dashboard/stats', { target_band: plannerTarget });
                 setStats(prev => ({
                     ...prev,
                     questionsAttempted: data.questions_attempted,
@@ -164,6 +239,11 @@ const Dashboard = ({
                     attemptAccuracyPct: data.attempt_accuracy_pct ?? 0,
                     readinessScore: data.readiness_score ?? 0,
                     syllabusTopicCatalogTotal: data.syllabus_topic_catalog_total ?? 0,
+                    readinessLitePct: data.readiness_lite_pct ?? 0,
+                    targetReadinessPct: data.target_readiness_pct ?? 70,
+                    cutoffGapPct: data.cutoff_gap_pct ?? 0,
+                    daysToTargetEstimate: data.days_to_target_estimate ?? 0,
+                    attemptsLast7Days: data.attempts_last_7_days ?? 0,
                 }));
             } catch (error) {
                 console.error("Failed to fetch dashboard stats:", error);
@@ -173,9 +253,12 @@ const Dashboard = ({
         };
 
         if (user) {
+            setLoading(true);
             fetchStats();
+        } else {
+            setLoading(false);
         }
-    }, [user]);
+    }, [user, plannerTarget]);
 
 
 
@@ -187,6 +270,52 @@ const Dashboard = ({
         if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
         return `${(seconds / 3600).toFixed(1)}h`;
     };
+
+    const plannerBandLabel =
+        plannerTarget === 'qualifying' ? 'Qualifying' : plannerTarget === 'ranker' ? 'Ranker' : 'Good';
+
+    const readinessGapSummary = (() => {
+        if (loading) return '…';
+        const g = stats.cutoffGapPct;
+        if (g > 0) return `${g}% below your ${plannerBandLabel} target`;
+        if (g < 0) return `${Math.abs(g)}% above your ${plannerBandLabel} target`;
+        return `On your ${plannerBandLabel} target`;
+    })();
+
+    const weeklyFocusSignals = hasWeeklyFocusSignals({
+        topicPerformance: stats.topicPerformance,
+        remediationCount: remediationItems.length,
+        revStats,
+    });
+
+    const weeklyPlanBlocks = useMemo(() => {
+        if (!user || !weeklyFocusSignals) return [];
+        return buildWeeklyFocusPlan({
+            topicPerformance: stats.topicPerformance,
+            topicAvgTimeSeconds: stats.topicAvgTimeSeconds,
+            timeTargetSeconds,
+            remediationCount: remediationItems.length,
+            revStats,
+            plannerTarget,
+            plannerDays,
+            plannerMode,
+            attemptsLast7Days: stats.attemptsLast7Days,
+            includeMock: Boolean(onRunMockPaper),
+        });
+    }, [
+        user,
+        weeklyFocusSignals,
+        stats.topicPerformance,
+        stats.topicAvgTimeSeconds,
+        stats.attemptsLast7Days,
+        timeTargetSeconds,
+        remediationItems.length,
+        revStats,
+        plannerTarget,
+        plannerDays,
+        plannerMode,
+        onRunMockPaper,
+    ]);
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden">
@@ -252,7 +381,16 @@ const Dashboard = ({
                                 {stats.syllabusTopicCatalogTotal || '—'}
                             </p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 flex-wrap">
+
+                            <button
+                                type="button"
+                                onClick={() => onOpenCheatSheet?.()}
+                                className="flex items-center gap-2 border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                            >
+                                <FileText size={18} aria-hidden />
+                                Formula cheat sheet
+                            </button>
 
                             <button
                                 onClick={() => onNavigate('year_select')}
@@ -343,20 +481,74 @@ const Dashboard = ({
                     ) : null}
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-3">
+                        <section
+                            aria-labelledby="readiness-lite-heading"
+                            className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-4"
+                        >
                             <div className="flex items-center gap-2">
-                                <Gauge size={18} className="text-primary" />
-                                <h3 className="text-slate-900 dark:text-white font-semibold">Readiness lite</h3>
+                                <Gauge size={18} className="text-primary shrink-0" aria-hidden />
+                                <h3 id="readiness-lite-heading" className="text-slate-900 dark:text-white font-semibold">
+                                    Readiness lite
+                                </h3>
                             </div>
                             <p className="text-xs text-slate-500 dark:text-text-muted leading-relaxed">
-                                Honest score = attempt accuracy × syllabus coverage ÷ 100. No rank prediction.
-                                <span className="block mt-1 font-mono text-[11px] text-slate-400 dark:text-slate-500">
-                                    readiness = {loading ? '…' : `${stats.attemptAccuracyPct}% × ${stats.syllabusProgress}% ÷ 100`}{' '}
-                                    → <span className="text-primary font-bold">{loading ? '…' : `${stats.readinessScore}%`}</span>
+                                Readiness blend = average of attempt accuracy and syllabus topic coverage (not a product). This is
+                                not a predicted GATE rank or marks. Days-to-target is a rough estimate from your last 7 days of
+                                attempt volume.
+                            </p>
+                            <p className="font-mono text-[11px] text-slate-400 dark:text-slate-500 break-words">
+                                ({loading ? '…' : `${stats.attemptAccuracyPct}%`} +{' '}
+                                {loading ? '…' : `${stats.syllabusProgress}%`}) / 2 →{' '}
+                                <span className="text-primary font-bold">
+                                    {loading ? '…' : `${stats.readinessLitePct}%`}
                                 </span>
                             </p>
-                            <div className="text-4xl font-black text-slate-900 dark:text-white">{loading ? '-' : `${stats.readinessScore}%`}</div>
-                        </div>
+                            <div
+                                className="text-4xl font-black text-slate-900 dark:text-white"
+                                aria-label={loading ? 'Readiness loading' : `Readiness blend ${stats.readinessLitePct} percent`}
+                            >
+                                {loading ? '-' : `${stats.readinessLitePct}%`}
+                            </div>
+                            <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                                <div className="rounded-lg border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2">
+                                    <dt className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                        Target ({plannerBandLabel})
+                                    </dt>
+                                    <dd className="text-lg font-bold text-slate-900 dark:text-white">
+                                        {loading ? '—' : `${stats.targetReadinessPct}%`}
+                                    </dd>
+                                </div>
+                                <div className="rounded-lg border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2">
+                                    <dt className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Cutoff gap</dt>
+                                    <dd
+                                        className={`text-lg font-bold ${
+                                            loading
+                                                ? 'text-slate-900 dark:text-white'
+                                                : stats.cutoffGapPct > 0
+                                                  ? 'text-amber-700 dark:text-amber-400'
+                                                  : 'text-emerald-700 dark:text-emerald-400'
+                                        }`}
+                                    >
+                                        {loading ? '—' : readinessGapSummary}
+                                    </dd>
+                                </div>
+                                <div className="rounded-lg border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3 py-2">
+                                    <dt className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                        Days to target (est.)
+                                    </dt>
+                                    <dd className="text-lg font-bold text-slate-900 dark:text-white">
+                                        {loading ? '—' : stats.daysToTargetEstimate}
+                                    </dd>
+                                </div>
+                            </dl>
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                Attempts last 7 days: {loading ? '—' : stats.attemptsLast7Days}
+                            </p>
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-white/10 pt-3">
+                                Legacy composite (accuracy × coverage, for continuity):{' '}
+                                {loading ? '—' : `${stats.readinessScore}%`}
+                            </p>
+                        </section>
 
                         <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-4">
                             <div className="flex flex-wrap justify-between gap-3 items-center">
@@ -408,45 +600,214 @@ const Dashboard = ({
                         </div>
                     </div>
 
+                    {/* Repeat Offender Banner */}
+                    {repeatOffenders.length > 0 ? (
+                        <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 shadow-sm">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <AlertTriangle size={20} className="text-amber-600 shrink-0" aria-hidden />
+                                <p className="text-sm text-amber-900 dark:text-amber-100 font-semibold">
+                                    {repeatOffenders.length} question{repeatOffenders.length > 1 ? 's' : ''} with 3+ wrong attempts not in your revision queue
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleBulkAddRepeatOffenders}
+                                className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 text-sm cursor-pointer"
+                            >
+                                <RefreshCw size={14} aria-hidden />
+                                Add all to revision
+                            </button>
+                        </div>
+                    ) : null}
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {/* Mistake Museum */}
                         <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-3">
                             <div className="flex justify-between items-center gap-3">
                                 <h3 className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
-                                    <RefreshCw size={18} className="text-amber-500" />
-                                    Wrong-answer queue
+                                    <AlertTriangle size={18} className="text-amber-500" />
+                                    Mistake Museum
                                 </h3>
                                 <button
                                     type="button"
                                     onClick={() => onOpenRemediationPlaylist?.()}
                                     className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                                    aria-label="Play all mistakes"
                                 >
                                     Play all
                                 </button>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-text-muted">Distinct misses (most recent first).</p>
-                            <div className="flex flex-col gap-2 max-h-56 overflow-y-auto">
-                                {remediationItems.length === 0 ? (
-                                    <p className="text-sm text-slate-400 italic">No misses logged yet — keep practicing.</p>
+
+                            {/* Summary Stats */}
+                            {museum?.summary ? (
+                                <div className="flex flex-wrap gap-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                    <span>{museum.summary.total_mistakes} total</span>
+                                    <span className="text-green-600 dark:text-green-400">{museum.summary.resolved_count} resolved</span>
+                                    {museum.summary.conceptual_count > 0 && <span>conceptual: {museum.summary.conceptual_count}</span>}
+                                    {museum.summary.careless_count > 0 && <span>careless: {museum.summary.careless_count}</span>}
+                                    {museum.summary.tricky_count > 0 && <span>tricky: {museum.summary.tricky_count}</span>}
+                                </div>
+                            ) : null}
+
+                            {/* Filter Controls */}
+                            <div className="flex flex-wrap gap-2 items-center">
+                                {['conceptual', 'careless', 'tricky'].map((et) => (
+                                    <button
+                                        key={et}
+                                        type="button"
+                                        onClick={() => setMuseumFilter((p) => ({ ...p, error_type: p.error_type === et ? null : et }))}
+                                        className={`px-2.5 py-1 rounded-full text-[11px] font-bold border cursor-pointer transition-colors ${
+                                            museumFilter.error_type === et
+                                                ? 'bg-primary text-white border-primary'
+                                                : 'border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary/50'
+                                        }`}
+                                        aria-label={`Filter by ${et}`}
+                                    >
+                                        {et}
+                                    </button>
+                                ))}
+                                <select
+                                    value={museumFilter.sort_by}
+                                    onChange={(e) => setMuseumFilter((p) => ({ ...p, sort_by: e.target.value }))}
+                                    className="text-[11px] rounded-lg border border-slate-200 dark:border-border-dark bg-white dark:bg-[#1a1d2e] text-slate-700 dark:text-slate-200 px-2 py-1"
+                                    aria-label="Sort by"
+                                >
+                                    <option value="repeat_count">Most wrong</option>
+                                    <option value="recency">Recent</option>
+                                    <option value="topic">Topic</option>
+                                </select>
+                                <label className="flex items-center gap-1 text-[11px] text-slate-500 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={museumFilter.only_unresolved}
+                                        onChange={(e) => setMuseumFilter((p) => ({ ...p, only_unresolved: e.target.checked }))}
+                                        className="rounded"
+                                    />
+                                    Unresolved only
+                                </label>
+                            </div>
+
+                            {/* Museum Cards */}
+                            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
+                                {museumLoading ? (
+                                    <div className="flex justify-center py-6">
+                                        <Loader2 size={20} className="animate-spin text-slate-400" />
+                                    </div>
+                                ) : !museum || museum.items.length === 0 ? (
+                                    <p className="text-sm text-slate-400 italic py-4 text-center">No mistakes yet — keep practicing!</p>
                                 ) : (
-                                    remediationItems.map((item) => (
-                                        <div
-                                            key={item.question_id}
-                                            className="flex justify-between gap-3 items-center px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5"
-                                        >
-                                            <span className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
-                                                {item.question_id.replace(/_/g, ' ')}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => onOpenQuestion?.(item.question_id)}
-                                                className="text-xs font-bold text-primary hover:underline cursor-pointer shrink-0"
+                                    museum.items.map((item) => {
+                                        const busy = museumBusy[item.question_id_str];
+                                        const totalAttempts = item.wrong_count + item.correct_count;
+                                        const wrongPct = totalAttempts ? Math.round(item.wrong_count / totalAttempts * 100) : 100;
+                                        return (
+                                            <div
+                                                key={item.question_id_str}
+                                                className={`p-3 rounded-lg border ${
+                                                    item.is_resolved
+                                                        ? 'border-green-200 dark:border-green-900/40 bg-green-50/40 dark:bg-green-950/10'
+                                                        : 'border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5'
+                                                }`}
                                             >
-                                                Open
-                                            </button>
-                                        </div>
-                                    ))
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                                                            {item.question_id_str.replace(/_/g, ' ')}
+                                                        </p>
+                                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                                            {item.question_text_preview}
+                                                        </p>
+                                                    </div>
+                                                    {item.correct_count > 0 ? (
+                                                        <span className="shrink-0 flex items-center gap-0.5 text-[10px] font-bold text-green-600 dark:text-green-400">
+                                                            <ArrowUpRight size={10} aria-hidden /> {item.improvement_pct}%
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+
+                                                {/* Attempt Bar */}
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <div className="flex-1 h-1.5 rounded-full bg-green-200 dark:bg-green-900/40 overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-red-500 rounded-full"
+                                                            style={{ width: `${wrongPct}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-slate-500 shrink-0">
+                                                        {item.wrong_count}W / {item.correct_count}C
+                                                    </span>
+                                                </div>
+
+                                                {/* Tags + topic */}
+                                                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                                    {item.topic_tag ? (
+                                                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded">
+                                                            {item.topic_tag}
+                                                        </span>
+                                                    ) : null}
+                                                    {item.subject ? (
+                                                        <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                                            {item.subject} {item.year || ''}
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="flex flex-wrap items-center gap-2 mt-2">
+                                                    {['conceptual', 'careless', 'tricky'].map((et) => (
+                                                        <button
+                                                            key={et}
+                                                            type="button"
+                                                            disabled={busy}
+                                                            onClick={() => handleTagError(item.question_id_str, et)}
+                                                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                                                                item.error_type === et
+                                                                    ? 'bg-primary text-white border-primary'
+                                                                    : 'border-slate-200 dark:border-border-dark text-slate-500 hover:border-primary/50'
+                                                            }`}
+                                                            aria-label={`Tag as ${et}`}
+                                                        >
+                                                            {et}
+                                                        </button>
+                                                    ))}
+                                                    <button
+                                                        type="button"
+                                                        disabled={busy}
+                                                        onClick={() => handleToggleResolved(item.question_id_str, item.is_resolved)}
+                                                        className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-green-600 cursor-pointer"
+                                                        aria-label={item.is_resolved ? 'Mark unresolved' : 'Mark resolved'}
+                                                    >
+                                                        <CheckCircle2 size={12} className={item.is_resolved ? 'text-green-500' : ''} aria-hidden />
+                                                        {item.is_resolved ? 'Resolved' : 'Resolve'}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onOpenQuestion?.(item.question_id_str)}
+                                                        className="text-[10px] font-bold text-primary hover:underline cursor-pointer"
+                                                        aria-label="Retry question"
+                                                    >
+                                                        Retry
+                                                    </button>
+                                                    {!item.in_revision ? (
+                                                        <button
+                                                            type="button"
+                                                            disabled={busy}
+                                                            onClick={() => handleAddToRevision(item.question_id_str)}
+                                                            className="text-[10px] font-bold text-amber-600 hover:underline cursor-pointer"
+                                                            aria-label="Add to revision"
+                                                        >
+                                                            + Revision
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-[10px] font-bold text-green-600">In revision</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })
                                 )}
                             </div>
+
                             <button
                                 type="button"
                                 onClick={() => {
@@ -493,6 +854,16 @@ const Dashboard = ({
                     {/* Main Content Split */}
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                         <div className="xl:col-span-2 flex flex-col gap-6">
+                            <WeeklyFocusPlanCard
+                                blocks={weeklyPlanBlocks}
+                                loading={Boolean(user && loading)}
+                                showEmpty={Boolean(user && !loading && !weeklyFocusSignals)}
+                                onOpenRevisionQueue={onOpenRevisionQueue}
+                                onPracticeWeakTopic={onPracticeWeakTopic}
+                                onOpenRemediationPlaylist={onOpenRemediationPlaylist}
+                                onRunMockPaper={onRunMockPaper}
+                                onNavigateYear={() => onNavigate?.('year_select')}
+                            />
                             <div className="rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-[#15192b] p-6 flex flex-col gap-4">
                                 <div className="flex flex-wrap justify-between items-center gap-3">
                                     <h3 className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">

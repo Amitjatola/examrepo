@@ -12,9 +12,13 @@ from app.api.v1.discussions import router as discussions_router
 from app.api.v1.practice import router as practice_router
 from app.api.v1.bookmarks import router as bookmarks_router
 from app.api.v1.revisions import router as revisions_router
+from app.api.v1.mistakes import router as mistakes_router
+from app.api.v1.leaderboard import router as leaderboard_router
 
 router.include_router(bookmarks_router)
 router.include_router(revisions_router)
+router.include_router(mistakes_router)
+router.include_router(leaderboard_router)
 router.include_router(questions_router)
 router.include_router(search_router)
 router.include_router(dashboard_router)

@@ -1,29 +1,65 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, Loader2, PlayCircle, RefreshCw } from 'lucide-react'
 import { api } from '../utils/api'
+import { useAuth } from '../context/AuthContext'
 
 const RevisionQueue = ({ onBack, onStartSession }) => {
+    const { user, token, isLoading: authLoading, logout } = useAuth()
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [data, setData] = useState({ total_due: 0, items: [] })
 
     const load = useCallback(async () => {
+        const fromStorage = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null
+        if (!token && !fromStorage) {
+            setError('Sign in to view your revision queue.')
+            setData({ total_due: 0, items: [] })
+            setLoading(false)
+            return
+        }
+        if (user && !fromStorage) {
+            logout()
+            setError('Your session token was missing. Please sign in again.')
+            setData({ total_due: 0, items: [] })
+            setLoading(false)
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
             const res = await api.getRevisionQueue({ limit: 100, offset: 0 })
             setData(res)
         } catch (e) {
-            setError(e?.message || 'Could not load revision queue')
+            const msg = e?.message || 'Could not load revision queue'
+            const status = e?.status
+            if (
+                status === 401 ||
+                status === 403 ||
+                msg === 'Not authenticated' ||
+                msg === 'Could not validate credentials'
+            ) {
+                logout()
+                setError('Session expired or not signed in. Please sign in again.')
+            } else {
+                setError(msg)
+            }
             setData({ total_due: 0, items: [] })
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [token, user, logout])
 
     useEffect(() => {
+        if (authLoading) return
+        if (!user) {
+            setLoading(false)
+            setError('Sign in to view your revision queue.')
+            setData({ total_due: 0, items: [] })
+            return
+        }
         load()
-    }, [load])
+    }, [authLoading, user, load])
 
     const handleStartSession = () => {
         const ids = (data.items || []).map((it) => it.revision?.question_id_str).filter(Boolean)

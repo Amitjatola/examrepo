@@ -952,3 +952,47 @@ main {
     background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
+
+/* Formula cheat sheet: print layout (body.cheatsheet-print-mode toggled in CheatSheetPage) */
+@media print {
+    body.cheatsheet-print-mode {
+        background: white !important;
+        color: #0f172a !important;
+    }
+
+    body.cheatsheet-print-mode header,
+    body.cheatsheet-print-mode aside {
+        display: none !important;
+    }
+
+    body.cheatsheet-print-mode .no-print {
+        display: none !important;
+    }
+
+    body.cheatsheet-print-mode main {
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    body.cheatsheet-print-mode .lg\:ml-72 {
+        margin-left: 0 !important;
+    }
+
+    body.cheatsheet-print-mode .cheatsheet-print-root,
+    body.cheatsheet-print-mode .cheatsheet-formula-card {
+        background: white !important;
+        color: #0f172a !important;
+        border-color: #e2e8f0 !important;
+        box-shadow: none !important;
+    }
+
+    .cheatsheet-formula-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .cheatsheet-subject-title {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+}

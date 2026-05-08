@@ -115,6 +115,7 @@ class RealWorldApplications(BaseModel):
 class Tier1CoreResearch(BaseModel):
     answer_validation: Optional[AnswerValidation] = None
     explanation: Optional[Explanation] = None
+    hints: Optional[List[Optional[str]]] = None
     hierarchical_tags: Optional[HierarchicalTags] = None
     prerequisites: Optional[Prerequisites] = None
     difficulty_analysis: Optional[DifficultyAnalysis] = None

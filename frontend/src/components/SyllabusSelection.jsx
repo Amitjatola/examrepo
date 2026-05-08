@@ -49,7 +49,7 @@ const SyllabusSelection = ({ syllabusTree, onSubjectSelect, onSearch, query }) =
                 {/* Header Section */}
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-display">Browse by Syllabus</h1>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-display">Practice by Concepts</h1>
                         <p className="text-slate-500 dark:text-gray-400 text-lg">Master each subject area with topic-wise practice questions.</p>
                     </div>
                     <div className="max-w-2xl">
