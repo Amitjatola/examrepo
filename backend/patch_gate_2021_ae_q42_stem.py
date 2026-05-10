@@ -1,16 +1,16 @@
 """
-Fix question_text_latex for GATE_2009_AE_Q13 (TAS/EAS density ratio).
+Fix GATE_2021_AE_Q42 stem: legacy rows used \\text{...}\\ + \\begin{cases} with a bad row break
+(\"\\delta \\ 1\" instead of \"\\\\ 1\").
 
-The DB has a broken legacy string with raw \\text{} interleaving. Replace with
-proper prose + inline $...$ delimiters.
+Updates question_text (readable plain) and question_text_latex (KaTeX-safe).
 
-Usage (from repo root)::
+Usage (repo root)::
 
-    PYTHONPATH=backend python backend/patch_gate_2009_ae_q13_latex.py --json
+    PYTHONPATH=backend python backend/patch_gate_2021_ae_q42_stem.py --json
 
-Postgres (needs valid DATABASE_URL in backend/.env)::
+Postgres (valid DATABASE_URL)::
 
-    PYTHONPATH=backend python backend/patch_gate_2009_ae_q13_latex.py
+    PYTHONPATH=backend python backend/patch_gate_2021_ae_q42_stem.py
 """
 
 from __future__ import annotations
@@ -24,14 +24,21 @@ from pathlib import Path
 
 from sqlalchemy import text
 
-PUBLIC_ID = "GATE_2009_AE_Q13"
+PUBLIC_ID = "GATE_2021_AE_Q42"
+
+QUESTION_TEXT = (
+    "Consider a model of a boundary layer with the following velocity profile: "
+    "u/U = (y/δ)² for 0 ≤ y ≤ δ, and u/U = 1 for y > δ. "
+    "The shape factor, defined as the ratio of the displacement thickness δ* to the momentum thickness θ, "
+    "for this profile is ________ (round off to 2 decimal places)."
+)
 
 QUESTION_TEXT_LATEX = (
-    r"The relation between an airplane's true airspeed $V_{\mathrm{TAS}}$ and "
-    r"equivalent airspeed $V_{\mathrm{EAS}}$ in terms of the density ratio "
-    r"$\sigma=\dfrac{\rho}{\rho_0}$, where $\rho_0$ is the air density at sea level and "
-    r"$\rho$ is the air density at the altitude at which the airplane is flying, "
-    r"is given by the formula:"
+    r"Consider a model of a boundary layer with the velocity profile "
+    r"\[\frac{u}{U}=\begin{cases}\left(\dfrac{y}{\delta}\right)^2, & 0\le y\le\delta,\\"
+    r"1, & y>\delta.\end{cases}\] "
+    r"The shape factor, defined as the ratio of the displacement thickness $\delta^*$ to the momentum "
+    r"thickness $\theta$, for this profile is $\underline{\hspace{2.5em}}$ (round off to 2 decimal places)."
 )
 
 DEFAULT_JSON = Path(__file__).resolve().parent / "scripts/latex_bulk/out/db_all_questions.json"
@@ -48,6 +55,7 @@ def patch_json_file(path: Path) -> None:
     found = False
     for q in data:
         if isinstance(q, dict) and q.get("question_id") == PUBLIC_ID:
+            q["question_text"] = QUESTION_TEXT
             q["question_text_latex"] = QUESTION_TEXT_LATEX
             found = True
             break
@@ -56,7 +64,7 @@ def patch_json_file(path: Path) -> None:
         raise SystemExit(f"Question not found in JSON: {PUBLIC_ID}")
 
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("patched question_text_latex in", path)
+    print("patched question_text + question_text_latex in", path)
 
 
 async def patch_database() -> None:
@@ -72,13 +80,18 @@ async def patch_database() -> None:
 
         await conn.execute(
             text(
-                "UPDATE questions SET question_text_latex=:qtl, updated_at=:u "
+                "UPDATE questions SET question_text=:qt, question_text_latex=:qtl, updated_at=:u "
                 "WHERE question_id=:q"
             ),
-            {"qtl": QUESTION_TEXT_LATEX, "u": datetime.utcnow(), "q": PUBLIC_ID},
+            {
+                "qt": QUESTION_TEXT,
+                "qtl": QUESTION_TEXT_LATEX,
+                "u": datetime.utcnow(),
+                "q": PUBLIC_ID,
+            },
         )
 
-    print("patched question_text_latex in database for", PUBLIC_ID)
+    print("patched question_text + question_text_latex in database for", PUBLIC_ID)
 
 
 def main() -> None:

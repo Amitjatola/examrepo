@@ -21,5 +21,15 @@ export const selectQuestionStemText = (question) => {
 
     if (latexLooksLikeShortNumericFragment && plainHasSentenceEnd) return plain
 
+    // Legacy DB/export: prose stuffed in \text{...} then raw \begin{cases}... without proper row breaks
+    // or display wrappers (e.g. "y \le \delta \ 1" instead of "\\ 1"). Prefer plain stem when readable.
+    if (
+        plain.length >= 60 &&
+        /^\\text\{/.test(latex) &&
+        (latex.includes('\\begin{cases}') || latex.includes('\\\\text{'))
+    ) {
+        return plain
+    }
+
     return latex
 }

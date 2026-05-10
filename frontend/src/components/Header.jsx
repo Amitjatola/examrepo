@@ -43,17 +43,22 @@ const Header = ({ toggleTheme, theme, showSearch = true, variant = 'default', on
             <div className={`flex-1 ${isDetail ? '' : 'max-w-xl mr-8'}`}>
                 {isDetail ? (
                     /* Breadcrumbs */
-                    <div className="hidden md:flex flex-wrap gap-2 items-center">
+                    <div className="hidden md:flex items-center gap-2 min-w-0 overflow-hidden">
                         {breadcrumbs.length > 0 ? (
                             breadcrumbs.map((crumb, index) => (
                                 <React.Fragment key={index}>
                                     <button
                                         onClick={crumb.onClick}
-                                        className={`text-sm font-medium transition-colors cursor-pointer ${index === breadcrumbs.length - 1 ? 'text-slate-900 dark:text-white font-semibold cursor-default' : 'text-[#617589] dark:text-gray-400 hover:text-primary'}`}
+                                        title={normalizeBreadcrumbLabel(crumb.label)}
+                                        className={`text-sm font-medium transition-colors cursor-pointer ${
+                                            index === breadcrumbs.length - 1
+                                                ? 'text-slate-900 dark:text-white font-semibold cursor-default truncate min-w-0'
+                                                : 'text-[#617589] dark:text-gray-400 hover:text-primary shrink-0 whitespace-nowrap'
+                                        }`}
                                     >
                                         {normalizeBreadcrumbLabel(crumb.label)}
                                     </button>
-                                    {index < breadcrumbs.length - 1 && <ChevronRight size={16} className="text-[#617589]" />}
+                                    {index < breadcrumbs.length - 1 && <ChevronRight size={16} className="text-[#617589] shrink-0" />}
                                 </React.Fragment>
                             ))
                         ) : (
