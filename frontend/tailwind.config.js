@@ -8,14 +8,13 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#3858fa", // Landing primary
-                "background-light": "#f5f6f8",
-                "background-dark": "#0f1323", // Landing bg dark
-                "card-dark": "#181d35", // Landing surface
-                "border-dark": "#2f396a", // Landing border
-                // Keeping landing-* aliases for backward compatibility if needed, but mapping them to the above is cleaner
+                "primary": "#3858fa",
+                "background-light": "#f5f7fb",
+                "background-dark": "#0f1323",
+                "card-dark": "#181d35",
+                "border-dark": "#2f396a",
                 "landing-primary": "#3858fa",
-                "landing-bg-light": "#f5f6f8",
+                "landing-bg-light": "#f5f7fb",
                 "landing-bg-dark": "#0f1323",
                 "landing-surface": "#181d35",
                 "landing-border": "#2f396a",

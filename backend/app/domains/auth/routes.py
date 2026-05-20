@@ -40,6 +40,36 @@ async def login_with_google(token_data: schemas.GoogleAuthToken, session: AsyncS
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.post("/register", response_model=schemas.Token)
+async def register_with_email_password(
+    body: schemas.UserCreate,
+    session: AsyncSession = Depends(get_session),
+):
+    """Create account with email and password."""
+    email = str(body.email).strip().lower()
+    if len(body.password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters",
+        )
+
+    existing = await services.get_user_by_email(session, email)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An account with this email already exists",
+        )
+
+    user_create = schemas.UserCreate(
+        email=email,
+        password=body.password,
+        full_name=body.full_name,
+    )
+    user = await services.create_user(session=session, user=user_create)
+    access_token = services.create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @router.post("/login", response_model=schemas.Token)
 async def login_with_email_password(
     body: schemas.UserLogin,

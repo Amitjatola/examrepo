@@ -114,6 +114,30 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const registerWithEmailPassword = async (email, password, fullName) => {
+        try {
+            const data = await api.post('/auth/register', { email, password, full_name: fullName || email.split('@')[0] });
+            localStorage.setItem('token', data.access_token);
+            setToken(data.access_token);
+            const me = await api.get('/auth/me');
+            const userData = {
+                email: me.email,
+                full_name: me.full_name || me.email.split('@')[0],
+            };
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setAuthModalOpen(false);
+            await fetchSubscription();
+            return { success: true };
+        } catch (error) {
+            console.error('Email register error:', error);
+            return {
+                success: false,
+                error: error?.message || 'Registration failed',
+            };
+        }
+    };
+
     const loginWithGoogle = async (credential) => {
         try {
             const data = await api.post('/auth/google', { token: credential });
@@ -154,12 +178,18 @@ export const AuthProvider = ({ children }) => {
 
     const openLogin = () => {
         setAuthMode('login');
+        setAuthPromptMessage('');
         setAuthModalOpen(true);
     };
 
     const openRegister = () => {
         setAuthMode('register');
+        setAuthPromptMessage('');
         setAuthModalOpen(true);
+    };
+
+    const openGetStarted = () => {
+        openRegister();
     };
 
     const closeAuthModal = () => {
@@ -185,6 +215,7 @@ export const AuthProvider = ({ children }) => {
             isLoading,
             loginWithGoogle,
             loginWithEmailPassword,
+            registerWithEmailPassword,
             logout,
             fetchSubscription,
             authModalOpen,
@@ -192,6 +223,7 @@ export const AuthProvider = ({ children }) => {
             authPromptMessage,
             openLogin,
             openRegister,
+            openGetStarted,
             closeAuthModal,
             setAuthMode,
             requireAuth

@@ -30,7 +30,7 @@ const normalizeDisplayText = (value) => {
 
 function MainContent() {
     const { theme, toggleTheme } = useTheme();
-    const { openLogin, openRegister, user, logout, isPremium } = useAuth();
+    const { openLogin, openGetStarted, user, logout, isPremium } = useAuth();
     const [isZenMode, setIsZenMode] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
 
     // Persist app state to localStorage for page refresh support
@@ -897,12 +897,7 @@ function MainContent() {
                         currentTheme={theme}
                         toggleTheme={toggleTheme}
                         onStart={() => setView('home')}
-                        onLogin={() => {
-                            openLogin();
-                        }}
-                        onRegister={() => {
-                            openRegister();
-                        }}
+                        onGetStarted={openGetStarted}
                         user={user}
                         onLogout={logout}
                     />
